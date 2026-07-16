@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight
+  Sun, Moon, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -41,8 +41,9 @@ function RekanLogo({ size = 20, collapsed = false }) {
   );
 }
 
-export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {} }) {
+export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {}, onDeleteProject = () => {} }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [hoveredProject, setHoveredProject] = useState(null);
 
   const sidebarWidth = collapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)';
 
@@ -147,35 +148,56 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
         {/* Individual Projects */}
         {projects.map(proj => {
           const isActive = currentProjectId === proj.id;
+          const isHovered = hoveredProject === proj.id;
           return (
-            <button
+            <div
               key={proj.id}
-              onClick={() => { onSelectProject(proj.id); onNavigate('dashboard'); }}
-              title={collapsed ? proj.name : undefined}
-              style={{
-                ...styles.navItem,
-                backgroundColor: isActive ? 'var(--emerald-bg)' : 'transparent',
-                color: isActive ? 'var(--emerald-dark)' : 'var(--text-secondary)',
-                borderLeft: isActive ? '3px solid var(--emerald)' : '3px solid transparent',
-                paddingLeft: isActive ? '13px' : '13px',
-                fontWeight: isActive ? 600 : 500,
-                justifyContent: collapsed ? 'center' : 'flex-start',
-              }}
+              onMouseEnter={() => setHoveredProject(proj.id)}
+              onMouseLeave={() => setHoveredProject(null)}
+              style={{ position: 'relative' }}
             >
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: proj.color,
-                marginRight: collapsed ? 0 : '8px',
-                flexShrink: 0
-              }} />
-              {!collapsed && (
-                <span style={{ fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {proj.name}
-                </span>
+              <button
+                onClick={() => { onSelectProject(proj.id); onNavigate('dashboard'); }}
+                title={collapsed ? proj.name : undefined}
+                style={{
+                  ...styles.navItem,
+                  backgroundColor: isActive ? 'var(--emerald-bg)' : 'transparent',
+                  color: isActive ? 'var(--emerald-dark)' : 'var(--text-secondary)',
+                  borderLeft: isActive ? '3px solid var(--emerald)' : '3px solid transparent',
+                  paddingLeft: isActive ? '13px' : '13px',
+                  fontWeight: isActive ? 600 : 500,
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                }}
+              >
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: proj.color,
+                  marginRight: collapsed ? 0 : '8px',
+                  flexShrink: 0
+                }} />
+                {!collapsed && (
+                  <span style={{ fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {proj.name}
+                  </span>
+                )}
+              </button>
+              {!collapsed && isHovered && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (window.confirm(`Hapus project "${proj.name}"? Semua board dan tugas di dalamnya juga akan dihapus.`)) {
+                      onDeleteProject(proj.id);
+                    }
+                  }}
+                  title="Hapus project"
+                  style={styles.deleteBtn}
+                >
+                  <Trash2 size={12} />
+                </button>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
@@ -381,5 +403,23 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+  },
+  deleteBtn: {
+    position: 'absolute',
+    right: '8px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: '22px',
+    height: '22px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 'var(--r-sm)',
+    border: 'none',
+    background: 'transparent',
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+    zIndex: 2,
   },
 };

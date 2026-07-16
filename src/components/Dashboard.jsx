@@ -2,7 +2,8 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Plus, LayoutDashboard, CheckSquare, Clock,
   MoreVertical, Lock, Globe, Calendar, Trash2, Edit3,
-  Target, Flame, TrendingUp, Activity, ChevronDown
+  Target, Flame, TrendingUp, Activity, ChevronDown,
+  ListTodo, Circle, ArrowUpRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StatsCard from './StatsCard';
@@ -27,26 +28,27 @@ const DAYS_PER_WEEK = 7;
 const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 /**
- * Build activity grid from boards.
- * Each completed board contributes activity to a random recent day.
- * Empty = only border-coloured cells.
+ * Build activity grid from completed tasks & projects.
  */
-function buildActivityData(boards) {
-  // Count completed boards (completedTasks === totalTasks)
-  const totalCells = WEEKS * DAYS_PER_WEEK;
+function buildActivityData(boards, tasks, projects) {
   const data = Array.from({ length: WEEKS }, () => Array(DAYS_PER_WEEK).fill(0));
 
-  boards.forEach((b) => {
-    const completed = b.completedTasks ?? 0;
-    const total = b.totalTasks ?? 0;
-    if (total === 0) return;
-    // add 1-4 activity per completed task scattered across recent weeks
-    for (let i = 0; i < completed; i++) {
-      const w = Math.floor(Math.random() * (WEEKS - 2)) + 1;
-      const d = Math.floor(Math.random() * DAYS_PER_WEEK);
-      data[w][d] = Math.min(data[w][d] + Math.ceil(Math.random() * 3), 8);
-    }
+  // Count completed tasks
+  const doneTasks = tasks.filter(t => t.status === 'Done');
+  doneTasks.forEach((t, i) => {
+    const dayOffset = (i * 3) % (WEEKS * DAYS_PER_WEEK);
+    const w = Math.floor(dayOffset / DAYS_PER_WEEK);
+    const d = dayOffset % DAYS_PER_WEEK;
+    data[w][d] = Math.min(data[w][d] + 1, 8);
   });
+
+  // Add activity for completed projects
+  projects.filter(p => p.completed).forEach((p) => {
+    const w = Math.floor(Math.random() * Math.max(WEEKS - 2, 1)) + 1;
+    const d = Math.floor(Math.random() * DAYS_PER_WEEK);
+    data[w][d] = Math.min(data[w][d] + 3, 8);
+  });
+
   return data;
 }
 
@@ -82,19 +84,23 @@ function CellTooltip({ count, date }) {
   );
 }
 
-function ActivityCalendar({ boards, selectedProject }) {
+function ActivityCalendar({ boards, tasks, projects, selectedProject }) {
   const [hovered, setHovered] = useState(null);
   const [cellRects, setCellRects] = useState({});
   const cellRefs = useRef({});
 
-  // Recompute when boards / selectedProject changes
   const activityData = useMemo(() => {
-    const filtered = selectedProject === 'all'
+    const filteredBoards = selectedProject === 'all'
       ? boards
       : boards.filter(b => b.projectId === selectedProject);
-    return buildActivityData(filtered);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [boards, selectedProject]);
+    const filteredTasks = selectedProject === 'all'
+      ? tasks
+      : tasks.filter(t => t.projectId === selectedProject);
+    const filteredProjects = selectedProject === 'all'
+      ? projects
+      : projects.filter(p => p.id === selectedProject);
+    return buildActivityData(filteredBoards, filteredTasks, filteredProjects);
+  }, [boards, tasks, projects, selectedProject]);
 
   const today = new Date();
 
@@ -665,22 +671,21 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } },
 };
 
-export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, onDeleteBoard, projects = [], currentProjectId = 'all', onSelectProject = () => { } }) {
+export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, onDeleteBoard, projects = [], currentProjectId = 'all', onSelectProject = () => { }, onAddProject = () => { } }) {
   const selectedProject = currentProjectId;
   const setSelectedProject = onSelectProject;
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === 'Done').length;
-  const activeTasks = tasks.filter(t => t.status !== 'Done').length;
+  const activeProjects = projects.filter(p => !p.completed).length;
   const completePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  const upcomingTasks = tasks.filter(t => t.status !== 'Done').slice(0, 6);
 
-  // Attach mock task counts to boards (stable across renders)
-  const enrichedBoards = useMemo(() => boards.map((b, i) => ({
-    ...b,
-    totalTasks: [5, 8, 3, 6][i % 4],
-    completedTasks: [3, 5, 1, 4][i % 4],
-  })), [boards]);
+  const enrichedBoards = useMemo(() => boards.map(b => {
+    const boardTasks = tasks.filter(t => t.boardId === b.id);
+    const totalTasks = boardTasks.length;
+    const completedTasks = boardTasks.filter(t => t.status === 'Done').length;
+    return { ...b, totalTasks, completedTasks };
+  }), [boards, tasks]);
 
   // Filter boards shown in the card grid
   const visibleBoards = selectedProject === 'all'
@@ -695,9 +700,14 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
           <h1 style={styles.h1}>Dashboard</h1>
           <p style={styles.subtitle}>Selamat datang kembali! Pantau progres pekerjaan Anda hari ini.</p>
         </div>
-        <button className="btn btn-primary" onClick={onCreateBoard}>
-          <Plus size={16} /> Buat Board
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button className="btn btn-ghost" onClick={onAddProject}>
+            <Plus size={16} /> Project Baru
+          </button>
+          <button className="btn btn-primary" onClick={onCreateBoard}>
+            <Plus size={16} /> Buat Board
+          </button>
+        </div>
       </div>
 
       {/* Stats Row */}
@@ -712,7 +722,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
           <StatsCard label="Selesai" value={completedTasks} percentage={completePct} icon={CheckSquare} color="emerald" />
         </motion.div>
         <motion.div variants={itemVariants}>
-          <StatsCard label="Aktif / Berjalan" value={activeTasks} icon={Flame} color="warning" />
+          <StatsCard label="Project Aktif" value={activeProjects} icon={Flame} color="warning" />
         </motion.div>
       </motion.div>
 
@@ -731,7 +741,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
               onChange={setSelectedProject}
             />
           </div>
-          <ActivityCalendar boards={enrichedBoards} selectedProject={selectedProject} />
+          <ActivityCalendar boards={enrichedBoards} tasks={tasks} projects={projects} selectedProject={selectedProject} />
         </div>
       </motion.div>
 
@@ -784,26 +794,75 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
           )}
         </div>
 
-        {/* Right: Upcoming Tasks */}
+        {/* Right: Task Overview */}
         <div style={styles.rightCol}>
           <div style={styles.sectionHead}>
-            <h2 style={styles.h2}>Tugas Mendatang</h2>
-            <span className="badge badge-emerald">{upcomingTasks.length}</span>
+            <h2 style={styles.h2}>Ringkasan Tugas</h2>
+            <span className="badge badge-emerald">{tasks.length} Total</span>
           </div>
 
-          <div style={styles.taskPanel}>
-            {upcomingTasks.length === 0 ? (
-              <div style={styles.empty}>
-                <CheckSquare size={32} color="var(--text-muted)" />
-                <p style={styles.emptyText}>Semua tugas selesai. Kerja bagus! 🎉</p>
+          <div style={styles.summaryPanel}>
+            {/* Status Distribution */}
+            <div style={styles.distList}>
+              {[
+                { label: 'To Do', count: tasks.filter(t => t.status === 'To Do').length, color: '#F59E0B', bg: '#FFFBEB', icon: ListTodo },
+                { label: 'In Progress', count: tasks.filter(t => t.status === 'In Progress').length, color: '#3B82F6', bg: '#DBEAFE', icon: Clock },
+                { label: 'Done', count: tasks.filter(t => t.status === 'Done').length, color: '#10B981', bg: '#D1FAE5', icon: CheckSquare },
+              ].map(item => {
+                const pct = tasks.length > 0 ? Math.round((item.count / tasks.length) * 100) : 0;
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} style={styles.distItem}>
+                    <div style={styles.distHeader}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ ...styles.distIcon, backgroundColor: item.bg, color: item.color }}>
+                          <Icon size={14} />
+                        </div>
+                        <span style={styles.distLabel}>{item.label}</span>
+                      </div>
+                      <span style={{ ...styles.distCount, color: item.color }}>{item.count}</span>
+                    </div>
+                    <div style={styles.progressTrack}>
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+                        style={{ ...styles.progressFill, backgroundColor: item.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div style={styles.divider} />
+
+            {/* Recent Boards */}
+            <div style={styles.recentSection}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                <Activity size={13} color="var(--text-muted)" />
+                <span style={styles.recentTitle}>Board Terbaru</span>
               </div>
-            ) : (
-              <div>
-                {upcomingTasks.map(task => (
-                  <TaskRow key={task.id} task={task} />
-                ))}
-              </div>
-            )}
+              {boards.length === 0 ? (
+                <p style={styles.recentEmpty}>Belum ada board.</p>
+              ) : (
+                <div style={styles.recentList}>
+                  {boards.slice(0, 4).map(board => (
+                    <div key={board.id} style={styles.recentItem}>
+                      <div style={{ ...styles.recentDot, backgroundColor: board.color || '#10B981' }} />
+                      <span style={styles.recentName}>{board.name}</span>
+                      <span style={styles.recentDate}>{formatDate(board.createdAt)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quick action */}
+            <button className="btn btn-ghost btn-sm" onClick={onCreateBoard} style={{ width: '100%', justifyContent: 'center' }}>
+              <Plus size={14} /> Buat Board Baru
+            </button>
           </div>
         </div>
       </div>
@@ -906,6 +965,107 @@ const styles = {
     borderRadius: 'var(--r-lg)',
     padding: '16px 20px',
     boxShadow: 'var(--shadow-sm)',
+  },
+  summaryPanel: {
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-lg)',
+    padding: '20px',
+    boxShadow: 'var(--shadow-sm)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  distList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+  },
+  distItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
+  },
+  distHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  distIcon: {
+    width: '28px',
+    height: '28px',
+    borderRadius: 'var(--r-md)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  distLabel: {
+    fontSize: 'var(--text-sm)',
+    fontWeight: 600,
+    color: 'var(--text-secondary)',
+  },
+  distCount: {
+    fontSize: 'var(--text-base)',
+    fontWeight: 700,
+  },
+  progressTrack: {
+    height: '4px',
+    backgroundColor: 'var(--border)',
+    borderRadius: 'var(--r-full)',
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 'var(--r-full)',
+    transition: 'width 0.6s cubic-bezier(0.4,0,0.2,1)',
+  },
+  divider: {
+    height: '1px',
+    backgroundColor: 'var(--border)',
+  },
+  recentSection: {},
+  recentTitle: {
+    fontSize: 'var(--text-sm)',
+    fontWeight: 600,
+    color: 'var(--text-secondary)',
+  },
+  recentList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  recentItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '6px 0',
+  },
+  recentDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  recentName: {
+    fontSize: 'var(--text-sm)',
+    fontWeight: 500,
+    color: 'var(--text-primary)',
+    flex: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  recentDate: {
+    fontSize: 'var(--text-xs)',
+    color: 'var(--text-muted)',
+    whiteSpace: 'nowrap',
+  },
+  recentEmpty: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    textAlign: 'center',
+    padding: '12px',
   },
   empty: {
     padding: '40px 20px',

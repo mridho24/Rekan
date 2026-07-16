@@ -3,13 +3,14 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import CreateBoardModal from './components/CreateBoardModal';
 import CreateProjectModal from './components/CreateProjectModal';
+import BoardPage from './components/BoardPage';
 import './index.css';
 
 // ─── Mock Data ──────────────────────────────────────────
 const INITIAL_PROJECTS = [
-  { id: 'proj-1', name: 'Project Kuliah', color: '#6366F1' },
-  { id: 'proj-2', name: 'Project Kantor', color: '#10B981' },
-  { id: 'proj-3', name: 'Personal Sandbox', color: '#F59E0B' }
+  { id: 'proj-1', name: 'Project Kuliah', color: '#6366F1', completed: false },
+  { id: 'proj-2', name: 'Project Kantor', color: '#10B981', completed: false },
+  { id: 'proj-3', name: 'Personal Sandbox', color: '#F59E0B', completed: false }
 ];
 
 const INITIAL_BOARDS = [
@@ -45,48 +46,58 @@ const INITIAL_BOARDS = [
 const INITIAL_TASKS = [
   {
     id: 'task-1',
+    projectId: 'proj-1',
+    boardId: 'board-1',
     title: 'Desain Database Schema',
     description: 'Merancang relasi antar tabel profiles, boards, lists, dan tasks.',
     priority: 'High',
     status: 'In Progress',
     deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    labels: ['Database', 'Perancangan']
+    labels: ['Database', 'Perancangan'],
   },
   {
     id: 'task-2',
+    projectId: 'proj-2',
+    boardId: 'board-2',
     title: 'Slicing UI Login & Register',
     description: 'Membuat formulir validasi email dan password.',
     priority: 'Medium',
     status: 'To Do',
     deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    labels: ['UI/UX', 'Frontend']
+    labels: ['UI/UX', 'Frontend'],
   },
   {
     id: 'task-3',
+    projectId: 'proj-1',
+    boardId: 'board-1',
     title: 'Integrasi API Board CRUD',
     description: 'Menyambungkan frontend React ke Express API.',
     priority: 'High',
     status: 'To Do',
     deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    labels: ['API', 'Frontend']
+    labels: ['API', 'Backend'],
   },
   {
     id: 'task-4',
+    projectId: 'proj-1',
+    boardId: 'board-1',
     title: 'Menyusun Bahan Presentasi',
     description: 'Slide untuk demo kemajuan mingguan.',
     priority: 'Low',
     status: 'Done',
     deadline: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    labels: ['Dokumentasi']
+    labels: ['Dokumentasi'],
   },
   {
     id: 'task-5',
+    projectId: 'proj-2',
+    boardId: 'board-2',
     title: 'Review Pull Request',
     description: 'Tinjau dan merge PR dari branch feature/auth.',
     priority: 'Medium',
     status: 'In Progress',
     deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    labels: ['Review']
+    labels: ['Review'],
   }
 ];
 
@@ -141,10 +152,29 @@ export default function App() {
   const handleSaveProject = (data) => {
     const newProj = {
       id: `proj-${Date.now()}`,
-      ...data
+      ...data,
+      completed: false,
     };
     setProjects(prev => [...prev, newProj]);
     setCurrentProjectId(newProj.id);
+    setActiveView('boards');
+  };
+
+  const handleDeleteProject = (projectId) => {
+    setProjects(prev => prev.filter(p => p.id !== projectId));
+    setBoards(prev => prev.filter(b => b.projectId !== projectId));
+    setTasks(prev => prev.filter(t => t.projectId !== projectId));
+    if (currentProjectId === projectId) {
+      setCurrentProjectId('all');
+    }
+  };
+
+  const handleCompleteProject = (projectId) => {
+    if (window.confirm('Tandai project ini sebagai selesai?')) {
+      setProjects(prev => prev.map(p =>
+        p.id === projectId ? { ...p, completed: true } : p
+      ));
+    }
   };
 
   // Content area
@@ -161,14 +191,23 @@ export default function App() {
             onCreateBoard={handleOpenCreate}
             onEditBoard={handleOpenEdit}
             onDeleteBoard={handleDeleteBoard}
+            onAddProject={() => setIsProjectModalOpen(true)}
           />
         );
       case 'boards':
         return (
-          <div style={styles.placeholder}>
-            <h2 style={styles.placeholderTitle}>Boards</h2>
-            <p style={styles.placeholderSub}>Halaman ini akan segera tersedia.</p>
-          </div>
+          <BoardPage
+            tasks={tasks}
+            onUpdateTasks={setTasks}
+            boards={boards}
+            projects={projects}
+            currentProjectId={currentProjectId}
+            onSelectProject={setCurrentProjectId}
+            onCreateBoard={handleOpenCreate}
+            onCompleteProject={handleCompleteProject}
+            onAddProject={() => setIsProjectModalOpen(true)}
+            onDeleteProject={handleDeleteProject}
+          />
         );
       case 'tasks':
         return (
@@ -201,6 +240,7 @@ export default function App() {
         currentProjectId={currentProjectId}
         onSelectProject={setCurrentProjectId}
         onCreateProjectClick={() => setIsProjectModalOpen(true)}
+        onDeleteProject={handleDeleteProject}
       />
 
       {/* Main scrollable content */}
