@@ -116,7 +116,7 @@ export default function App() {
   // Sync HTML background colour
   useEffect(() => {
     document.documentElement.style.backgroundColor =
-      theme === 'dark' ? '#111827' : '#F9FAFB';
+      theme === 'dark' ? '#000000' : '#F9FAFB';
   }, [theme]);
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
