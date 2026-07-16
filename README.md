@@ -1,40 +1,29 @@
-# Rekan - Task Management Application
+# Rekan - Frontend
 
-**Rekan** is a modern, premium, and fully responsive task management application (Trello Clone) designed to help you visually organize and track your projects.
+Aplikasi manajemen tugas berbasis React dengan tampilan board Kanban, drag & drop, dan dashboard interaktif.
 
----
+## Fitur
 
-## 🚀 Key Features
+- **Dashboard** — Statistik tugas, activity calendar, ringkasan project & board
+- **Board Kanban** — Drag & drop task antar kolom To Do / In Progress / Done
+- **Multi Project** — Setiap project punya board dan task sendiri
+- **Detail Task** — Modal edit dengan status, prioritas, deadline, dan kategori
+- **Dark / Light Mode** — Toggle tema dengan transisi mulus
+- **Animasi** — Framer Motion untuk interaksi yang halus
 
-* **Multi-Project Workspace**: Create custom projects with dynamic color themes. Each project automatically starts with a clean workspace of boards and a separate activity tracker.
-* **Interactive Boards**: Manage project boards with customizable progress trackers, private/public visibility settings, and beautiful hover animations.
-* **Full-Width Activity Calendar**: Monitor task completion rates with a GitHub-style activity grid, featuring smooth, animated hover tooltips showing dates and completion details.
-* **Premium Dark & Light Modes**: Easily switch between polished dark and light themes with curated color tokens.
+## Tech Stack
 
----
+- React 19 + Vite
+- Framer Motion
+- Lucide Icons
+- Supabase Client
 
-## 🛠️ Tech Stack
+## Cara Menjalankan
 
-* **Frontend**: React (Vite), Framer Motion, Lucide Icons, Vanilla CSS.
-* **Backend**: Node.js, Express.js.
-* **Database**: Supabase (PostgreSQL).
-
----
-
-## 📦 Getting Started
-
-### 1. Run Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open [http://localhost:5173/](http://localhost:5173/) in your browser.
 
-### 2. Run Backend
-```bash
-cd backend
-npm install
-npm start
-```
-Configure your database connection keys in the backend `.env` file before launching.
+Buka [http://localhost:5173/](http://localhost:5173/) di browser.
