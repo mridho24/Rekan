@@ -7,6 +7,7 @@ import CreateProjectModal from './components/CreateProjectModal';
 import { LogOut } from 'lucide-react';
 import BoardPage from './components/BoardPage';
 import TestimonialsPage from './components/TestimonialsPage';
+import AllTasksPage from './components/AllTasksPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
@@ -26,6 +27,7 @@ const INITIAL_BOARDS = [
     name: 'Frontend Development',
     description: 'Tugas Akhir dan riset kelompok pengembangan web semester akhir.',
     color: '#6366F1',
+    status: 'inprogress',
     isPrivate: true,
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
   },
@@ -35,6 +37,7 @@ const INITIAL_BOARDS = [
     name: 'Database Migration',
     description: 'Migrasi database ke PostgreSQL dan implementasi CI/CD pipeline.',
     color: '#10B981',
+    status: 'todo',
     isPrivate: false,
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
   },
@@ -44,6 +47,7 @@ const INITIAL_BOARDS = [
     name: 'UI/UX Sandbox',
     description: 'Eksperimen UI baru dan uji coba framework JavaScript terbaru.',
     color: '#F59E0B',
+    status: 'done',
     isPrivate: true,
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
   }
@@ -60,6 +64,11 @@ const INITIAL_TASKS = [
     status: 'In Progress',
     deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['Database', 'Perancangan'],
+    subtasks: [
+      { id: 'st-1', text: 'Buat ERD diagram', done: true },
+      { id: 'st-2', text: 'Tentukan relasi foreign key', done: true },
+      { id: 'st-3', text: 'Tulis migration SQL', done: false },
+    ],
   },
   {
     id: 'task-2',
@@ -71,6 +80,10 @@ const INITIAL_TASKS = [
     status: 'To Do',
     deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['UI/UX', 'Frontend'],
+    subtasks: [
+      { id: 'st-4', text: 'Buat komponen form input', done: false },
+      { id: 'st-5', text: 'Implementasi validasi client', done: false },
+    ],
   },
   {
     id: 'task-3',
@@ -82,6 +95,7 @@ const INITIAL_TASKS = [
     status: 'To Do',
     deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['API', 'Backend'],
+    subtasks: [],
   },
   {
     id: 'task-4',
@@ -94,6 +108,7 @@ const INITIAL_TASKS = [
     deadline: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['Dokumentasi'],
+    subtasks: [],
   },
   {
     id: 'task-5',
@@ -105,6 +120,10 @@ const INITIAL_TASKS = [
     status: 'In Progress',
     deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['Review'],
+    subtasks: [
+      { id: 'st-6', text: 'Review kode perubahan auth', done: true },
+      { id: 'st-7', text: 'Cek potential security issue', done: false },
+    ],
   }
 ];
 
@@ -210,23 +229,52 @@ export default function App() {
   const handleSaveBoard  = (data) => {
     if (editingBoard) {
       setBoards(bs => bs.map(b => b.id === editingBoard.id
-        ? { ...b, ...data, updatedAt: new Date().toISOString() } : b));
+        ? { ...b, ...data.board ?? data, updatedAt: new Date().toISOString() } : b));
     } else {
-      // Map board to active project. If 'all', default to the first project or the one created.
       const activeProjId = currentProjectId === 'all' ? (projects[0]?.id || 'proj-1') : currentProjectId;
+      const boardId = `board-${Date.now()}`;
+      const boardData = data.board ?? data;
       setBoards(bs => [{
-        id: `board-${Date.now()}`,
+        id: boardId,
         projectId: activeProjId,
-        ...data,
+        ...boardData,
+        status: 'todo',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }, ...bs]);
+
+      if (data.tasks?.length > 0) {
+        setTasks(prev => [
+          ...data.tasks.map((t, i) => ({
+            id: `task-${Date.now()}-${i}`,
+            projectId: activeProjId,
+            boardId,
+            title: t.title,
+            description: null,
+            priority: 'Medium',
+            status: 'To Do',
+            deadline: null,
+            labels: [],
+            subtasks: (t.subtasks || []).filter(st => st.text.trim()).map((st, j) => ({
+              id: `st-${Date.now()}-${i}-${j}`,
+              text: st.text.trim(),
+              done: false,
+            })),
+          })),
+          ...prev,
+        ]);
+      }
     }
+  };
+
+  const handleUpdateBoards = (updater) => {
+    setBoards(prev => typeof updater === 'function' ? updater(prev) : updater);
   };
 
   const handleDeleteBoard = (id) => {
     if (window.confirm('Hapus board ini? Tindakan ini tidak dapat diurungkan.')) {
       setBoards(bs => bs.filter(b => b.id !== id));
+      setTasks(prev => prev.filter(t => t.boardId !== id));
     }
   };
 
@@ -283,6 +331,7 @@ export default function App() {
             tasks={tasks}
             onUpdateTasks={handleUpdateTasks}
             boards={boards}
+            onUpdateBoards={handleUpdateBoards}
             projects={projects}
             currentProjectId={currentProjectId}
             onSelectProject={setCurrentProjectId}
@@ -290,14 +339,16 @@ export default function App() {
             onCompleteProject={handleCompleteProject}
             onAddProject={() => setIsProjectModalOpen(true)}
             onDeleteProject={handleDeleteProject}
+            onDeleteBoard={handleDeleteBoard}
           />
         );
       case 'tasks':
         return (
-          <div style={styles.placeholder}>
-            <h2 style={styles.placeholderTitle}>All Tasks</h2>
-            <p style={styles.placeholderSub}>Halaman ini akan segera tersedia.</p>
-          </div>
+          <AllTasksPage
+            tasks={tasks}
+            boards={boards}
+            projects={projects}
+          />
         );
       case 'search':
         return (
