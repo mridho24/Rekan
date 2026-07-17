@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import CreateBoardModal from './components/CreateBoardModal';
 import CreateProjectModal from './components/CreateProjectModal';
 import BoardPage from './components/BoardPage';
+import TestimonialsPage from './components/TestimonialsPage';
 import Pet from './components/Pet';
 import './index.css';
 
@@ -87,6 +88,7 @@ const INITIAL_TASKS = [
     priority: 'Low',
     status: 'Done',
     deadline: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     labels: ['Dokumentasi'],
   },
   {
@@ -114,16 +116,53 @@ export default function App() {
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [editingBoard,      setEditingBoard]      = useState(null);
   const [completionTrigger, setCompletionTrigger] = useState(0);
+  const [activityLog, setActivityLog] = useState([]);
 
   const handleUpdateTasks = (updater) => {
     setTasks(prev => {
-      const prevDone = prev.filter(t => t.status === 'Done').length;
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      const nextDone = next.filter(t => t.status === 'Done').length;
+      const newActivity = [];
+
+      next.forEach(t => {
+        const prevTask = prev.find(pt => pt.id === t.id);
+        const isNewlyDone = t.status === 'Done' && (!prevTask || prevTask.status !== 'Done');
+        if (isNewlyDone) {
+          newActivity.push({ type: 'task_done', title: t.title, timestamp: new Date().toISOString() });
+        } else if (prevTask && prevTask.status === 'Done' && t.status !== 'Done') {
+          newActivity.push({ type: 'task_uncompleted', title: t.title, timestamp: new Date().toISOString() });
+        }
+      });
+
+      prev.forEach(pt => {
+        if (!next.find(nt => nt.id === pt.id)) {
+          newActivity.push({ type: 'task_deleted', title: pt.title, timestamp: new Date().toISOString() });
+        }
+      });
+
+      next.forEach(t => {
+        if (!prev.find(pt => pt.id === t.id)) {
+          newActivity.push({ type: 'task_created', title: t.title, timestamp: new Date().toISOString() });
+        }
+      });
+
+      if (newActivity.length > 0) {
+        setActivityLog(log => [...newActivity.map(a => ({ ...a, id: Date.now() + Math.random() })), ...log].slice(0, 50));
+      }
+
+      const prevDone = prev.filter(t => t.status === 'Done').length;
+      const withCompletedAt = next.map(t => {
+        const prevTask = prev.find(pt => pt.id === t.id);
+        if (t.status === 'Done' && (!prevTask || prevTask.status !== 'Done')) {
+          setCompletionTrigger(c => c + 1);
+          return { ...t, completedAt: new Date().toISOString() };
+        }
+        return t;
+      });
+      const nextDone = withCompletedAt.filter(t => t.status === 'Done').length;
       if (nextDone > prevDone) {
         setCompletionTrigger(c => c + 1);
       }
-      return next;
+      return withCompletedAt;
     });
   };
 
@@ -200,6 +239,7 @@ export default function App() {
             boards={boards}
             tasks={tasks}
             projects={projects}
+            activityLog={activityLog}
             currentProjectId={currentProjectId}
             onSelectProject={setCurrentProjectId}
             onCreateBoard={handleOpenCreate}
@@ -237,6 +277,8 @@ export default function App() {
             <p style={styles.placeholderSub}>Fitur pencarian akan segera tersedia.</p>
           </div>
         );
+      case 'testimonials':
+        return <TestimonialsPage />;
       default:
         return null;
     }

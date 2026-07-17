@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import {
   Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight, Trash2
+  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SidebarCharacter from './SidebarCharacter';
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'boards',    label: 'Boards',    icon: KanbanSquare },
-  { id: 'tasks',     label: 'All Tasks', icon: ListChecks },
-  { id: 'search',    label: 'Search',    icon: Search },
+  { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
+  { id: 'boards',       label: 'Boards',       icon: KanbanSquare },
+  { id: 'tasks',        label: 'All Tasks',    icon: ListChecks },
+  { id: 'search',       label: 'Search',       icon: Search },
+  { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
 ];
 
 // Rekan SVG Logo
