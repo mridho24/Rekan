@@ -158,6 +158,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ─── Skeleton Loader ────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @keyframes pulse-skeleton {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }

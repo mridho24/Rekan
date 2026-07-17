@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare
+  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare, LogOut
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SidebarCharacter from './SidebarCharacter';
@@ -43,7 +43,7 @@ function RekanLogo({ size = 20, collapsed = false }) {
   );
 }
 
-export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {}, onDeleteProject = () => {} }) {
+export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {}, onDeleteProject = () => {}, onLogout = () => {} }) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredProject, setHoveredProject] = useState(null);
 
@@ -273,6 +273,16 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
               <span style={styles.userEmail}>user@rekan.app</span>
             </div>
           )}
+          <button
+            onClick={onLogout}
+            title="Keluar"
+            style={{
+              ...styles.logoutBtn,
+              marginLeft: collapsed ? '0' : 'auto',
+            }}
+          >
+            <LogOut size={15} />
+          </button>
         </div>
 
       </div>
@@ -282,6 +292,7 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
       <div style={{ flexShrink: 0 }}>
         <SidebarCharacter collapsed={collapsed} theme={theme} />
       </div>
+
     </motion.aside>
   );
 }
@@ -412,6 +423,19 @@ const styles = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+  },
+  logoutBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
+    padding: '6px',
+    borderRadius: 'var(--r-sm)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'var(--t-fast)',
+    flexShrink: 0,
   },
   deleteBtn: {
     position: 'absolute',

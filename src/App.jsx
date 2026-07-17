@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import CreateBoardModal from './components/CreateBoardModal';
 import CreateProjectModal from './components/CreateProjectModal';
+import { LogOut } from 'lucide-react';
 import BoardPage from './components/BoardPage';
 import TestimonialsPage from './components/TestimonialsPage';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
 import './index.css';
 
@@ -107,6 +111,8 @@ const INITIAL_TASKS = [
 // ─── App Root ────────────────────────────────────────────
 export default function App() {
   const [theme,             setTheme]             = useState('light');
+  const [isLoggedIn,        setIsLoggedIn]        = useState(() => localStorage.getItem('rekan_logged_in') === 'true');
+  const [authPage,          setAuthPage]          = useState('register');
   const [activeView,        setActiveView]        = useState('dashboard');
   const [projects,          setProjects]          = useState(INITIAL_PROJECTS);
   const [currentProjectId,  setCurrentProjectId]  = useState('all');
@@ -117,6 +123,29 @@ export default function App() {
   const [editingBoard,      setEditingBoard]      = useState(null);
   const [completionTrigger, setCompletionTrigger] = useState(0);
   const [activityLog, setActivityLog] = useState([]);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleLogin = (userData) => {
+    localStorage.setItem('rekan_logged_in', 'true');
+    if (userData?.name) localStorage.setItem('rekan_user_name', userData.name);
+    if (userData?.email) localStorage.setItem('rekan_user_email', userData.email);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogoutClick = () => setShowLogoutConfirm(true);
+
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem('rekan_logged_in');
+    setShowLogoutConfirm(false);
+    setIsLoggedIn(false);
+  };
+
+  const handleRegister = (userData) => {
+    localStorage.setItem('rekan_logged_in', 'true');
+    localStorage.setItem('rekan_user_name', userData.name);
+    localStorage.setItem('rekan_user_email', userData.email);
+    setIsLoggedIn(true);
+  };
 
   const handleUpdateTasks = (updater) => {
     setTasks(prev => {
@@ -284,6 +313,28 @@ export default function App() {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div className={`app-root ${theme}-theme`} style={{ minHeight: '100vh' }}>
+        {authPage === 'login' ? (
+          <LoginPage
+            onLogin={handleLogin}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onSwitchToRegister={() => setAuthPage('register')}
+          />
+        ) : (
+          <RegisterPage
+            onRegister={handleRegister}
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            onSwitchToLogin={() => setAuthPage('login')}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className={`app-root ${theme}-theme`}>
       {/* Left Sidebar */}
@@ -297,6 +348,7 @@ export default function App() {
         onSelectProject={setCurrentProjectId}
         onCreateProjectClick={() => setIsProjectModalOpen(true)}
         onDeleteProject={handleDeleteProject}
+        onLogout={handleLogoutClick}
       />
 
       {/* Main scrollable content */}
@@ -321,6 +373,48 @@ export default function App() {
 
       {/* Pet Companion */}
       <Pet theme={theme} completionTrigger={completionTrigger} />
+
+      {/* Logout Confirmation */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <div style={styles.confirmOverlay}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLogoutConfirm(false)}
+              style={styles.confirmBackdrop}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0.15 }}
+              style={styles.confirmDialog}
+            >
+              <div style={styles.confirmIcon}>
+                <LogOut size={22} />
+              </div>
+              <h3 style={styles.confirmTitle}>Keluar Aplikasi</h3>
+              <p style={styles.confirmMsg}>Apakah Anda yakin ingin keluar? Anda harus masuk lagi untuk mengakses aplikasi.</p>
+              <div style={styles.confirmActions}>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  style={styles.confirmCancel}
+                >
+                  Tidak
+                </button>
+                <button
+                  onClick={handleLogoutConfirm}
+                  style={styles.confirmYes}
+                >
+                  Ya, Keluar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -349,5 +443,86 @@ const styles = {
   placeholderSub: {
     fontSize: 'var(--text-base)',
     color: 'var(--text-muted)',
+  },
+
+  // Logout Confirm Modal
+  confirmOverlay: {
+    position: 'fixed',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9999,
+    padding: '16px',
+  },
+  confirmBackdrop: {
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 1,
+  },
+  confirmDialog: {
+    position: 'relative',
+    zIndex: 2,
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: 'var(--r-xl)',
+    width: '100%',
+    maxWidth: '380px',
+    padding: '28px 24px 20px',
+    textAlign: 'center',
+    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.35)',
+    border: '1px solid var(--border)',
+  },
+  confirmIcon: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    backgroundColor: 'var(--peach)',
+    color: 'var(--danger)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 14px',
+  },
+  confirmTitle: {
+    fontSize: '16px',
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+    marginBottom: '6px',
+    letterSpacing: '-0.3px',
+  },
+  confirmMsg: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    lineHeight: 1.5,
+    marginBottom: '20px',
+  },
+  confirmActions: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center',
+  },
+  confirmCancel: {
+    padding: '9px 20px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
+    fontWeight: 600,
+    fontSize: '14px',
+    transition: 'var(--t-fast)',
+  },
+  confirmYes: {
+    padding: '9px 20px',
+    borderRadius: 'var(--r-md)',
+    border: 'none',
+    backgroundColor: 'var(--danger)',
+    color: '#ffffff',
+    cursor: 'pointer',
+    fontWeight: 700,
+    fontSize: '14px',
+    transition: 'var(--t-fast)',
   },
 };
