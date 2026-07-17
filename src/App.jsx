@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import CreateBoardModal from './components/CreateBoardModal';
 import CreateProjectModal from './components/CreateProjectModal';
 import BoardPage from './components/BoardPage';
+import Pet from './components/Pet';
 import './index.css';
 
 // ─── Mock Data ──────────────────────────────────────────
@@ -112,6 +113,19 @@ export default function App() {
   const [isModalOpen,       setIsModalOpen]       = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [editingBoard,      setEditingBoard]      = useState(null);
+  const [completionTrigger, setCompletionTrigger] = useState(0);
+
+  const handleUpdateTasks = (updater) => {
+    setTasks(prev => {
+      const prevDone = prev.filter(t => t.status === 'Done').length;
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      const nextDone = next.filter(t => t.status === 'Done').length;
+      if (nextDone > prevDone) {
+        setCompletionTrigger(c => c + 1);
+      }
+      return next;
+    });
+  };
 
   // Sync HTML background colour
   useEffect(() => {
@@ -198,7 +212,7 @@ export default function App() {
         return (
           <BoardPage
             tasks={tasks}
-            onUpdateTasks={setTasks}
+            onUpdateTasks={handleUpdateTasks}
             boards={boards}
             projects={projects}
             currentProjectId={currentProjectId}
@@ -262,6 +276,9 @@ export default function App() {
         onClose={() => setIsProjectModalOpen(false)}
         onSave={handleSaveProject}
       />
+
+      {/* Pet Companion */}
+      <Pet theme={theme} completionTrigger={completionTrigger} />
     </div>
   );
 }

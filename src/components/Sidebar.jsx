@@ -4,6 +4,7 @@ import {
   Sun, Moon, ChevronLeft, ChevronRight, Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SidebarCharacter from './SidebarCharacter';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -272,6 +273,13 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
             </div>
           )}
         </div>
+
+      </div>
+
+      {/* ════════════════════════════════════ */}
+      {/* Sidebar bottom character */}
+      <div style={{ flexShrink: 0 }}>
+        <SidebarCharacter collapsed={collapsed} theme={theme} />
       </div>
     </motion.aside>
   );
