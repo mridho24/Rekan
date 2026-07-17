@@ -3,10 +3,11 @@ import {
   Plus, LayoutDashboard, CheckSquare, Clock,
   MoreVertical, Lock, Globe, Calendar, Trash2, Edit3,
   Target, Flame, TrendingUp, Activity, ChevronDown,
-  ListTodo, Circle, ArrowUpRight
+  ListTodo, Circle, ArrowUpRight, FolderPlus,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StatsCard from './StatsCard';
+import Dropdown from './Dropdown';
 
 // ─── Helpers ────────────────────────────────────────────
 function hexToRgba(hex, a) {
@@ -296,111 +297,18 @@ const calStyles = {
 
 // ─── Project Filter Dropdown ────────────────────────────
 function ProjectFilter({ projects = [], value, onChange }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const selected = value === 'all'
-    ? { name: 'Semua Project', color: 'var(--text-muted)' }
-    : projects.find(p => p.id === value);
-
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        style={pfStyles.trigger}
-      >
-        {selected && value !== 'all' && (
-          <div style={{ ...pfStyles.dot, backgroundColor: selected.color }} />
-        )}
-        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          {selected?.name ?? 'Semua Project'}
-        </span>
-        <ChevronDown size={13} color="var(--text-muted)" style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -4 }}
-            transition={{ duration: 0.13 }}
-            style={pfStyles.dropdown}
-          >
-            <button
-              onClick={() => { onChange('all'); setOpen(false); }}
-              style={{ ...pfStyles.option, fontWeight: value === 'all' ? 700 : 500 }}
-            >
-              Semua Project
-            </button>
-            {projects.map(p => (
-              <button
-                key={p.id}
-                onClick={() => { onChange(p.id); setOpen(false); }}
-                style={{ ...pfStyles.option, fontWeight: value === p.id ? 700 : 500 }}
-              >
-                <div style={{ ...pfStyles.dot, backgroundColor: p.color }} />
-                {p.name}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <Dropdown
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: 'all', label: 'Semua Project', icon: FolderPlus },
+        ...projects.map(p => ({ value: p.id, label: p.name, icon: FolderPlus })),
+      ]}
+      placeholder="Semua Project"
+    />
   );
 }
-
-const pfStyles = {
-  trigger: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '6px 12px',
-    borderRadius: 'var(--r-md)',
-    border: '1px solid var(--border)',
-    backgroundColor: 'var(--bg-card)',
-    cursor: 'pointer',
-  },
-  dot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    flexShrink: 0,
-  },
-  dropdown: {
-    position: 'absolute',
-    top: 'calc(100% + 6px)',
-    right: 0,
-    minWidth: '180px',
-    backgroundColor: 'var(--bg-card)',
-    border: '1px solid var(--border)',
-    borderRadius: 'var(--r-md)',
-    boxShadow: 'var(--shadow-lg)',
-    zIndex: 50,
-    overflow: 'hidden',
-  },
-  option: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    width: '100%',
-    padding: '9px 14px',
-    border: 'none',
-    background: 'none',
-    fontSize: '13px',
-    color: 'var(--text-secondary)',
-    cursor: 'pointer',
-    textAlign: 'left',
-  },
-};
 
 // ─── Board Card ─────────────────────────────────────────
 function BoardCard({ board, onEdit, onDelete }) {

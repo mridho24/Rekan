@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskDetailModal from './TaskDetailModal';
 import ConfirmDialog from './ConfirmDialog';
+import Dropdown from './Dropdown';
 
 const COLUMNS = [
   { id: 'todo', title: 'To Do', icon: Circle, color: '#F59E0B' },
@@ -420,28 +421,17 @@ const colStyles = {
 
 function ProjectFilter({ projects, value, onChange }) {
   return (
-    <div style={pfStyles.wrap}>
-      <FolderPlus size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-      <select value={value} onChange={e => onChange(e.target.value)} style={pfStyles.select}>
-        <option value="all">Semua Project</option>
-        {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-    </div>
+    <Dropdown
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: 'all', label: 'Semua Project', icon: FolderPlus },
+        ...projects.map(p => ({ value: p.id, label: p.name, icon: FolderPlus })),
+      ]}
+      placeholder="Semua Project"
+    />
   );
 }
-
-const pfStyles = {
-  wrap: {
-    display: 'flex', alignItems: 'center', gap: '8px',
-    padding: '0 12px', borderRadius: 'var(--r-md)',
-    border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)',
-  },
-  select: {
-    padding: '7px 0', border: 'none', background: 'none',
-    color: 'var(--text-primary)', fontSize: '13px', fontWeight: 600,
-    outline: 'none', fontFamily: 'inherit', cursor: 'pointer', minWidth: '140px',
-  },
-};
 
 export default function BoardPage({
   tasks, onUpdateTasks, boards, onUpdateBoards, projects,

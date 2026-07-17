@@ -1,7 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ListChecks, Calendar } from 'lucide-react';
+import {
+  Search, ListChecks, Calendar,
+  Circle, Clock, CheckCircle2,
+  Flag, ArrowUp, ArrowDown, Minus, FolderPlus,
+} from 'lucide-react';
 import TaskDetailView from './TaskDetailView';
+import Dropdown from './Dropdown';
 
 const STATUS_COLORS = {
   'To Do': '#F59E0B',
@@ -74,36 +79,37 @@ export default function AllTasksPage({ tasks, boards, projects }) {
             style={styles.searchInput}
           />
         </div>
-        <select
+        <Dropdown
           value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          style={styles.select}
-        >
-          <option value="">Semua Status</option>
-          <option value="To Do">To Do</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-        </select>
-        <select
+          onChange={setStatusFilter}
+          options={[
+            { value: '', label: 'Semua Status', icon: ListChecks },
+            { value: 'To Do', label: 'To Do', icon: Circle },
+            { value: 'In Progress', label: 'In Progress', icon: Clock },
+            { value: 'Done', label: 'Done', icon: CheckCircle2 },
+          ]}
+          placeholder="Semua Status"
+        />
+        <Dropdown
           value={priorityFilter}
-          onChange={e => setPriorityFilter(e.target.value)}
-          style={styles.select}
-        >
-          <option value="">Semua Prioritas</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-        <select
+          onChange={setPriorityFilter}
+          options={[
+            { value: '', label: 'Semua Prioritas', icon: Flag },
+            { value: 'High', label: 'High', icon: ArrowUp },
+            { value: 'Medium', label: 'Medium', icon: Minus },
+            { value: 'Low', label: 'Low', icon: ArrowDown },
+          ]}
+          placeholder="Semua Prioritas"
+        />
+        <Dropdown
           value={projectFilter}
-          onChange={e => setProjectFilter(e.target.value)}
-          style={styles.select}
-        >
-          <option value="">Semua Project</option>
-          {projects.map(p => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+          onChange={setProjectFilter}
+          options={[
+            { value: '', label: 'Semua Project', icon: FolderPlus },
+            ...projects.map(p => ({ value: p.id, label: p.name, icon: FolderPlus })),
+          ]}
+          placeholder="Semua Project"
+        />
       </div>
 
       {filteredTasks.length === 0 ? (
@@ -259,22 +265,6 @@ const styles = {
     fontSize: '13px',
     outline: 'none',
     fontFamily: 'inherit',
-  },
-  select: {
-    padding: '7px 28px 7px 10px',
-    borderRadius: 'var(--r-md)',
-    border: '1px solid var(--border)',
-    backgroundColor: 'var(--bg-input)',
-    color: 'var(--text-primary)',
-    fontSize: '12px',
-    fontWeight: 500,
-    outline: 'none',
-    fontFamily: 'inherit',
-    appearance: 'none',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 8px center',
-    cursor: 'pointer',
   },
   grid: {
     display: 'grid',
