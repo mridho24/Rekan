@@ -266,7 +266,7 @@ export default function RegisterPage({ onRegister, theme, onToggleTheme, onSwitc
             transition={{ duration: 0.8, delay: 0.2 }}
             style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
           >
-            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <h2 style={styles.visualTitle}>Kelola Tugas.<br />Raih Hasil.</h2>
               <p style={styles.visualDesc}>
                 Rekan membantu Anda tetap terorganisir, produktif, dan selaras — dari awal hingga akhir.
@@ -274,25 +274,6 @@ export default function RegisterPage({ onRegister, theme, onToggleTheme, onSwitc
             </div>
 
             <MiniKanbanPreview />
-
-            <div style={styles.statsRow}>
-              {[
-                { value: '10K+', label: 'Pengguna' },
-                { value: '50K+', label: 'Tugas Selesai' },
-                { value: '4.9', label: 'Rating' },
-              ].map((s, i) => (
-                <motion.div
-                  key={s.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + i * 0.12 }}
-                  style={styles.statCard}
-                >
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>{s.value}</span>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{s.label}</span>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
         </div>
 
@@ -536,25 +517,6 @@ const styles = {
     fontSize: '14px',
     lineHeight: 1.6,
     color: 'rgba(255,255,255,0.8)',
-  },
-  statsRow: {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '24px',
-    width: '100%',
-    justifyContent: 'center',
-  },
-  statCard: {
-    background: 'rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(8px)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: '12px',
-    padding: '12px 16px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '2px',
-    minWidth: '80px',
   },
   visualFooter: {
     position: 'absolute',
