@@ -435,7 +435,7 @@ function ProjectFilter({ projects, value, onChange }) {
   );
 }
 
-function ProjectCardMenu({ project, isActive, onSelectProject, onCompleteProject, onDeleteProject, onUpdateProjects, onClose }) {
+function ProjectCardMenu({ project, isActive, onSelectProject, onDeleteProject, onUpdateProjects, onArchiveRequest, onClose }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -447,7 +447,7 @@ function ProjectCardMenu({ project, isActive, onSelectProject, onCompleteProject
   }, [onClose]);
 
   const handleOpen = () => { onSelectProject(project.id); onClose(); };
-  const handleArchive = () => { onCompleteProject(project.id); onClose(); };
+  const handleArchive = () => { onArchiveRequest(project.id); onClose(); };
   const handleReopen = () => { onUpdateProjects(prev => prev.map(p => p.id === project.id ? { ...p, completed: false } : p)); onClose(); };
   const handleDelete = () => { onDeleteProject(project.id); onClose(); };
 
@@ -491,6 +491,8 @@ export default function BoardPage({
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [menuProjectId, setMenuProjectId] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archiveConfirmId, setArchiveConfirmId] = useState(null);
 
   const selectedProject = currentProjectId;
   const hasProjectSelected = selectedProject && selectedProject !== 'all';
@@ -517,8 +519,12 @@ export default function BoardPage({
     return map;
   }, [projectBoards, projectTasks]);
 
-  const allDone = projectTasks.length > 0 && projectTasks.every(t => t.status === 'Done');
-  const isCompleted = currentProject?.completed || false;
+  const visibleProjects = useMemo(() =>
+    showArchived ? projects : projects.filter(p => !p.completed),
+    [projects, showArchived]
+  );
+
+  const archivedCount = projects.filter(p => p.completed).length;
 
   const handleBoardDrop = (boardId, columnId) => {
     onUpdateBoards(prev => prev.map(b =>
@@ -591,12 +597,22 @@ export default function BoardPage({
       {!hasProjectSelected && (
         <div style={styles.projectListWrap}>
           <div style={styles.projectListHeader}>
-            <h2 style={styles.projectListTitle}>Projects</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h2 style={styles.projectListTitle}>Projects</h2>
+              {archivedCount > 0 && (
+                <button
+                  onClick={() => setShowArchived(v => !v)}
+                  style={styles.archivedToggle}
+                >
+                  {showArchived ? 'Active' : 'Archived'} ({archivedCount})
+                </button>
+              )}
+            </div>
             <button className="btn btn-primary btn-sm" onClick={onAddProject}>
               <Plus size={15} /> New Project
             </button>
           </div>
-          {projects.length === 0 ? (
+          {visibleProjects.length === 0 ? (
             <div style={styles.noProject}>
               <FolderPlus size={48} color="var(--text-muted)" />
               <h2 style={styles.noProjectTitle}>No projects yet</h2>
@@ -609,7 +625,7 @@ export default function BoardPage({
             </div>
           ) : (
             <div style={styles.projectGrid}>
-              {projects.map((project, idx) => {
+              {visibleProjects.map((project, idx) => {
                 const isActive = !project.completed;
                 const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
                 const projectTaskList = tasks.filter(t => t.projectId === project.id);
@@ -639,22 +655,13 @@ export default function BoardPage({
                         <div style={styles.projectCardTopRow}>
                           <h3 style={styles.projectCardName}>{project.name}</h3>
                           <div style={styles.projectCardActions}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onUpdateProjects(prev => prev.map(p =>
-                                  p.id === project.id ? { ...p, completed: !p.completed } : p
-                                ));
-                              }}
-                              style={styles.statusBadge}
-                              title={isActive ? 'Archive project' : 'Reopen project'}
-                            >
+                            <span style={styles.statusBadge}>
                               <span style={{
                                 ...styles.statusDot,
                                 backgroundColor: isActive ? '#22C55E' : '#D1D5DB',
                               }} />
                               {isActive ? 'Active' : 'Archived'}
-                            </button>
+                            </span>
                             <div style={{ position: 'relative' }}>
                               <button
                                 onClick={(e) => { e.stopPropagation(); setMenuProjectId(menuProjectId === project.id ? null : project.id); }}
@@ -669,9 +676,9 @@ export default function BoardPage({
                                     project={project}
                                     isActive={isActive}
                                     onSelectProject={onSelectProject}
-                                    onCompleteProject={onCompleteProject}
                                     onDeleteProject={onDeleteProject}
                                     onUpdateProjects={onUpdateProjects}
+                                    onArchiveRequest={(id) => setArchiveConfirmId(id)}
                                     onClose={() => setMenuProjectId(null)}
                                   />
                                 )}
@@ -716,32 +723,6 @@ export default function BoardPage({
             </div>
           )}
         </div>
-      )}
-
-      {hasProjectSelected && !isCompleted && allDone && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={styles.completeBanner}>
-          <div style={styles.completeBannerLeft}>
-            <CheckCircle2 size={20} color="#10B981" />
-            <span style={styles.completeBannerText}>
-              Semua tugas di project <strong>{currentProject.name}</strong> sudah selesai!
-            </span>
-          </div>
-          <button onClick={() => onCompleteProject(currentProject.id)} style={styles.completeBtn}>
-            <Flag size={14} /> Tandai Selesai
-          </button>
-        </motion.div>
-      )}
-
-      {hasProjectSelected && currentProject?.completed && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ ...styles.completeBanner, backgroundColor: '#D1FAE5', borderColor: '#10B981' }}>
-          <div style={styles.completeBannerLeft}>
-            <CheckCircle2 size={20} color="#10B981" />
-            <span style={{ ...styles.completeBannerText, color: '#047857' }}>
-              Project <strong>{currentProject.name}</strong> sudah selesai
-            </span>
-          </div>
-        </motion.div>
       )}
 
       {hasProjectSelected && projectBoards.length === 0 && (
@@ -794,6 +775,21 @@ export default function BoardPage({
         confirmText="Ya, Hapus"
         cancelText="Batal"
         danger
+      />
+
+      <ConfirmDialog
+        isOpen={!!archiveConfirmId}
+        onClose={() => setArchiveConfirmId(null)}
+        onConfirm={() => {
+          onUpdateProjects(prev => prev.map(p =>
+            p.id === archiveConfirmId ? { ...p, completed: true } : p
+          ));
+          setArchiveConfirmId(null);
+        }}
+        title="Arsipkan Project"
+        message={`Yakin ingin mengarsipkan project ini? Project akan disembunyikan dari daftar utama.`}
+        confirmText="Ya, Arsipkan"
+        cancelText="Batal"
       />
     </div>
   );
@@ -856,18 +852,7 @@ const styles = {
     overflowX: 'auto',
     paddingBottom: '20px',
   },
-  completeBanner: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    flexWrap: 'wrap', gap: '12px', padding: '14px 20px',
-    borderRadius: 'var(--r-lg)', border: '1.5px solid #A7F3D0', backgroundColor: '#ECFDF5',
-  },
-  completeBannerLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
-  completeBannerText: { fontSize: 'var(--text-base)', color: '#065F46', fontWeight: 500 },
-  completeBtn: {
-    display: 'flex', alignItems: 'center', gap: '6px',
-    padding: '8px 18px', borderRadius: 'var(--r-md)', border: 'none',
-    backgroundColor: '#000', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '13px',
-  },
+
   emptyBoard: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', gap: '14px', padding: '60px 40px',
@@ -917,6 +902,13 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     gap: '12px',
   },
+  archivedToggle: {
+    fontSize: '13px', fontWeight: 500, color: '#6366F1',
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: '4px 10px', borderRadius: '8px',
+    transition: 'background-color 0.15s ease',
+    fontFamily: 'inherit',
+  },
   projectCardName: {
     fontSize: '18px', fontWeight: 600, color: '#111827',
     letterSpacing: '-0.3px', lineHeight: 1.3,
@@ -928,10 +920,6 @@ const styles = {
   statusBadge: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
     fontSize: '13px', fontWeight: 500, color: '#6B7280',
-    border: 'none', background: 'none', cursor: 'pointer',
-    padding: '2px 6px', borderRadius: '6px',
-    transition: 'background-color 0.15s ease',
-    fontFamily: 'inherit',
   },
   statusDot: {
     width: '8px', height: '8px', borderRadius: '50%',
