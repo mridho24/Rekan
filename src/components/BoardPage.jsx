@@ -350,10 +350,9 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
         ...colStyles.column,
         borderColor: dragOver ? column.color : 'var(--border)',
         backgroundColor: dragOver ? 'var(--bg-card-hover)' : 'transparent',
-        minWidth: isMobile ? 'calc(100vw - 48px)' : colStyles.column.minWidth,
+        minWidth: isMobile ? '100%' : colStyles.column.minWidth,
         maxWidth: isMobile ? '100%' : colStyles.column.maxWidth,
-        maxHeight: isMobile ? 'calc(100vh - 220px)' : colStyles.column.maxHeight,
-        scrollSnapAlign: isMobile ? 'center' : 'none',
+        maxHeight: isMobile ? 'none' : colStyles.column.maxHeight,
       }}
       onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
@@ -502,7 +501,7 @@ export default function BoardPage({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth < 960;
   const isXS = windowWidth < 480;
 
   const [selectedTask, setSelectedTask] = useState(null);
@@ -1173,7 +1172,9 @@ export default function BoardPage({
           layout 
           style={{
             ...styles.boardRow,
-            scrollSnapType: isMobile ? 'x mandatory' : 'none',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'flex-start',
+            gap: '20px',
             paddingBottom: isMobile ? '10px' : '20px',
           }}
         >
