@@ -363,6 +363,8 @@ export default function App() {
         return (
           <CalendarPage
             projects={projects}
+            onNavigate={setActiveView}
+            onSelectProject={setCurrentProjectId}
           />
         );
       case 'notes':
