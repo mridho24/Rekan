@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, GripVertical } from 'lucide-react';
+import { X, Plus, Trash2, GripVertical, Flag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CalendarPopover from './CalendarPopover';
 
 const COLORS = [
   { name: 'Indigo',   hex: '#6366F1' },
@@ -29,6 +30,14 @@ function SubtaskItem({ subtask, onUpdate, onRemove }) {
     </div>
   );
 }
+
+const PRIORITY_OPTIONS = [
+  { value: 'High',   color: '#EF4444' },
+  { value: 'Medium', color: '#F59E0B' },
+  { value: 'Low',    color: '#6B7280' },
+];
+
+const LABEL_PRESETS = ['Frontend', 'Backend', 'Database', 'UI/UX', 'API', 'Dokumentasi', 'Review', 'Perancangan'];
 
 const siStyles = {
   row: {
@@ -64,6 +73,23 @@ function TaskForm({ task, index, onUpdate, onRemove }) {
     onUpdate({ ...task, subtasks: (task.subtasks || []).filter((_, idx) => idx !== i) });
   };
 
+  const addLabel = (label) => {
+    if (!(task.labels || []).includes(label)) {
+      onUpdate({ ...task, labels: [...(task.labels || []), label] });
+    }
+  };
+
+  const removeLabel = (label) => {
+    onUpdate({ ...task, labels: (task.labels || []).filter(l => l !== label) });
+  };
+
+  const handleLabelInput = (e) => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      addLabel(e.target.value.trim());
+      e.target.value = '';
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8, height: 0 }}
@@ -87,13 +113,60 @@ function TaskForm({ task, index, onUpdate, onRemove }) {
         autoFocus={index > 0}
       />
 
-      <input
-        type="date"
+      {/* Priority */}
+      <div style={tfStyles.priorityRow}>
+        <Flag size={12} color="var(--text-muted)" />
+        {PRIORITY_OPTIONS.map(opt => {
+          const sel = (task.priority || 'Medium') === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onUpdate({ ...task, priority: opt.value })}
+              style={{
+                ...tfStyles.priorityBtn,
+                backgroundColor: sel ? `${opt.color}18` : 'transparent',
+                borderColor: sel ? opt.color : 'var(--border)',
+                color: sel ? opt.color : 'var(--text-secondary)',
+              }}
+            >
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: opt.color }} />
+              {opt.value}
+            </button>
+          );
+        })}
+      </div>
+
+      <CalendarPopover
         value={task.deadline || ''}
-        onChange={e => onUpdate({ ...task, deadline: e.target.value })}
-        style={tfStyles.dateInput}
-        title="Deadline"
+        onChange={(val) => onUpdate({ ...task, deadline: val })}
+        placeholder="Deadline tugas"
       />
+
+      {/* Labels */}
+      <div>
+        <div style={tfStyles.labelsWrap}>
+          {(task.labels || []).map(label => (
+            <span key={label} style={tfStyles.labelChip}>
+              {label}
+              <button type="button" onClick={() => removeLabel(label)} style={tfStyles.labelRemove}>×</button>
+            </span>
+          ))}
+        </div>
+        <div style={tfStyles.presetsWrap}>
+          {LABEL_PRESETS.filter(p => !(task.labels || []).includes(p)).map(p => (
+            <button key={p} type="button" onClick={() => addLabel(p)} style={tfStyles.presetBtn}>
+              + {p}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          placeholder="Tambah label sendiri..."
+          onKeyDown={handleLabelInput}
+          style={tfStyles.labelInput}
+        />
+      </div>
 
       {(task.subtasks || []).map((st, i) => (
         <SubtaskItem
@@ -135,12 +208,45 @@ const tfStyles = {
     color: 'var(--text-primary)', fontSize: '12px',
     outline: 'none', fontFamily: 'inherit', fontWeight: 600,
   },
-  dateInput: {
-    padding: '5px 8px', borderRadius: 'var(--r-sm)',
+  priorityRow: {
+    display: 'flex', alignItems: 'center', gap: '4px',
+  },
+  priorityBtn: {
+    display: 'flex', alignItems: 'center', gap: '4px',
+    padding: '3px 7px', borderRadius: 'var(--r-sm)',
+    border: '1px solid var(--border)',
+    cursor: 'pointer', fontSize: '10px', fontWeight: 600,
+    fontFamily: 'inherit', transition: 'var(--t-fast)',
+  },
+
+  labelsWrap: {
+    display: 'flex', flexWrap: 'wrap', gap: '3px', marginBottom: '4px',
+  },
+  labelChip: {
+    display: 'inline-flex', alignItems: 'center', gap: '3px',
+    padding: '2px 6px', borderRadius: 'var(--r-full)',
+    backgroundColor: '#DBEAFE', color: '#1D4ED8',
+    fontSize: '10px', fontWeight: 600,
+  },
+  labelRemove: {
+    background: 'none', border: 'none', color: '#1D4ED8',
+    cursor: 'pointer', padding: 0, fontSize: '12px', lineHeight: 1, opacity: 0.6,
+  },
+  presetsWrap: {
+    display: 'flex', flexWrap: 'wrap', gap: '3px', marginBottom: '4px',
+  },
+  presetBtn: {
+    padding: '2px 6px', borderRadius: 'var(--r-full)',
+    border: '1px dashed var(--border)', background: 'transparent',
+    color: 'var(--text-muted)', cursor: 'pointer', fontSize: '9px', fontWeight: 600,
+    fontFamily: 'inherit',
+  },
+  labelInput: {
+    width: '100%', padding: '4px 8px', borderRadius: 'var(--r-sm)',
     border: '1px solid var(--border)',
     backgroundColor: 'var(--bg-input)',
-    color: 'var(--text-muted)', fontSize: '11px',
-    outline: 'none', fontFamily: 'inherit', cursor: 'pointer',
+    color: 'var(--text-primary)', fontSize: '10px',
+    outline: 'none', fontFamily: 'inherit',
   },
   addSubBtn: {
     display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center',
@@ -201,7 +307,7 @@ export default function CreateBoardModal({ isOpen, onClose, onSave, board }) {
   };
 
   const addNewTask = () => {
-    setTasks(prev => [...prev, { title: '', deadline: '', subtasks: [] }]);
+    setTasks(prev => [...prev, { title: '', deadline: '', priority: 'Medium', labels: [], subtasks: [] }]);
     setShowTasks(true);
   };
 

@@ -255,10 +255,10 @@ export default function App() {
             boardId,
             title: t.title,
             description: null,
-            priority: 'Medium',
+            priority: t.priority || 'Medium',
             status: 'To Do',
             deadline: t.deadline ? new Date(t.deadline).toISOString() : null,
-            labels: [],
+            labels: t.labels || [],
             subtasks: (t.subtasks || []).filter(st => st.text.trim()).map((st, j) => ({
               id: `st-${Date.now()}-${i}-${j}`,
               text: st.text.trim(),

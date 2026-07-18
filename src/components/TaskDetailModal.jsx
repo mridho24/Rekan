@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Circle, Clock, CheckCircle2, Save, Plus, Tag } from 'lucide-react';
+import { X, Circle, Clock, CheckCircle2, Save, Plus, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CalendarPopover from './CalendarPopover';
 
 const STATUS_OPTIONS = [
   { value: 'To Do', label: 'To Do', icon: Circle, color: '#F59E0B' },
@@ -219,15 +220,11 @@ export default function TaskDetailModal({ isOpen, onClose, onSave, task, boards 
               {/* Deadline */}
               <div style={s.inputGroup}>
                 <label style={s.label}>Deadline</label>
-                <div style={s.dateInputWrapper}>
-                  <Calendar size={14} color="var(--text-muted)" />
-                  <input
-                    type="date"
-                    value={deadline}
-                    onChange={e => setDeadline(e.target.value)}
-                    style={s.dateInput}
-                  />
-                </div>
+                <CalendarPopover
+                  value={deadline}
+                  onChange={setDeadline}
+                  placeholder="Pilih deadline"
+                />
               </div>
 
               {/* Labels / Kategori */}
@@ -463,24 +460,7 @@ const s = {
     height: '8px',
     borderRadius: '50%',
   },
-  dateInputWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '11px 14px',
-    borderRadius: 'var(--r-md)',
-    border: '1px solid var(--border)',
-    backgroundColor: 'var(--bg-input)',
-  },
-  dateInput: {
-    border: 'none',
-    background: 'none',
-    color: 'var(--text-primary)',
-    fontSize: '14px',
-    outline: 'none',
-    flex: 1,
-    fontFamily: 'inherit',
-  },
+
   select: {
     padding: '11px 14px',
     borderRadius: 'var(--r-md)',
