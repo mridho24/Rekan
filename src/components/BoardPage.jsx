@@ -594,7 +594,12 @@ export default function BoardPage({
       {!hasProjectSelected && viewMode === 'projects' && (
         <div style={styles.projectListWrap}>
           <div style={styles.projectListHeader}>
-            <h2 style={styles.projectListTitle}>Projects</h2>
+            <div>
+              <h2 style={styles.projectListTitle}>Projects</h2>
+              <p style={styles.projectListSub}>
+                {boards.length} board{boards.length !== 1 ? 's' : ''} across {activeProjects.length} project{activeProjects.length !== 1 ? 's' : ''}
+              </p>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {archivedProjects.length > 0 && (
                 <button
@@ -725,7 +730,12 @@ export default function BoardPage({
               <button onClick={() => setViewMode('projects')} style={styles.backBtn}>
                 <ArrowLeft size={16} />
               </button>
-              <h2 style={styles.projectListTitle}>Archived Projects</h2>
+              <div>
+                <h2 style={styles.projectListTitle}>Archived Projects</h2>
+                <p style={styles.projectListSub}>
+                  {archivedProjects.length} archived project{archivedProjects.length !== 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
           </div>
           {archivedProjects.length === 0 ? (
@@ -978,6 +988,10 @@ const styles = {
   projectListTitle: {
     fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)',
     letterSpacing: '-0.3px',
+  },
+  projectListSub: {
+    marginTop: '2px',
+    fontSize: '13px', color: '#9CA3AF', fontWeight: 400,
   },
   projectGrid: {
     display: 'flex', flexDirection: 'column', gap: '12px',
