@@ -340,6 +340,7 @@ export default function App() {
             onAddProject={() => setIsProjectModalOpen(true)}
             onDeleteProject={handleDeleteProject}
             onDeleteBoard={handleDeleteBoard}
+            onUpdateProjects={setProjects}
           />
         );
       case 'tasks':

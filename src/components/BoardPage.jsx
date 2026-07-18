@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
   Plus, Calendar, Trash2, CheckCircle2, Circle,
   ChevronDown, ChevronRight, FolderPlus, LayoutDashboard,
   Flag, ListChecks, Clock, GripVertical,
+  MoreHorizontal, Users, Layers, ArrowRight, Folder,
+  KanbanSquare, SquareStack,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskDetailModal from './TaskDetailModal';
@@ -433,14 +435,62 @@ function ProjectFilter({ projects, value, onChange }) {
   );
 }
 
+function ProjectCardMenu({ project, isActive, onSelectProject, onCompleteProject, onDeleteProject, onUpdateProjects, onClose }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  const handleOpen = () => { onSelectProject(project.id); onClose(); };
+  const handleArchive = () => { onCompleteProject(project.id); onClose(); };
+  const handleReopen = () => { onUpdateProjects(prev => prev.map(p => p.id === project.id ? { ...p, completed: false } : p)); onClose(); };
+  const handleDelete = () => { onDeleteProject(project.id); onClose(); };
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: -6, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.96 }}
+      transition={{ duration: 0.12, ease: 'easeOut' }}
+      style={styles.cardMenu}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button style={styles.cardMenuItem} onClick={handleOpen}>
+        <ArrowRight size={14} /> Open Project
+      </button>
+      {isActive ? (
+        <button style={styles.cardMenuItem} onClick={handleArchive}>
+          <CheckCircle2 size={14} /> Archive Project
+        </button>
+      ) : (
+        <button style={styles.cardMenuItem} onClick={handleReopen}>
+          <FolderPlus size={14} /> Reopen Project
+        </button>
+      )}
+      <div style={styles.cardMenuDivider} />
+      <button style={{ ...styles.cardMenuItem, color: '#EF4444' }} onClick={handleDelete}>
+        <Trash2 size={14} /> Delete Project
+      </button>
+    </motion.div>
+  );
+}
+
 export default function BoardPage({
   tasks, onUpdateTasks, boards, onUpdateBoards, projects,
   currentProjectId, onSelectProject,
   onCreateBoard, onCompleteProject,
   onAddProject, onDeleteProject, onDeleteBoard,
+  onUpdateProjects,
 }) {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [menuProjectId, setMenuProjectId] = useState(null);
 
   const selectedProject = currentProjectId;
   const hasProjectSelected = selectedProject && selectedProject !== 'all';
@@ -518,20 +568,17 @@ export default function BoardPage({
       <div style={styles.header}>
         <div>
           <h1 style={styles.h1}>Boards</h1>
-          <p style={styles.subtitle}>{projectTasks.length} tugas di {projectBoards.length} board</p>
+          {hasProjectSelected && (
+            <p style={styles.subtitle}>{projectTasks.length} tugas di {projectBoards.length} board</p>
+          )}
         </div>
         <div style={styles.headerActions}>
-          <button className="btn btn-ghost btn-sm" onClick={onAddProject}>
-            <FolderPlus size={14} /> Project Baru
-          </button>
           <ProjectFilter projects={projects} value={selectedProject} onChange={onSelectProject} />
           {hasProjectSelected && (
-            <button onClick={() => setShowDeleteConfirm(true)} title="Hapus project" style={styles.deleteProjectBtn}>
-              <Trash2 size={12} />
-            </button>
-          )}
-          {hasProjectSelected && (
             <>
+              <button onClick={() => setShowDeleteConfirm(true)} title="Hapus project" style={styles.deleteProjectBtn}>
+                <Trash2 size={12} />
+              </button>
               <button className="btn btn-primary btn-sm" onClick={onCreateBoard}>
                 <Plus size={15} /> Buat Board
               </button>
@@ -542,15 +589,132 @@ export default function BoardPage({
       </div>
 
       {!hasProjectSelected && (
-        <div style={styles.noProject}>
-          <FolderPlus size={48} color="var(--text-muted)" />
-          <h2 style={styles.noProjectTitle}>Pilih atau Buat Project</h2>
-          <p style={styles.noProjectText}>
-            Pilih project dari dropdown di atas, atau buat project baru untuk mulai bekerja.
-          </p>
-          <button className="btn btn-primary" onClick={onAddProject} style={{ marginTop: '4px' }}>
-            <Plus size={16} /> Buat Project Baru
-          </button>
+        <div style={styles.projectListWrap}>
+          <div style={styles.projectListHeader}>
+            <h2 style={styles.projectListTitle}>Projects</h2>
+            <button className="btn btn-primary btn-sm" onClick={onAddProject}>
+              <Plus size={15} /> New Project
+            </button>
+          </div>
+          {projects.length === 0 ? (
+            <div style={styles.noProject}>
+              <FolderPlus size={48} color="var(--text-muted)" />
+              <h2 style={styles.noProjectTitle}>No projects yet</h2>
+              <p style={styles.noProjectText}>
+                Create your first project to start managing your work.
+              </p>
+              <button className="btn btn-primary" onClick={onAddProject} style={{ marginTop: '4px' }}>
+                <Plus size={16} /> Create Project
+              </button>
+            </div>
+          ) : (
+            <div style={styles.projectGrid}>
+              {projects.map((project, idx) => {
+                const isActive = !project.completed;
+                const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
+                const projectTaskList = tasks.filter(t => t.projectId === project.id);
+                const totalTasks = projectTaskList.length;
+                const PROJECT_ICONS = [Folder, LayoutDashboard, KanbanSquare, Layers];
+                const IconComponent = PROJECT_ICONS[idx % PROJECT_ICONS.length];
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+                    style={styles.projectCard}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: isActive ? project.color : '#ECECEC' }}
+                  >
+                    <div style={styles.projectCardInner}>
+                      <div style={styles.projectCardLeft}>
+                        <div style={{ ...styles.projectIconBox, backgroundColor: isActive ? `${project.color}12` : '#F3F4F6' }}>
+                          <IconComponent size={22} color={isActive ? project.color : '#9CA3AF'} strokeWidth={1.5} />
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardCenter}>
+                        <div style={styles.projectCardTopRow}>
+                          <h3 style={styles.projectCardName}>{project.name}</h3>
+                          <div style={styles.projectCardActions}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onUpdateProjects(prev => prev.map(p =>
+                                  p.id === project.id ? { ...p, completed: !p.completed } : p
+                                ));
+                              }}
+                              style={styles.statusBadge}
+                              title={isActive ? 'Archive project' : 'Reopen project'}
+                            >
+                              <span style={{
+                                ...styles.statusDot,
+                                backgroundColor: isActive ? '#22C55E' : '#D1D5DB',
+                              }} />
+                              {isActive ? 'Active' : 'Archived'}
+                            </button>
+                            <div style={{ position: 'relative' }}>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setMenuProjectId(menuProjectId === project.id ? null : project.id); }}
+                                style={styles.moreBtn}
+                                title="More"
+                              >
+                                <MoreHorizontal size={16} color="#6B7280" />
+                              </button>
+                              <AnimatePresence>
+                                {menuProjectId === project.id && (
+                                  <ProjectCardMenu
+                                    project={project}
+                                    isActive={isActive}
+                                    onSelectProject={onSelectProject}
+                                    onCompleteProject={onCompleteProject}
+                                    onDeleteProject={onDeleteProject}
+                                    onUpdateProjects={onUpdateProjects}
+                                    onClose={() => setMenuProjectId(null)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p style={styles.projectWorkspace}>Personal Workspace</p>
+
+                        <div style={styles.projectMeta}>
+                          <span style={styles.projectMetaItem}>
+                            <Layers size={14} />
+                            {projectBoardCount} {projectBoardCount === 1 ? 'Board' : 'Boards'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <SquareStack size={14} />
+                            {totalTasks} {totalTasks === 1 ? 'Task' : 'Tasks'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <Users size={14} />
+                            1 Member
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardRight}>
+                        <button
+                          onClick={() => onSelectProject(project.id)}
+                          style={styles.openBtn}
+                        >
+                          Open Board
+                          <ArrowRight size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -711,10 +875,131 @@ const styles = {
   },
   emptyBoardTitle: { fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.3px' },
   emptyBoardText: { fontSize: 'var(--text-base)', color: 'var(--text-muted)', maxWidth: '320px', lineHeight: 1.5 },
+  projectListWrap: {
+    display: 'flex', flexDirection: 'column', gap: '24px',
+  },
+  projectListHeader: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+  },
+  projectListTitle: {
+    fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)',
+    letterSpacing: '-0.3px',
+  },
+  projectGrid: {
+    display: 'flex', flexDirection: 'column', gap: '12px',
+  },
+  projectCard: {
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #ECECEC',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    transition: 'border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease',
+    cursor: 'pointer',
+  },
+  projectCardInner: {
+    display: 'flex', alignItems: 'center', gap: '20px',
+    padding: '24px',
+  },
+  projectCardLeft: {
+    flexShrink: 0,
+  },
+  projectIconBox: {
+    width: '48px', height: '48px',
+    borderRadius: '12px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'background-color 0.18s ease',
+  },
+  projectCardCenter: {
+    flex: 1, minWidth: 0,
+    display: 'flex', flexDirection: 'column', gap: '6px',
+  },
+  projectCardTopRow: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    gap: '12px',
+  },
+  projectCardName: {
+    fontSize: '18px', fontWeight: 600, color: '#111827',
+    letterSpacing: '-0.3px', lineHeight: 1.3,
+    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+  },
+  projectCardActions: {
+    display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+  },
+  statusBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    fontSize: '13px', fontWeight: 500, color: '#6B7280',
+    border: 'none', background: 'none', cursor: 'pointer',
+    padding: '2px 6px', borderRadius: '6px',
+    transition: 'background-color 0.15s ease',
+    fontFamily: 'inherit',
+  },
+  statusDot: {
+    width: '8px', height: '8px', borderRadius: '50%',
+    display: 'inline-block',
+  },
+  moreBtn: {
+    width: '32px', height: '32px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: '8px', border: 'none', background: 'transparent',
+    cursor: 'pointer', transition: 'background-color 0.15s ease',
+  },
+  cardMenu: {
+    position: 'absolute', right: 0, top: 'calc(100% + 4px)',
+    minWidth: '180px',
+    backgroundColor: '#FFFFFF',
+    border: '1px solid #ECECEC',
+    borderRadius: '12px',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06)',
+    zIndex: 50,
+    padding: '4px',
+    overflow: 'hidden',
+  },
+  cardMenuItem: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    width: '100%', padding: '9px 12px',
+    border: 'none', background: 'none', cursor: 'pointer',
+    fontSize: '13px', fontWeight: 500, color: '#374151',
+    textAlign: 'left', borderRadius: '8px',
+    transition: 'background-color 0.12s',
+    fontFamily: 'inherit',
+  },
+  cardMenuDivider: {
+    height: '1px', backgroundColor: '#F3F4F6',
+    margin: '4px 8px',
+  },
+  projectWorkspace: {
+    fontSize: '13px', fontWeight: 400, color: '#9CA3AF',
+    margin: 0, lineHeight: 1.3,
+  },
+  projectMeta: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    flexWrap: 'wrap', marginTop: '2px',
+  },
+  projectMetaItem: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    fontSize: '13px', fontWeight: 500, color: '#6B7280',
+  },
+  metaSep: {
+    width: '3px', height: '3px', borderRadius: '50%',
+    backgroundColor: '#D1D5DB', flexShrink: 0,
+  },
+  projectCardRight: {
+    flexShrink: 0,
+  },
+  openBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    padding: '8px 18px',
+    borderRadius: '10px', border: '1px solid #E5E7EB',
+    backgroundColor: '#FFFFFF',
+    color: '#374151',
+    fontSize: '13px', fontWeight: 600,
+    cursor: 'pointer', whiteSpace: 'nowrap',
+    transition: 'background-color 0.15s ease, border-color 0.15s ease',
+  },
   noProject: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', gap: '12px', padding: '80px 40px',
-    border: '2px dashed var(--border)', borderRadius: 'var(--r-xl)', textAlign: 'center', flex: 1,
+    border: '2px dashed #ECECEC', borderRadius: 'var(--r-xl)', textAlign: 'center', flex: 1,
   },
   noProjectTitle: { fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px' },
   noProjectText: { fontSize: 'var(--text-base)', color: 'var(--text-muted)', maxWidth: '380px', lineHeight: 1.5 },
