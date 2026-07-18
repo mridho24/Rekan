@@ -44,7 +44,7 @@ function buildActivityData(boards, tasks, projects) {
   });
 
   // Add activity for completed projects
-  projects.filter(p => p.completed).forEach((p) => {
+  projects.filter(p => p.status === 'completed').forEach((p) => {
     const w = Math.floor(Math.random() * Math.max(WEEKS - 2, 1)) + 1;
     const d = Math.floor(Math.random() * DAYS_PER_WEEK);
     data[w][d] = Math.min(data[w][d] + 3, 8);
@@ -585,7 +585,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
 
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === 'Done').length;
-  const activeProjects = projects.filter(p => !p.completed).length;
+  const activeProjects = projects.filter(p => p.status === 'active').length;
   const completePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const enrichedBoards = useMemo(() => boards.map(b => {

@@ -15,9 +15,9 @@ import './index.css';
 
 // ─── Mock Data ──────────────────────────────────────────
 const INITIAL_PROJECTS = [
-  { id: 'proj-1', name: 'Project Kuliah', color: '#6366F1', completed: false },
-  { id: 'proj-2', name: 'Project Kantor', color: '#10B981', completed: false },
-  { id: 'proj-3', name: 'Personal Sandbox', color: '#F59E0B', completed: false }
+  { id: 'proj-1', name: 'Project Kuliah', color: '#6366F1', status: 'active' },
+  { id: 'proj-2', name: 'Project Kantor', color: '#10B981', status: 'active' },
+  { id: 'proj-3', name: 'Personal Sandbox', color: '#F59E0B', status: 'active' }
 ];
 
 const INITIAL_BOARDS = [
@@ -283,7 +283,7 @@ export default function App() {
     const newProj = {
       id: `proj-${Date.now()}`,
       ...data,
-      completed: false,
+      status: 'active',
     };
     setProjects(prev => [...prev, newProj]);
     setCurrentProjectId(newProj.id);
@@ -300,11 +300,9 @@ export default function App() {
   };
 
   const handleCompleteProject = (projectId) => {
-    if (window.confirm('Tandai project ini sebagai selesai?')) {
-      setProjects(prev => prev.map(p =>
-        p.id === projectId ? { ...p, completed: true } : p
-      ));
-    }
+    setProjects(prev => prev.map(p =>
+      p.id === projectId ? { ...p, status: 'completed' } : p
+    ));
   };
 
   // Content area

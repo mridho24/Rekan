@@ -133,8 +133,9 @@ function BoardTask({ task, onToggleTask, onToggleSubtask }) {
         {task.deadline && (
           <div style={btStyles.dateRow}>
             <Calendar size={8} /> {formatDate(task.deadline)}
-          </div>
-        )}
+        </div>
+      )}
+
         <SubtasksPreview subtasks={task.subtasks} onToggleSubtask={onToggleSubtask} taskId={task.id} />
       </div>
     </div>
@@ -447,8 +448,8 @@ function ProjectCardMenu({ project, isActive, onSelectProject, onDeleteProject, 
   }, [onClose]);
 
   const handleOpen = () => { onSelectProject(project.id); onClose(); };
+  const handleReopen = () => { onUpdateProjects(prev => prev.map(p => p.id === project.id ? { ...p, status: 'active' } : p)); onClose(); };
   const handleArchive = () => { onArchiveRequest(project.id); onClose(); };
-  const handleReopen = () => { onUpdateProjects(prev => prev.map(p => p.id === project.id ? { ...p, completed: false } : p)); onClose(); };
   const handleDelete = () => { onDeleteProject(project.id); onClose(); };
 
   return (
@@ -464,13 +465,14 @@ function ProjectCardMenu({ project, isActive, onSelectProject, onDeleteProject, 
       <button style={styles.cardMenuItem} onClick={handleOpen}>
         <ArrowRight size={14} /> Open Project
       </button>
-      {isActive ? (
-        <button style={styles.cardMenuItem} onClick={handleArchive}>
-          <CheckCircle2 size={14} /> Archive Project
-        </button>
-      ) : (
+      {!isActive && (
         <button style={styles.cardMenuItem} onClick={handleReopen}>
           <FolderPlus size={14} /> Reopen Project
+        </button>
+      )}
+      {isActive && (
+        <button style={styles.cardMenuItem} onClick={handleArchive}>
+          <Archive size={14} /> Archive Project
         </button>
       )}
       <div style={styles.cardMenuDivider} />
@@ -493,6 +495,7 @@ export default function BoardPage({
   const [menuProjectId, setMenuProjectId] = useState(null);
   const [viewMode, setViewMode] = useState('projects');
   const [archiveConfirmId, setArchiveConfirmId] = useState(null);
+  const [completeConfirmId, setCompleteConfirmId] = useState(null);
 
   const selectedProject = currentProjectId;
   const hasProjectSelected = selectedProject && selectedProject !== 'all';
@@ -519,9 +522,13 @@ export default function BoardPage({
     return map;
   }, [projectBoards, projectTasks]);
 
-  const activeProjects = useMemo(() => projects.filter(p => !p.completed), [projects]);
-  const archivedProjects = useMemo(() => projects.filter(p => p.completed), [projects]);
-  const visibleProjects = viewMode === 'archived' ? archivedProjects : activeProjects;
+  const activeProjects = useMemo(() => projects.filter(p => p.status === 'active'), [projects]);
+  const completedProjects = useMemo(() => projects.filter(p => p.status === 'completed'), [projects]);
+  const archivedProjects = useMemo(() => projects.filter(p => p.status === 'archived'), [projects]);
+  const visibleProjects = viewMode === 'archived' ? archivedProjects : viewMode === 'completed' ? completedProjects : activeProjects;
+
+  const allDone = projectTasks.length > 0 && projectTasks.every(t => t.status === 'Done') && currentProject?.status === 'active';
+  const isCompleted = currentProject?.status === 'completed';
 
   const handleBoardDrop = (boardId, columnId) => {
     onUpdateBoards(prev => prev.map(b =>
@@ -601,10 +608,18 @@ export default function BoardPage({
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {completedProjects.length > 0 && (
+                <button
+                  onClick={() => setViewMode('completed')}
+                  style={styles.statusBtn}
+                >
+                  <CheckCircle2 size={14} /> Completed ({completedProjects.length})
+                </button>
+              )}
               {archivedProjects.length > 0 && (
                 <button
                   onClick={() => setViewMode('archived')}
-                  style={styles.archivedBtn}
+                  style={styles.statusBtn}
                 >
                   <Archive size={14} /> Archived ({archivedProjects.length})
                 </button>
@@ -673,6 +688,127 @@ export default function BoardPage({
                                   <ProjectCardMenu
                                     project={project}
                                     isActive={true}
+                                    onSelectProject={onSelectProject}
+                                    onDeleteProject={onDeleteProject}
+                                    onUpdateProjects={onUpdateProjects}
+                                    onArchiveRequest={(id) => setArchiveConfirmId(id)}
+                                    onClose={() => setMenuProjectId(null)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p style={styles.projectWorkspace}>Personal Workspace</p>
+
+                        <div style={styles.projectMeta}>
+                          <span style={styles.projectMetaItem}>
+                            <Layers size={14} />
+                            {projectBoardCount} {projectBoardCount === 1 ? 'Board' : 'Boards'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <SquareStack size={14} />
+                            {totalTasks} {totalTasks === 1 ? 'Task' : 'Tasks'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <Users size={14} />
+                            1 Member
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardRight}>
+                        <button
+                          onClick={() => onSelectProject(project.id)}
+                          style={styles.openBtn}
+                        >
+                          Open Board
+                          <ArrowRight size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!hasProjectSelected && viewMode === 'completed' && (
+        <div style={styles.projectListWrap}>
+          <div style={styles.projectListHeader}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button onClick={() => setViewMode('projects')} style={styles.backBtn}>
+                <ArrowLeft size={16} />
+              </button>
+              <div>
+                <h2 style={styles.projectListTitle}>Completed Projects</h2>
+                <p style={styles.projectListSub}>
+                  {completedProjects.length} completed project{completedProjects.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+          </div>
+          {completedProjects.length === 0 ? (
+            <div style={styles.noProject}>
+              <CheckCircle2 size={48} color="var(--text-muted)" />
+              <h2 style={styles.noProjectTitle}>No completed projects</h2>
+              <p style={styles.noProjectText}>
+                Completed projects will appear here when you finish them.
+              </p>
+            </div>
+          ) : (
+            <div style={styles.projectGrid}>
+              {completedProjects.map((project, idx) => {
+                const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
+                const projectTaskList = tasks.filter(t => t.projectId === project.id);
+                const totalTasks = projectTaskList.length;
+                const PROJECT_ICONS = [Folder, LayoutDashboard, KanbanSquare, Layers];
+                const IconComponent = PROJECT_ICONS[idx % PROJECT_ICONS.length];
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+                    style={styles.projectCard}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#A7F3D0' }}
+                  >
+                    <div style={styles.projectCardInner}>
+                      <div style={styles.projectCardLeft}>
+                        <div style={{ ...styles.projectIconBox, backgroundColor: '#D1FAE5' }}>
+                          <IconComponent size={22} color="#10B981" strokeWidth={1.5} />
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardCenter}>
+                        <div style={styles.projectCardTopRow}>
+                          <h3 style={styles.projectCardName}>{project.name}</h3>
+                          <div style={styles.projectCardActions}>
+                            <span style={styles.statusBadge}>
+                              <span style={{ ...styles.statusDot, backgroundColor: '#10B981' }} />
+                              Completed
+                            </span>
+                            <div style={{ position: 'relative' }}>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setMenuProjectId(menuProjectId === project.id ? null : project.id); }}
+                                style={styles.moreBtn}
+                                title="More"
+                              >
+                                <MoreHorizontal size={16} color="#6B7280" />
+                              </button>
+                              <AnimatePresence>
+                                {menuProjectId === project.id && (
+                                  <ProjectCardMenu
+                                    project={project}
+                                    isActive={false}
                                     onSelectProject={onSelectProject}
                                     onDeleteProject={onDeleteProject}
                                     onUpdateProjects={onUpdateProjects}
@@ -844,6 +980,32 @@ export default function BoardPage({
         </div>
       )}
 
+      {hasProjectSelected && allDone && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={styles.completeBanner}>
+          <div style={styles.completeBannerLeft}>
+            <CheckCircle2 size={20} color="#10B981" />
+            <span style={styles.completeBannerText}>
+              Semua tugas di project <strong>{currentProject.name}</strong> sudah selesai!
+            </span>
+          </div>
+          <button onClick={() => setCompleteConfirmId(currentProject.id)} style={styles.completeBtn}>
+            <Flag size={14} /> Selesai
+          </button>
+        </motion.div>
+      )}
+
+      {hasProjectSelected && isCompleted && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ ...styles.completeBanner, backgroundColor: '#D1FAE5', borderColor: '#10B981' }}>
+          <div style={styles.completeBannerLeft}>
+            <CheckCircle2 size={20} color="#10B981" />
+            <span style={{ ...styles.completeBannerText, color: '#047857' }}>
+              Project <strong>{currentProject.name}</strong> sudah selesai
+            </span>
+          </div>
+        </motion.div>
+      )}
+
       {hasProjectSelected && projectBoards.length === 0 && (
         <div style={styles.emptyBoard}>
           <LayoutDashboard size={48} color="var(--text-muted)" />
@@ -901,13 +1063,26 @@ export default function BoardPage({
         onClose={() => setArchiveConfirmId(null)}
         onConfirm={() => {
           onUpdateProjects(prev => prev.map(p =>
-            p.id === archiveConfirmId ? { ...p, completed: true } : p
+            p.id === archiveConfirmId ? { ...p, status: 'archived' } : p
           ));
           setArchiveConfirmId(null);
         }}
         title="Arsipkan Project"
-        message={`Yakin ingin mengarsipkan project ini? Project akan disembunyikan dari daftar utama.`}
+        message="Yakin ingin mengarsipkan project ini? Project akan disembunyikan dari daftar utama."
         confirmText="Ya, Arsipkan"
+        cancelText="Batal"
+      />
+
+      <ConfirmDialog
+        isOpen={!!completeConfirmId}
+        onClose={() => setCompleteConfirmId(null)}
+        onConfirm={() => {
+          onCompleteProject(completeConfirmId);
+          setCompleteConfirmId(null);
+        }}
+        title="Selesaikan Project"
+        message="Yakin ingin menandai project ini sebagai selesai?"
+        confirmText="Ya, Selesaikan"
         cancelText="Batal"
       />
     </div>
@@ -979,6 +1154,18 @@ const styles = {
   },
   emptyBoardTitle: { fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.3px' },
   emptyBoardText: { fontSize: 'var(--text-base)', color: 'var(--text-muted)', maxWidth: '320px', lineHeight: 1.5 },
+  completeBanner: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    flexWrap: 'wrap', gap: '12px', padding: '14px 20px',
+    borderRadius: 'var(--r-lg)', border: '1.5px solid #A7F3D0', backgroundColor: '#ECFDF5',
+  },
+  completeBannerLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
+  completeBannerText: { fontSize: 'var(--text-base)', color: '#065F46', fontWeight: 500 },
+  completeBtn: {
+    display: 'flex', alignItems: 'center', gap: '6px',
+    padding: '8px 18px', borderRadius: 'var(--r-md)', border: 'none',
+    backgroundColor: '#000', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '13px',
+  },
   projectListWrap: {
     display: 'flex', flexDirection: 'column', gap: '24px',
   },
@@ -1025,7 +1212,7 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     gap: '12px',
   },
-  archivedBtn: {
+  statusBtn: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
     fontSize: '13px', fontWeight: 500, color: '#6B7280',
     background: 'none', border: '1px solid #E5E7EB', cursor: 'pointer',
