@@ -162,8 +162,11 @@ const btStyles = {
   dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 },
 };
 
-function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask }) {
+function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, onMoveBoard }) {
   const [newTitle, setNewTitle] = useState('');
+  const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const [hoveredColId, setHoveredColId] = useState(null);
+
   const total = tasks.length;
   const done = tasks.filter(t => t.status === 'Done').length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -208,6 +211,63 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
               <CheckCircle2 size={9} /> Selesai
             </span>
           )}
+          
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
+              style={{
+                ...bcStyles.moveBtn,
+                opacity: showMoveMenu ? 1 : 0.4,
+              }}
+              title="Pindahkan board"
+            >
+              <MoreHorizontal size={10} />
+            </button>
+            <AnimatePresence>
+              {showMoveMenu && (
+                <>
+                  <div 
+                    style={{
+                      position: 'fixed',
+                      inset: 0,
+                      zIndex: 100,
+                    }}
+                    onClick={(e) => { e.stopPropagation(); setShowMoveMenu(false); }}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                    transition={{ duration: 0.1 }}
+                    style={bcStyles.moveMenu}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div style={bcStyles.moveMenuHeader}>Pindahkan ke:</div>
+                    {COLUMNS.filter(col => col.id !== board.status).map(col => (
+                      <button
+                        key={col.id}
+                        onMouseEnter={() => setHoveredColId(col.id)}
+                        onMouseLeave={() => setHoveredColId(null)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMoveBoard?.(board.id, col.id);
+                          setShowMoveMenu(false);
+                        }}
+                        style={{
+                          ...bcStyles.moveMenuItem,
+                          color: col.color,
+                          backgroundColor: hoveredColId === col.id ? 'var(--bg-card-hover)' : 'transparent',
+                        }}
+                      >
+                        {col.title}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
           <button
             onClick={() => onDeleteBoard(board.id)}
             style={bcStyles.deleteBtn}
@@ -337,9 +397,49 @@ const bcStyles = {
     backgroundColor: 'var(--text-muted)', color: '#fff', cursor: 'pointer',
     flexShrink: 0,
   },
+  moveBtn: {
+    width: '20px', height: '20px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
+    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.4, flexShrink: 0,
+    transition: 'opacity 0.15s',
+  },
+  moveMenu: {
+    position: 'absolute', right: 0, top: 'calc(100% + 4px)',
+    minWidth: '120px',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-md)',
+    boxShadow: 'var(--shadow-md)',
+    zIndex: 101,
+    padding: '4px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  moveMenuHeader: {
+    fontSize: '9px',
+    fontWeight: 700,
+    color: 'var(--text-muted)',
+    padding: '4px 8px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    borderBottom: '1px solid var(--border)',
+    marginBottom: '2px',
+    textAlign: 'left',
+  },
+  moveMenuItem: {
+    display: 'flex', alignItems: 'center',
+    width: '100%', padding: '6px 8px',
+    border: 'none', background: 'none', cursor: 'pointer',
+    fontSize: '11px', fontWeight: 600,
+    textAlign: 'left', borderRadius: 'var(--r-sm)',
+    transition: 'background-color 0.1s',
+    fontFamily: 'inherit',
+  },
 };
 
-function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, getBoardTasks, isMobile }) {
+function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, getBoardTasks, isMobile, onMoveBoard }) {
   const [dragOver, setDragOver] = useState(false);
   const Icon = column.icon;
 
@@ -389,6 +489,7 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
                 onToggleSubtask={onToggleSubtask}
                 onDeleteBoard={onDeleteBoard}
                 onAddTask={onAddTask}
+                onMoveBoard={onMoveBoard}
               />
             )))}
           </AnimatePresence>
@@ -1191,6 +1292,7 @@ export default function BoardPage({
               onAddTask={handleAddTask}
               getBoardTasks={getBoardTasks}
               isMobile={isMobile}
+              onMoveBoard={handleBoardDrop}
             />
           ))}
         </motion.div>
