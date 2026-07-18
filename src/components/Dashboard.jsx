@@ -651,50 +651,55 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
         </div>
       </motion.div>
 
-      {/* Boards + Upcoming Tasks (2-col) */}
+      {/* Board List + Task Overview (2-col) */}
       <div style={styles.twoCol}>
-        {/* Left: Boards Grid */}
+        {/* Left: Board List */}
         <div style={styles.leftCol}>
           <div style={styles.sectionHead}>
             <h2 style={styles.h2}>
-              Board Anda
-              {selectedProject !== 'all' && (
-                <span style={styles.projectBadge}>
-                  {projects.find(p => p.id === selectedProject)?.name}
-                </span>
-              )}
+              <LayoutDashboard size={16} /> Semua Board
             </h2>
-
+            <span className="badge badge-emerald">{boards.length} Board</span>
           </div>
 
-          {visibleBoards.length === 0 ? (
+          {boards.length === 0 ? (
             <div style={styles.empty}>
               <LayoutDashboard size={36} color="var(--text-muted)" />
-              <p style={styles.emptyText}>
-                {selectedProject === 'all'
-                  ? 'Belum ada board. Buat board pertama Anda!'
-                  : 'Belum ada board untuk project ini.'}
-              </p>
-
+              <p style={styles.emptyText}>Belum ada board.</p>
             </div>
           ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-              style={styles.boardGrid}
-            >
-              <AnimatePresence mode="popLayout">
-                {visibleBoards.map(board => (
-                  <BoardCard
-                    key={board.id}
-                    board={board}
-                    onEdit={onEditBoard}
-                    onDelete={onDeleteBoard}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            <div style={styles.boardGridWrap}>
+              {(() => {
+                const withProj = boards.map(b => ({
+                  ...b,
+                  project: projects.find(p => p.id === b.projectId) || { id: 'other', name: 'Lainnya', color: '#6B7280' },
+                }));
+                const grouped = {};
+                withProj.forEach(b => {
+                  const pid = b.projectId || 'other';
+                  if (!grouped[pid]) grouped[pid] = { project: b.project, boards: [] };
+                  grouped[pid].boards.push(b);
+                });
+                return Object.values(grouped).map(g => (
+                  <div key={g.project.id} style={styles.projectBlock}>
+                    <div style={styles.projectBlockHead}>
+                      <div style={{ ...styles.blockDot, backgroundColor: g.project.color || '#6B7280' }} />
+                      <span style={styles.blockName}>{g.project.name}</span>
+                      <span style={styles.blockCount}>{g.boards.length}</span>
+                    </div>
+                    <div style={styles.blockList}>
+                      {g.boards.map(board => (
+                        <div key={board.id} style={styles.blockItem}>
+                          <div style={{ ...styles.blockItemDot, backgroundColor: board.color || '#10B981' }} />
+                          <span style={styles.blockItemName}>{board.name}</span>
+                          <span style={styles.blockItemDate}>{formatDate(board.createdAt)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
           )}
         </div>
 
@@ -982,5 +987,84 @@ const styles = {
     fontSize: 'var(--text-sm)',
     color: 'var(--text-muted)',
     maxWidth: '240px',
+  },
+  boardGridWrap: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '14px',
+    alignItems: 'start',
+  },
+  projectBlock: {
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-lg)',
+    boxShadow: 'var(--shadow-sm)',
+    overflow: 'hidden',
+  },
+  projectBlockHead: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 16px',
+    borderBottom: '1px solid var(--border)',
+  },
+  blockDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  blockName: {
+    fontSize: 'var(--text-sm)',
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+    flex: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  blockCount: {
+    fontSize: '10px',
+    fontWeight: 700,
+    color: 'var(--text-muted)',
+    backgroundColor: 'var(--bg-subtle)',
+    padding: '0 7px',
+    borderRadius: 'var(--r-full)',
+    lineHeight: '18px',
+  },
+  blockList: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '220px',
+    overflowY: 'auto',
+  },
+  blockItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '8px 16px',
+    transition: 'background 0.1s',
+    borderBottom: '1px solid var(--border)',
+  },
+  blockItemDot: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  blockItemName: {
+    fontSize: 'var(--text-sm)',
+    fontWeight: 500,
+    color: 'var(--text-secondary)',
+    flex: 1,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  blockItemDate: {
+    fontSize: '10px',
+    color: 'var(--text-muted)',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
   },
 };

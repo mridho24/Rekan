@@ -186,9 +186,16 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
                   flexShrink: 0
                 }} />
                 {!collapsed && (
-                  <span style={{ fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {proj.name}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', flex: 1 }}>
+                    <span style={{ fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {proj.name}
+                    </span>
+                    {proj.createdAt && (
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap', opacity: 0.6 }}>
+                        {new Date(proj.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                      </span>
+                    )}
+                  </div>
                 )}
               </button>
               {!collapsed && isHovered && (

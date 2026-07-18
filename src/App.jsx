@@ -291,6 +291,7 @@ export default function App() {
       id: `proj-${Date.now()}`,
       ...data,
       status: 'active',
+      createdAt: new Date().toISOString(),
     };
     setProjects(prev => [...prev, newProj]);
     setCurrentProjectId(newProj.id);
