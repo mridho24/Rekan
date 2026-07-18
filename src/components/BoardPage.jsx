@@ -4,7 +4,7 @@ import {
   ChevronDown, ChevronRight, FolderPlus, LayoutDashboard,
   Flag, ListChecks, Clock, GripVertical,
   MoreHorizontal, Users, Layers, ArrowRight, ArrowLeft,
-  Folder, KanbanSquare, SquareStack, Archive,
+  Folder, KanbanSquare, SquareStack, Archive, Search, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskDetailModal from './TaskDetailModal';
@@ -496,6 +496,9 @@ export default function BoardPage({
   const [viewMode, setViewMode] = useState('projects');
   const [archiveConfirmId, setArchiveConfirmId] = useState(null);
   const [completeConfirmId, setCompleteConfirmId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef(null);
 
   const selectedProject = currentProjectId;
   const hasProjectSelected = selectedProject && selectedProject !== 'all';
@@ -511,21 +514,27 @@ export default function BoardPage({
     [tasks, selectedProject]
   );
 
+  const q = searchQuery.toLowerCase().trim();
+  const filteredBoards = q ? projectBoards.filter(b => b.name.toLowerCase().includes(q)) : projectBoards;
+
   const groupedBoards = useMemo(() => {
     const map = { todo: [], inprogress: [], done: [] };
-    for (const board of projectBoards) {
+    for (const board of filteredBoards) {
       const boardTasks = projectTasks.filter(t => t.boardId === board.id);
       const allDone = boardTasks.length > 0 && boardTasks.every(t => t.status === 'Done');
       const effectiveStatus = allDone ? 'done' : board.status;
       (map[effectiveStatus] || map.todo).push(board);
     }
     return map;
-  }, [projectBoards, projectTasks]);
+  }, [filteredBoards, projectTasks]);
 
   const activeProjects = useMemo(() => projects.filter(p => p.status === 'active'), [projects]);
   const completedProjects = useMemo(() => projects.filter(p => p.status === 'completed'), [projects]);
   const archivedProjects = useMemo(() => projects.filter(p => p.status === 'archived'), [projects]);
   const visibleProjects = viewMode === 'archived' ? archivedProjects : viewMode === 'completed' ? completedProjects : activeProjects;
+
+  const filteredProjects = q ? visibleProjects.filter(p => p.name.toLowerCase().includes(q)) : visibleProjects;
+  const filterTasks = (tasks) => q ? tasks.filter(t => t.title.toLowerCase().includes(q)) : tasks;
 
   const allDone = projectTasks.length > 0 && projectTasks.every(t => t.status === 'Done') && currentProject?.status === 'active';
   const isCompleted = currentProject?.status === 'completed';
@@ -571,7 +580,7 @@ export default function BoardPage({
     setSelectedTask(null);
   };
 
-  const getBoardTasks = (boardId) => projectTasks.filter(t => t.boardId === boardId);
+  const getBoardTasks = (boardId) => filterTasks(projectTasks.filter(t => t.boardId === boardId));
 
   return (
     <div style={styles.page}>
@@ -583,6 +592,32 @@ export default function BoardPage({
           )}
         </div>
         <div style={styles.headerActions}>
+          <motion.div
+            ref={searchRef}
+            animate={{ width: isSearchOpen || searchQuery ? 200 : 36 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+            style={styles.searchBar}
+          >
+            <Search size={14} style={styles.searchIcon} onClick={() => { setIsSearchOpen(true); setTimeout(() => searchRef.current?.querySelector('input')?.focus(), 50); }} />
+            <input
+              type="text"
+              placeholder="Cari..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchOpen(true)}
+              onBlur={() => { if (!searchQuery) setIsSearchOpen(false); }}
+              style={{
+                ...styles.searchInput,
+                opacity: isSearchOpen || searchQuery ? 1 : 0,
+                pointerEvents: isSearchOpen || searchQuery ? 'auto' : 'none',
+              }}
+            />
+            {(isSearchOpen || searchQuery) && (
+              <button onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} style={styles.searchClear}>
+                <X size={14} />
+              </button>
+            )}
+          </motion.div>
           <ProjectFilter projects={projects} value={selectedProject} onChange={onSelectProject} />
           {hasProjectSelected && (
             <>
@@ -629,20 +664,32 @@ export default function BoardPage({
               </button>
             </div>
           </div>
-          {activeProjects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <div style={styles.noProject}>
-              <FolderPlus size={48} color="var(--text-muted)" />
-              <h2 style={styles.noProjectTitle}>No projects yet</h2>
-              <p style={styles.noProjectText}>
-                Create your first project to start managing your work.
-              </p>
-              <button className="btn btn-primary" onClick={onAddProject} style={{ marginTop: '4px' }}>
-                <Plus size={16} /> Create Project
-              </button>
+              {searchQuery ? (
+                <>
+                  <Search size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No results found</h2>
+                  <p style={styles.noProjectText}>
+                    No projects match "{searchQuery}"
+                  </p>
+                </>
+              ) : (
+                <>
+                  <FolderPlus size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No projects yet</h2>
+                  <p style={styles.noProjectText}>
+                    Create your first project to start managing your work.
+                  </p>
+                  <button className="btn btn-primary" onClick={onAddProject} style={{ marginTop: '4px' }}>
+                    <Plus size={16} /> Create Project
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div style={styles.projectGrid}>
-              {activeProjects.map((project, idx) => {
+              {filteredProjects.map((project, idx) => {
                 const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
                 const projectTaskList = tasks.filter(t => t.projectId === project.id);
                 const totalTasks = projectTaskList.length;
@@ -753,17 +800,29 @@ export default function BoardPage({
               </div>
             </div>
           </div>
-          {completedProjects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <div style={styles.noProject}>
-              <CheckCircle2 size={48} color="var(--text-muted)" />
-              <h2 style={styles.noProjectTitle}>No completed projects</h2>
-              <p style={styles.noProjectText}>
-                Completed projects will appear here when you finish them.
-              </p>
+              {searchQuery ? (
+                <>
+                  <Search size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No results found</h2>
+                  <p style={styles.noProjectText}>
+                    No completed projects match "{searchQuery}"
+                  </p>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No completed projects</h2>
+                  <p style={styles.noProjectText}>
+                    Completed projects will appear here when you finish them.
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             <div style={styles.projectGrid}>
-              {completedProjects.map((project, idx) => {
+              {filteredProjects.map((project, idx) => {
                 const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
                 const projectTaskList = tasks.filter(t => t.projectId === project.id);
                 const totalTasks = projectTaskList.length;
@@ -874,17 +933,29 @@ export default function BoardPage({
               </div>
             </div>
           </div>
-          {archivedProjects.length === 0 ? (
+          {filteredProjects.length === 0 ? (
             <div style={styles.noProject}>
-              <Archive size={48} color="var(--text-muted)" />
-              <h2 style={styles.noProjectTitle}>No archived projects</h2>
-              <p style={styles.noProjectText}>
-                Archived projects will appear here.
-              </p>
+              {searchQuery ? (
+                <>
+                  <Search size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No results found</h2>
+                  <p style={styles.noProjectText}>
+                    No archived projects match "{searchQuery}"
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Archive size={48} color="var(--text-muted)" />
+                  <h2 style={styles.noProjectTitle}>No archived projects</h2>
+                  <p style={styles.noProjectText}>
+                    Archived projects will appear here.
+                  </p>
+                </>
+              )}
             </div>
           ) : (
             <div style={styles.projectGrid}>
-              {archivedProjects.map((project, idx) => {
+              {filteredProjects.map((project, idx) => {
                 const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
                 const projectTaskList = tasks.filter(t => t.projectId === project.id);
                 const totalTasks = projectTaskList.length;
@@ -1006,20 +1077,32 @@ export default function BoardPage({
         </motion.div>
       )}
 
-      {hasProjectSelected && projectBoards.length === 0 && (
+      {hasProjectSelected && (searchQuery ? filteredBoards.length === 0 : projectBoards.length === 0) && (
         <div style={styles.emptyBoard}>
-          <LayoutDashboard size={48} color="var(--text-muted)" />
-          <h3 style={styles.emptyBoardTitle}>Belum Ada Board</h3>
-          <p style={styles.emptyBoardText}>
-            Buat board pertama untuk project <strong>{currentProject.name}</strong> dan mulai kelola tugas Anda.
-          </p>
-          <button className="btn btn-primary" onClick={onCreateBoard} style={{ padding: '10px 24px', fontSize: '15px' }}>
-            <Plus size={16} /> Buat Board Baru
-          </button>
+          {searchQuery ? (
+            <>
+              <Search size={48} color="var(--text-muted)" />
+              <h3 style={styles.emptyBoardTitle}>No boards found</h3>
+              <p style={styles.emptyBoardText}>
+                No boards match "{searchQuery}" in <strong>{currentProject.name}</strong>
+              </p>
+            </>
+          ) : (
+            <>
+              <LayoutDashboard size={48} color="var(--text-muted)" />
+              <h3 style={styles.emptyBoardTitle}>Belum Ada Board</h3>
+              <p style={styles.emptyBoardText}>
+                Buat board pertama untuk project <strong>{currentProject.name}</strong> dan mulai kelola tugas Anda.
+              </p>
+              <button className="btn btn-primary" onClick={onCreateBoard} style={{ padding: '10px 24px', fontSize: '15px' }}>
+                <Plus size={16} /> Buat Board Baru
+              </button>
+            </>
+          )}
         </div>
       )}
 
-      {hasProjectSelected && projectBoards.length > 0 && (
+      {hasProjectSelected && (searchQuery ? filteredBoards.length > 0 : projectBoards.length > 0) && (
         <motion.div layout style={styles.boardRow}>
           {COLUMNS.map(col => (
             <BoardColumn
@@ -1123,6 +1206,43 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
+  },
+  searchBar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    overflow: 'hidden',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border-soft)',
+    background: 'var(--bg-secondary)',
+    padding: '0 8px',
+    height: 32,
+    cursor: 'text',
+  },
+  searchIcon: {
+    flexShrink: 0,
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
+  },
+  searchInput: {
+    border: 'none',
+    background: 'transparent',
+    outline: 'none',
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-primary)',
+    width: 140,
+    flex: 1,
+    fontFamily: 'inherit',
+    transition: 'opacity 0.15s',
+  },
+  searchClear: {
+    flexShrink: 0,
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    padding: 0,
+    display: 'flex',
+    color: 'var(--text-muted)',
   },
   totalBadge: {
     fontSize: 'var(--text-sm)',

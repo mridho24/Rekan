@@ -36,12 +36,13 @@ function SmokePuff({ id, x, y, onEnd }) {
   return (
     <motion.circle
       key={id}
-      cx={x}
-      cy={y}
-      r={size}
       fill="#D1D5DB"
-      opacity={0.6}
-      initial={{ opacity: 0.6, r: size * 0.5 }}
+      initial={{
+        opacity: 0.6,
+        r: size * 0.5,
+        cx: x,
+        cy: y
+      }}
       animate={{
         opacity: 0,
         r: size * 2,
@@ -167,7 +168,8 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
             <line x1="42" y1="29" x2="58" y2="28" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
             <line x1="58" y1="28" x2="64" y2="27" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" />
             <motion.circle
-              cx="64" cy="27" r="1.5" fill="#F97316"
+              cx="64" cy="27" fill="#F97316"
+              initial={{ r: 1.5 }}
               animate={{ r: [1.5, 2.5, 1.5] }}
               transition={{ repeat: Infinity, duration: 0.5, ease: 'easeInOut' }}
             />
