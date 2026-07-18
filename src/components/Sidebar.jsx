@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare, LogOut,
+  LayoutDashboard, KanbanSquare, ListChecks, Settings,
+  Sun, Moon, ChevronLeft, ChevronRight, MessageSquare, LogOut,
   Calendar, FileText,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,7 +9,7 @@ import SidebarCharacter from './SidebarCharacter';
 
 const NAV_ITEMS = [
   { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
-  { id: 'boards',       label: 'Boards',       icon: KanbanSquare },
+  { id: 'boards',       label: 'Projects',     icon: KanbanSquare },
   { id: 'tasks',        label: 'All Tasks',    icon: ListChecks },
   { id: 'calendar',     label: 'Calendar',     icon: Calendar },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
@@ -44,9 +44,8 @@ function RekanLogo({ size = 20, collapsed = false }) {
   );
 }
 
-export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {}, onDeleteProject = () => {}, onLogout = () => {} }) {
+export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {} }) {
   const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
-  const [hoveredProject, setHoveredProject] = useState(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -107,116 +106,6 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
           );
         })}
       </nav>
-
-      {/* Projects Section Divider */}
-      <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '8px 16px' }} />
-
-      {/* Projects Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: collapsed ? '8px 4px' : '8px 16px',
-        color: 'var(--text-muted)',
-        fontSize: '11px',
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px'
-      }}>
-        {!collapsed && <span>Projects</span>}
-        <button
-          onClick={onCreateProjectClick}
-          className="btn-icon"
-          style={{ padding: '2px', display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}
-          title="Buat Project Baru"
-        >
-          <Plus size={14} />
-        </button>
-      </div>
-
-      {/* Projects List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '4px 8px', overflowY: 'auto', maxHeight: '180px' }}>
-        {/* All Projects Option */}
-        <button
-          onClick={() => { onSelectProject('all'); onNavigate('dashboard'); }}
-          title={collapsed ? "Semua Project" : undefined}
-          style={{
-            ...styles.navItem,
-            backgroundColor: currentProjectId === 'all' ? 'var(--emerald-bg)' : 'transparent',
-            color: currentProjectId === 'all' ? 'var(--emerald-dark)' : 'var(--text-secondary)',
-            borderLeft: currentProjectId === 'all' ? '3px solid var(--emerald)' : '3px solid transparent',
-            paddingLeft: currentProjectId === 'all' ? '13px' : '13px',
-            fontWeight: currentProjectId === 'all' ? 600 : 500,
-            justifyContent: collapsed ? 'center' : 'flex-start',
-          }}
-        >
-          <LayoutDashboard size={16} />
-          {!collapsed && <span style={{ fontSize: 'var(--text-sm)' }}>Semua Project</span>}
-        </button>
-
-        {/* Individual Projects */}
-        {projects.map(proj => {
-          const isActive = currentProjectId === proj.id;
-          const isHovered = hoveredProject === proj.id;
-          return (
-            <div
-              key={proj.id}
-              onMouseEnter={() => setHoveredProject(proj.id)}
-              onMouseLeave={() => setHoveredProject(null)}
-              style={{ position: 'relative' }}
-            >
-              <button
-                onClick={() => { onSelectProject(proj.id); onNavigate('dashboard'); }}
-                title={collapsed ? proj.name : undefined}
-                style={{
-                  ...styles.navItem,
-                  backgroundColor: isActive ? 'var(--emerald-bg)' : 'transparent',
-                  color: isActive ? 'var(--emerald-dark)' : 'var(--text-secondary)',
-                  borderLeft: isActive ? '3px solid var(--emerald)' : '3px solid transparent',
-                  paddingLeft: isActive ? '13px' : '13px',
-                  fontWeight: isActive ? 600 : 500,
-                  justifyContent: collapsed ? 'center' : 'flex-start',
-                }}
-              >
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: proj.color,
-                  marginRight: collapsed ? 0 : '8px',
-                  flexShrink: 0
-                }} />
-                {!collapsed && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', flex: 1 }}>
-                    <span style={{ fontSize: 'var(--text-sm)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {proj.name}
-                    </span>
-                    {proj.createdAt && (
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap', opacity: 0.6 }}>
-                        {new Date(proj.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </button>
-              {!collapsed && isHovered && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (window.confirm(`Hapus project "${proj.name}"? Semua board dan tugas di dalamnya juga akan dihapus.`)) {
-                      onDeleteProject(proj.id);
-                    }
-                  }}
-                  title="Hapus project"
-                  style={styles.deleteBtn}
-                >
-                  <Trash2 size={12} />
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
 
       {/* Bottom: Notes + Settings + Theme toggle + User */}
       <div style={styles.bottomArea}>

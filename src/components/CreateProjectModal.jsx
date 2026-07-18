@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const COLORS = [
@@ -14,12 +14,16 @@ const COLORS = [
 
 export default function CreateProjectModal({ isOpen, onClose, onSave }) {
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [deadline, setDeadline] = useState('');
   const [color, setColor] = useState('#6366F1');
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setName('');
+      setDescription('');
+      setDeadline('');
       setColor('#6366F1');
       setError('');
     }
@@ -38,6 +42,8 @@ export default function CreateProjectModal({ isOpen, onClose, onSave }) {
 
     onSave({
       name: name.trim(),
+      description: description.trim() || null,
+      deadline: deadline ? new Date(deadline).toISOString() : null,
       color
     });
     onClose();
@@ -95,6 +101,31 @@ export default function CreateProjectModal({ isOpen, onClose, onSave }) {
                   style={s.input}
                   autoFocus
                 />
+              </div>
+
+              {/* Description */}
+              <div style={s.inputGroup}>
+                <label style={s.label}>Deskripsi</label>
+                <textarea
+                  value={description}
+                  onChange={e => setDescription(e.target.value)}
+                  placeholder="Deskripsi project (opsional)"
+                  style={{ ...s.input, minHeight: '72px', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              {/* Deadline */}
+              <div style={s.inputGroup}>
+                <label style={s.label}>Deadline</label>
+                <div style={s.dateWrap}>
+                  <Calendar size={15} color="var(--text-muted)" />
+                  <input
+                    type="date"
+                    value={deadline}
+                    onChange={e => setDeadline(e.target.value)}
+                    style={{ ...s.input, border: 'none', background: 'none', padding: 0 }}
+                  />
+                </div>
               </div>
 
               {/* Color picker */}
@@ -243,6 +274,17 @@ const s = {
     fontSize: '14px',
     outline: 'none',
     width: '100%',
+  },
+  dateWrap: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '11px 14px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
   },
   colorGrid: {
     display: 'flex',

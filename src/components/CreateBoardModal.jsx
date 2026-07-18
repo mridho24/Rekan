@@ -87,6 +87,14 @@ function TaskForm({ task, index, onUpdate, onRemove }) {
         autoFocus={index > 0}
       />
 
+      <input
+        type="date"
+        value={task.deadline || ''}
+        onChange={e => onUpdate({ ...task, deadline: e.target.value })}
+        style={tfStyles.dateInput}
+        title="Deadline"
+      />
+
       {(task.subtasks || []).map((st, i) => (
         <SubtaskItem
           key={i}
@@ -126,6 +134,13 @@ const tfStyles = {
     backgroundColor: 'var(--bg-input)',
     color: 'var(--text-primary)', fontSize: '12px',
     outline: 'none', fontFamily: 'inherit', fontWeight: 600,
+  },
+  dateInput: {
+    padding: '5px 8px', borderRadius: 'var(--r-sm)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-muted)', fontSize: '11px',
+    outline: 'none', fontFamily: 'inherit', cursor: 'pointer',
   },
   addSubBtn: {
     display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center',
@@ -186,7 +201,7 @@ export default function CreateBoardModal({ isOpen, onClose, onSave, board }) {
   };
 
   const addNewTask = () => {
-    setTasks(prev => [...prev, { title: '', subtasks: [] }]);
+    setTasks(prev => [...prev, { title: '', deadline: '', subtasks: [] }]);
     setShowTasks(true);
   };
 

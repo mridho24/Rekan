@@ -162,8 +162,7 @@ const btStyles = {
   dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 },
 };
 
-function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, onMoveBoard }) {
-  const [newTitle, setNewTitle] = useState('');
+function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onMoveBoard }) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [hoveredColId, setHoveredColId] = useState(null);
 
@@ -317,30 +316,6 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             ))
           )}
         </div>
-
-        <div style={bcStyles.addTaskRow}>
-          <input
-            type="text"
-            value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && newTitle.trim()) {
-                onAddTask?.(board.id, newTitle.trim());
-                setNewTitle('');
-              }
-            }}
-            placeholder="+ Tambah tugas..."
-            style={bcStyles.addTaskInput}
-          />
-          {newTitle.trim() && (
-            <button
-              onClick={() => { onAddTask?.(board.id, newTitle.trim()); setNewTitle(''); }}
-              style={bcStyles.addTaskBtn}
-            >
-              <Plus size={12} />
-            </button>
-          )}
-        </div>
       </div>
     </motion.div>
   );
@@ -391,22 +366,7 @@ const bcStyles = {
   dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' },
   taskList: { display: 'flex', flexDirection: 'column', gap: '1px', marginTop: '2px' },
   emptyTasks: { fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 0' },
-  addTaskRow: {
-    display: 'flex', alignItems: 'center', gap: '4px',
-    marginTop: '4px', paddingTop: '4px', borderTop: '1px solid var(--border)',
-  },
-  addTaskInput: {
-    flex: 1, padding: '5px 8px', borderRadius: 'var(--r-sm)',
-    border: '1px solid var(--border)', backgroundColor: 'var(--bg-input)',
-    color: 'var(--text-primary)', fontSize: '11px', outline: 'none',
-    fontFamily: 'inherit',
-  },
-  addTaskBtn: {
-    width: '22px', height: '22px', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', borderRadius: 'var(--r-sm)', border: 'none',
-    backgroundColor: 'var(--text-muted)', color: '#fff', cursor: 'pointer',
-    flexShrink: 0,
-  },
+
   moveBtn: {
     width: '26px', height: '26px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -449,7 +409,7 @@ const bcStyles = {
   },
 };
 
-function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, getBoardTasks, isMobile, onMoveBoard }) {
+function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, getBoardTasks, isMobile, onMoveBoard }) {
   const [dragOver, setDragOver] = useState(false);
   const Icon = column.icon;
 
@@ -498,7 +458,6 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
                 onToggleTask={onToggleTask}
                 onToggleSubtask={onToggleSubtask}
                 onDeleteBoard={onDeleteBoard}
-                onAddTask={onAddTask}
                 onMoveBoard={onMoveBoard}
               />
             )))}
@@ -683,21 +642,6 @@ export default function BoardPage({
       if (t.id !== taskId || !t.subtasks) return t;
       return { ...t, subtasks: t.subtasks.map(st => st.id === subtaskId ? { ...st, done: !st.done } : st) };
     }));
-  };
-
-  const handleAddTask = (boardId, title) => {
-    onUpdateTasks(prev => [{
-      id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      projectId: selectedProject,
-      boardId,
-      title,
-      description: null,
-      priority: 'Medium',
-      status: 'To Do',
-      deadline: null,
-      labels: [],
-      subtasks: [],
-    }, ...prev]);
   };
 
   const handleSaveTask = (updatedTask) => {
@@ -1299,8 +1243,7 @@ export default function BoardPage({
               onToggleTask={handleTaskToggle}
               onToggleSubtask={handleSubtaskToggle}
               onDeleteBoard={onDeleteBoard}
-              onAddTask={handleAddTask}
-              getBoardTasks={getBoardTasks}
+                getBoardTasks={getBoardTasks}
               isMobile={isMobile}
               onMoveBoard={handleBoardDrop}
             />

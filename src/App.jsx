@@ -18,9 +18,9 @@ import './index.css';
 
 // ─── Mock Data ──────────────────────────────────────────
 const INITIAL_PROJECTS = [
-  { id: 'proj-1', name: 'Project Kuliah', color: '#6366F1', status: 'active' },
-  { id: 'proj-2', name: 'Project Kantor', color: '#10B981', status: 'active' },
-  { id: 'proj-3', name: 'Personal Sandbox', color: '#F59E0B', status: 'active' }
+  { id: 'proj-1', name: 'Project Kuliah', description: 'Tugas kuliah semester ini', color: '#6366F1', status: 'active', deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'proj-2', name: 'Project Kantor', description: 'Proyek pengembangan internal', color: '#10B981', status: 'active', deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'proj-3', name: 'Personal Sandbox', description: null, color: '#F59E0B', status: 'active', deadline: null }
 ];
 
 const INITIAL_BOARDS = [
@@ -257,7 +257,7 @@ export default function App() {
             description: null,
             priority: 'Medium',
             status: 'To Do',
-            deadline: null,
+            deadline: t.deadline ? new Date(t.deadline).toISOString() : null,
             labels: [],
             subtasks: (t.subtasks || []).filter(st => st.text.trim()).map((st, j) => ({
               id: `st-${Date.now()}-${i}-${j}`,
@@ -362,8 +362,6 @@ export default function App() {
       case 'calendar':
         return (
           <CalendarPage
-            tasks={tasks}
-            boards={boards}
             projects={projects}
           />
         );
@@ -406,11 +404,6 @@ export default function App() {
         onNavigate={setActiveView}
         theme={theme}
         onToggleTheme={toggleTheme}
-        projects={projects}
-        currentProjectId={currentProjectId}
-        onSelectProject={setCurrentProjectId}
-        onCreateProjectClick={() => setIsProjectModalOpen(true)}
-        onDeleteProject={handleDeleteProject}
         onLogout={handleLogoutClick}
       />
 

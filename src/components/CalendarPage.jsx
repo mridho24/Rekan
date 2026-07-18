@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, FolderPlus } from 'lucide-react';
 
 const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -18,49 +18,42 @@ function getFirstDayOfMonth(year, month) {
   return new Date(year, month, 1).getDay();
 }
 
-export default function CalendarPage({ tasks = [], boards = [], projects = [] }) {
+function toLocalDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export default function CalendarPage({ projects = [] }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
 
-  const boardMap = useMemo(() => {
-    const m = {};
-    boards.forEach(b => { m[b.id] = b; });
-    return m;
-  }, [boards]);
-
-  const projectMap = useMemo(() => {
-    const m = {};
-    projects.forEach(p => { m[p.id] = p; });
-    return m;
-  }, [projects]);
-
-  const tasksByDate = useMemo(() => {
+  const projectsByDate = useMemo(() => {
     const map = {};
-    tasks.forEach(task => {
-      if (!task.deadline) return;
-      const key = task.deadline.slice(0, 10);
+    projects.forEach(p => {
+      if (!p.deadline) return;
+      const key = toLocalDateStr(new Date(p.deadline));
       if (!map[key]) map[key] = [];
-      map[key].push(task);
+      map[key].push(p);
     });
     return map;
-  }, [tasks]);
+  }, [projects]);
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayStr = toLocalDateStr(today);
 
   const prevMonth = () => setViewDate(new Date(year, month - 1, 1));
   const nextMonth = () => setViewDate(new Date(year, month + 1, 1));
 
-  const selectedDateStr = selectedDate ? selectedDate.toISOString().slice(0, 10) : null;
-  const selectedTasks = selectedDateStr ? (tasksByDate[selectedDateStr] || []) : [];
-
-  const cellSize = '36px';
+  const selectedDateStr = selectedDate ? toLocalDateStr(selectedDate) : null;
+  const selectedProjects = selectedDateStr ? (projectsByDate[selectedDateStr] || []) : [];
 
   return (
     <div style={styles.page}>
@@ -69,12 +62,11 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
           <CalendarIcon size={20} /> Kalender
         </h1>
         <p style={styles.subtitle}>
-          {tasks.filter(t => t.deadline).length} tugas dengan deadline
+          {projects.filter(p => p.deadline).length} project dengan deadline
         </p>
       </div>
 
       <div style={styles.twoCol}>
-        {/* Calendar Grid */}
         <div style={styles.calendarCol}>
           <div style={styles.calendarCard}>
             <div style={styles.calendarNav}>
@@ -102,10 +94,10 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1;
                 const date = new Date(year, month, day);
-                const dateStr = date.toISOString().slice(0, 10);
+                const dateStr = toLocalDateStr(date);
                 const isToday = dateStr === todayStr;
                 const isSelected = selectedDate && date.getTime() === selectedDate.getTime();
-                const dayTasks = tasksByDate[dateStr] || [];
+                const dayProjects = projectsByDate[dateStr] || [];
 
                 return (
                   <motion.button
@@ -114,20 +106,17 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
                     onClick={() => setSelectedDate(date)}
                     style={{
                       ...styles.cell,
-                      width: cellSize,
-                      height: cellSize,
                       backgroundColor: isSelected ? 'var(--emerald)' : isToday ? 'var(--emerald-bg)' : 'transparent',
                       color: isSelected ? '#fff' : isToday ? 'var(--emerald-dark)' : 'var(--text-primary)',
                       fontWeight: isToday || isSelected ? 700 : 500,
                     }}
                   >
                     {day}
-                    {dayTasks.length > 0 && (
+                    {dayProjects.length > 0 && (
                       <div style={styles.dotWrap}>
-                        {dayTasks.slice(0, 3).map((t, j) => {
-                          const board = boardMap[t.boardId];
-                          return <div key={j} style={{ ...styles.dot, backgroundColor: board?.color || '#10B981' }} />;
-                        })}
+                        {dayProjects.slice(0, 3).map((p, j) => (
+                          <div key={j} style={{ ...styles.dot, backgroundColor: p.color || '#10B981' }} />
+                        ))}
                       </div>
                     )}
                   </motion.button>
@@ -137,7 +126,6 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
           </div>
         </div>
 
-        {/* Task List */}
         <div style={styles.taskCol}>
           <div style={styles.taskCard}>
             <h2 style={styles.taskCardTitle}>
@@ -145,66 +133,55 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
                 ? `${selectedDate.getDate()} ${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`
                 : 'Pilih tanggal'}
             </h2>
-            <span className="badge badge-emerald">{selectedTasks.length} tugas</span>
+            <span className="badge badge-emerald">{selectedProjects.length} project</span>
           </div>
 
-          {selectedDate && selectedTasks.length > 0 ? (
+          {selectedDate && selectedProjects.length > 0 ? (
             <div style={styles.taskList}>
-              {selectedTasks.map(task => {
-                const board = boardMap[task.boardId];
-                const project = projectMap[task.projectId];
-                return (
-                  <motion.div
-                    key={task.id}
-                    layout
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={styles.taskItem}
-                    onClick={() => setSelectedTask(task)}
-                  >
-                    <div style={{ ...styles.taskPriority, backgroundColor: task.priority === 'High' ? '#EF4444' : task.priority === 'Medium' ? '#F59E0B' : '#D1D5DB' }} />
-                    <div style={styles.taskBody}>
-                      <span style={styles.taskTitle}>{task.title}</span>
-                      <div style={styles.taskMeta}>
-                        {board && (
-                          <span style={{ ...styles.metaTag, backgroundColor: hexToRgba(board.color || '#10B981', 0.12), color: board.color || '#10B981' }}>
-                            {board.name}
-                          </span>
-                        )}
-                        {project && (
-                          <span style={styles.metaProject}>{project.name}</span>
-                        )}
-                        <span style={styles.metaPrio}>{task.priority}</span>
-                      </div>
+              {selectedProjects.map(project => (
+                <motion.div
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={styles.taskItem}
+                  onClick={() => setSelectedProject(project)}
+                >
+                  <div style={{ ...styles.taskPriority, backgroundColor: project.color || '#10B981' }} />
+                  <div style={styles.taskBody}>
+                    <span style={styles.taskTitle}>{project.name}</span>
+                    <div style={styles.taskMeta}>
+                      <span style={styles.metaProject}>
+                        {project.description || 'Tidak ada deskripsi'}
+                      </span>
                     </div>
-                    <Clock size={12} color="var(--text-muted)" />
-                  </motion.div>
-                );
-              })}
+                  </div>
+                  <Clock size={12} color="var(--text-muted)" />
+                </motion.div>
+              ))}
             </div>
           ) : selectedDate ? (
             <div style={styles.emptyState}>
               <CalendarIcon size={32} color="var(--text-muted)" />
-              <p style={styles.emptyText}>Tidak ada tugas di tanggal ini</p>
+              <p style={styles.emptyText}>Tidak ada project dengan deadline di tanggal ini</p>
             </div>
           ) : (
             <div style={styles.emptyState}>
               <CalendarIcon size={32} color="var(--text-muted)" />
-              <p style={styles.emptyText}>Klik tanggal untuk melihat tugas</p>
+              <p style={styles.emptyText}>Klik tanggal untuk melihat project</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Simple task detail popup */}
       <AnimatePresence>
-        {selectedTask && (
+        {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             style={styles.overlay}
-            onClick={() => setSelectedTask(null)}
+            onClick={() => setSelectedProject(null)}
           >
             <motion.div
               initial={{ scale: 0.92, y: 20 }}
@@ -214,42 +191,29 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
               onClick={e => e.stopPropagation()}
             >
               <div style={styles.modalHeader}>
-                <h3 style={styles.modalTitle}>{selectedTask.title}</h3>
-                <button style={styles.modalClose} onClick={() => setSelectedTask(null)}>✕</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: selectedProject.color || '#10B981' }} />
+                  <h3 style={styles.modalTitle}>{selectedProject.name}</h3>
+                </div>
+                <button style={styles.modalClose} onClick={() => setSelectedProject(null)}>✕</button>
               </div>
               <div style={styles.modalBody}>
-                {selectedTask.description && <p style={styles.modalDesc}>{selectedTask.description}</p>}
+                {selectedProject.description && (
+                  <p style={styles.modalDesc}>{selectedProject.description}</p>
+                )}
                 <div style={styles.modalMeta}>
                   <span style={styles.modalMetaItem}>
-                    <strong>Status:</strong> {selectedTask.status}
+                    <strong>Status:</strong> {selectedProject.status === 'active' ? 'Aktif' : selectedProject.status === 'completed' ? 'Selesai' : 'Diarsipkan'}
                   </span>
                   <span style={styles.modalMetaItem}>
-                    <strong>Prioritas:</strong>
-                    <span style={{ color: selectedTask.priority === 'High' ? '#EF4444' : selectedTask.priority === 'Medium' ? '#F59E0B' : '#6B7280' }}>
-                      {selectedTask.priority}
+                    <strong>Deadline:</strong> {formatDate(selectedProject.deadline)}
+                  </span>
+                  {selectedProject.createdAt && (
+                    <span style={styles.modalMetaItem}>
+                      <strong>Dibuat:</strong> {formatDate(selectedProject.createdAt)}
                     </span>
-                  </span>
-                  <span style={styles.modalMetaItem}>
-                    <strong>Deadline:</strong> {formatDate(selectedTask.deadline)}
-                  </span>
-                  {(() => {
-                    const b = boardMap[selectedTask.boardId];
-                    const p = projectMap[selectedTask.projectId];
-                    return (
-                      <>
-                        {b && <span style={styles.modalMetaItem}><strong>Board:</strong> {b.name}</span>}
-                        {p && <span style={styles.modalMetaItem}><strong>Project:</strong> {p.name}</span>}
-                      </>
-                    );
-                  })()}
+                  )}
                 </div>
-                {selectedTask.labels?.length > 0 && (
-                  <div style={styles.labelRow}>
-                    {selectedTask.labels.map(l => (
-                      <span key={l} style={styles.labelTag}>{l}</span>
-                    ))}
-                  </div>
-                )}
               </div>
             </motion.div>
           </motion.div>
@@ -257,13 +221,6 @@ export default function CalendarPage({ tasks = [], boards = [], projects = [] })
       </AnimatePresence>
     </div>
   );
-}
-
-function hexToRgba(hex, a) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${a})`;
 }
 
 const styles = {
@@ -438,21 +395,13 @@ const styles = {
     gap: '6px',
     flexWrap: 'wrap',
   },
-  metaTag: {
-    fontSize: '10px',
-    fontWeight: 600,
-    padding: '1px 6px',
-    borderRadius: 'var(--r-full)',
-  },
   metaProject: {
     fontSize: '10px',
     color: 'var(--text-muted)',
     fontWeight: 500,
-  },
-  metaPrio: {
-    fontSize: '10px',
-    fontWeight: 600,
-    color: 'var(--text-muted)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   emptyState: {
     padding: '40px 20px',
@@ -526,18 +475,5 @@ const styles = {
     color: 'var(--text-secondary)',
     display: 'flex',
     gap: '4px',
-  },
-  labelRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '4px',
-  },
-  labelTag: {
-    fontSize: '11px',
-    fontWeight: 600,
-    color: 'var(--text-muted)',
-    backgroundColor: 'var(--border)',
-    padding: '2px 8px',
-    borderRadius: 'var(--r-full)',
   },
 };

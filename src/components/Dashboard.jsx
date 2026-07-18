@@ -702,6 +702,9 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
                     <div style={styles.projectBlockHead}>
                       <div style={{ ...styles.blockDot, backgroundColor: project.color || '#6B7280' }} />
                       <span style={styles.blockName}>{project.name}</span>
+                      {project.deadline && (
+                        <span style={styles.blockDeadline}>{formatDate(project.deadline)}</span>
+                      )}
                       <span style={styles.blockCount}>{projectBoards.length}</span>
                     </div>
                     <div style={styles.blockList}>
@@ -1052,6 +1055,13 @@ const styles = {
     padding: '0 7px',
     borderRadius: 'var(--r-full)',
     lineHeight: '18px',
+  },
+  blockDeadline: {
+    fontSize: '11px',
+    color: 'var(--rose)',
+    fontWeight: 600,
+    marginLeft: 'auto',
+    marginRight: '6px',
   },
   blockList: {
     display: 'flex',
