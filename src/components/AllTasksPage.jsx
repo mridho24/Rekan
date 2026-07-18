@@ -15,9 +15,9 @@ const STATUS_COLORS = {
 };
 
 const PRIORITY_COLORS = {
-  High: '#EF4444',
+  High: 'var(--danger)',
   Medium: '#F59E0B',
-  Low: '#6B7280',
+  Low: 'var(--text-muted)',
 };
 
 function formatDate(iso) {
@@ -142,7 +142,7 @@ export default function AllTasksPage({ tasks, boards, projects }) {
                 >
                   <div style={{
                     ...styles.priorityBar,
-                    backgroundColor: PRIORITY_COLORS[task.priority] || '#6B7280',
+                    backgroundColor: PRIORITY_COLORS[task.priority] || 'var(--text-muted)',
                   }} />
                   <div style={styles.cardBody}>
                     <div style={styles.cardTop}>

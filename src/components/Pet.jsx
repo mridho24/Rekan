@@ -20,11 +20,11 @@ const RAW = [
   [0,0,1,5,5,0,0,5,5,1,0,0],
 ];
 
-const BODY = '#10B981';
-const FOOT = '#059669';
+const BODY = 'var(--emerald)';
+const FOOT = 'var(--emerald-dark)';
 const CHEEK = '#D1FAE5';
-const WHITE = '#FFFFFF';
-const PUPIL = (dark) => dark ? '#111827' : '#1F2937';
+const WHITE = 'var(--bg-card)';
+const PUPIL = (dark) => dark ? 'var(--text-primary)' : '#1F2937';
 
 export default function Pet({ theme = 'light', completionTrigger = 0 }) {
   const [visible, setVisible] = useState(true);

@@ -62,36 +62,36 @@ function stripHtml(html) {
 
 const hoverStyle = document.createElement('style');
 hoverStyle.textContent = `
-  .ns-btn:hover { background-color: #F3F4F6 !important; }
-  .ns-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 8px; }
+  .ns-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .ns-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
   .ns-note-card { transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease; }
-  .ns-note-card:hover { transform: translateY(-1px); background-color: #F9FAFB !important; border-color: #D1D5DB !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
-  .ns-note-card:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 10px; }
+  .ns-note-card:hover { transform: translateY(-1px); background-color: var(--bg-subtle) !important; border-color: var(--border-strong) !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
+  .ns-note-card:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 10px; }
   .ns-new-btn:hover { background-color: #1F2937 !important; }
-  .ns-delete-btn:hover { opacity: 1 !important; background-color: #FEE2E2 !important; }
+  .ns-delete-btn:hover { opacity: 1 !important; background-color: var(--peach) !important; }
   .ns-editor h1 { font-size: 1.8em; font-weight: 700; margin: 0.5em 0 0.3em; line-height: 1.3; }
   .ns-editor h2 { font-size: 1.5em; font-weight: 700; margin: 0.5em 0 0.3em; line-height: 1.3; }
   .ns-editor h3 { font-size: 1.25em; font-weight: 600; margin: 0.4em 0 0.2em; line-height: 1.3; }
   .ns-editor p { margin: 0.3em 0; line-height: 1.8; }
   .ns-editor ul, .ns-editor ol { padding-left: 1.5em; margin: 0.3em 0; }
   .ns-editor li { margin: 0.15em 0; line-height: 1.7; }
-  .ns-editor blockquote { border-left: 3px solid #D1D5DB; margin: 0.5em 0; padding: 0.3em 1em; color: #6B7280; font-style: italic; }
-  .ns-editor pre { background: #F3F4F6; border-radius: 8px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; margin: 0.5em 0; }
-  .ns-editor code { background: #F3F4F6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: 'JetBrains Mono', monospace; }
-  .ns-editor hr { border: none; border-top: 1px solid #E5E7EB; margin: 1em 0; }
+  .ns-editor blockquote { border-left: 3px solid var(--border-strong); margin: 0.5em 0; padding: 0.3em 1em; color: var(--text-muted); font-style: italic; }
+  .ns-editor pre { background: var(--bg-card-hover); border-radius: 8px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; margin: 0.5em 0; }
+  .ns-editor code { background: var(--bg-card-hover); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: 'JetBrains Mono', monospace; }
+  .ns-editor hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }
   .ns-editor a { color: #2563EB; text-decoration: underline; cursor: pointer; }
   .ns-editor a:hover { color: #1D4ED8; }
   .ns-editor img { max-width: 100%; border-radius: 8px; margin: 0.5em 0; }
   .ns-editor table { width: 100%; border-collapse: collapse; margin: 0.5em 0; }
-  .ns-editor th, .ns-editor td { border: 1px solid #E5E7EB; padding: 8px 12px; text-align: left; min-width: 80px; }
-  .ns-editor th { background: #F9FAFB; font-weight: 600; }
+  .ns-editor th, .ns-editor td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; min-width: 80px; }
+  .ns-editor th { background: var(--bg-subtle); font-weight: 600; }
   .ns-editor ul[data-type="taskList"] { list-style: none; padding-left: 0; }
   .ns-editor ul[data-type="taskList"] li { display: flex; align-items: flex-start; gap: 8px; }
   .ns-editor ul[data-type="taskList"] li label { flex-shrink: 0; margin-top: 4px; }
-  .ns-editor ul[data-type="taskList"] li label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #111827; }
+  .ns-editor ul[data-type="taskList"] li label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--text-primary); }
   .ns-editor ul[data-type="taskList"] li div { flex: 1; }
-  .ns-editor p.is-editor-empty:first-child::before { color: #9CA3AF; content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
-  .ns-toolbar-btn.is-active { background-color: #E5E7EB !important; color: #111827 !important; }
+  .ns-editor p.is-editor-empty:first-child::before { color: var(--text-muted); content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
+  .ns-toolbar-btn.is-active { background-color: var(--border) !important; color: var(--text-primary) !important; }
 `;
 document.head.appendChild(hoverStyle);
 
@@ -105,7 +105,7 @@ function ToolbarBtn({ icon: Icon, action, isActive, title }) {
       style={{
         width: '28px', height: '28px', display: 'flex', alignItems: 'center',
         justifyContent: 'center', borderRadius: '6px', border: 'none',
-        background: 'transparent', color: isActive ? '#111827' : '#6B7280',
+        background: 'transparent', color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
         cursor: 'pointer', fontFamily: 'inherit',
         transition: 'background-color 0.12s, color 0.12s',
       }}
@@ -116,7 +116,7 @@ function ToolbarBtn({ icon: Icon, action, isActive, title }) {
 }
 
 function Divider() {
-  return <div style={{ width: '1px', height: '16px', backgroundColor: '#E5E7EB', margin: '0 4px', flexShrink: 0 }} />;
+  return <div style={{ width: '1px', height: '16px', backgroundColor: 'var(--border)', margin: '0 4px', flexShrink: 0 }} />;
 }
 
 export default function NotesPage() {
@@ -265,7 +265,7 @@ export default function NotesPage() {
         <div style={s.sidebar}>
           <div style={s.sidebarSticky}>
             <div style={s.searchWrap}>
-              <SearchIcon size={14} color="#9CA3AF" style={{ flexShrink: 0 }} />
+              <SearchIcon size={14} color="var(--text-muted)" style={{ flexShrink: 0 }} />
               <input
                 style={s.searchInput}
                 placeholder="Cari catatan..."
@@ -299,9 +299,9 @@ export default function NotesPage() {
                     onClick={() => setActiveId(note.id)}
                     style={{
                       ...s.noteCard,
-                      borderColor: isActive ? '#111827' : '#F3F4F6',
-                      backgroundColor: isActive ? '#F9FAFB' : '#FFFFFF',
-                      boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                      borderColor: isActive ? 'var(--text-primary)' : 'var(--bg-card-hover)',
+                      backgroundColor: isActive ? 'var(--bg-subtle)' : 'var(--bg-card)',
+                      boxShadow: isActive ? '0 1px 4px var(--border)' : 'none',
                     }}
                   >
                     <div style={s.noteCardTitle}>{note.title || 'Untitled'}</div>
@@ -340,7 +340,7 @@ export default function NotesPage() {
                   type="button"
                   className="ns-btn"
                   onClick={() => togglePin(activeNote.id)}
-                  style={{ ...s.metaAction, color: activeNote.pinned ? '#111827' : '#9CA3AF' }}
+                  style={{ ...s.metaAction, color: activeNote.pinned ? 'var(--text-primary)' : 'var(--text-muted)' }}
                 >
                   <Pin size={11} /> {activeNote.pinned ? 'Disematkan' : 'Sematan'}
                 </button>
@@ -402,7 +402,7 @@ export default function NotesPage() {
 
               {/* Tags */}
               <div style={s.tagsRow}>
-                <Tag size={11} color="#9CA3AF" style={{ flexShrink: 0 }} />
+                <Tag size={11} color="var(--text-muted)" style={{ flexShrink: 0 }} />
                 {(activeNote.tags || []).map(tag => (
                   <span key={tag} style={s.editorTag}>
                     {tag}
@@ -425,7 +425,7 @@ export default function NotesPage() {
             </div>
           ) : (
             <div style={s.emptyEditor}>
-              <div style={s.emptyIconBox}><FileText size={28} color="#D1D5DB" /></div>
+              <div style={s.emptyIconBox}><FileText size={28} color="var(--border-strong)" /></div>
               <p style={s.emptyTitle}>Pilih catatan</p>
               <p style={s.emptyText}>Pilih catatan dari daftar atau buat catatan baru untuk mulai menulis.</p>
               <button type="button" className="ns-new-btn" onClick={createNote} style={{ ...s.newBtn, marginTop: '12px', maxWidth: '200px' }}>
@@ -460,16 +460,16 @@ const s = {
   searchWrap: {
     display: 'flex', alignItems: 'center', gap: '8px',
     padding: '8px 12px', borderRadius: '999px',
-    border: '1px solid rgba(0,0,0,0.06)', backgroundColor: '#FFFFFF',
+    border: '1px solid var(--border)', backgroundColor: 'var(--bg-card)',
   },
   searchInput: {
     flex: 1, border: 'none', background: 'none', outline: 'none',
-    fontSize: '13px', color: '#111827', fontFamily: 'inherit',
+    fontSize: '13px', color: 'var(--text-primary)', fontFamily: 'inherit',
   },
   newBtn: {
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
     padding: '9px', borderRadius: '999px', border: 'none',
-    backgroundColor: '#111827', color: '#FFFFFF',
+    backgroundColor: 'var(--text-primary)', color: 'var(--bg-card)',
     cursor: 'pointer', fontSize: '13px', fontWeight: 600,
     fontFamily: 'inherit', transition: 'background-color 0.12s',
   },
@@ -479,51 +479,51 @@ const s = {
   },
   noteCard: {
     padding: '10px 12px', borderRadius: '10px',
-    border: '1.5px solid #F3F4F6',
+    border: '1.5px solid var(--bg-card-hover)',
     cursor: 'pointer',
     display: 'flex', flexDirection: 'column', gap: '3px',
   },
   noteCardTitle: {
-    fontSize: '13px', fontWeight: 600, color: '#111827',
+    fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)',
     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
   noteCardPreview: {
-    fontSize: '11px', color: '#6B7280', lineHeight: 1.4, margin: 0,
+    fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0,
     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
   },
   noteCardTime: {
-    fontSize: '10px', color: '#9CA3AF', fontWeight: 500, marginTop: '1px',
+    fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500, marginTop: '1px',
   },
   emptyList: {
     padding: '40px 16px', textAlign: 'center',
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
   },
   emptyIcon: { fontSize: '32px', lineHeight: 1 },
-  emptyTitle: { fontSize: '14px', fontWeight: 700, color: '#111827', margin: 0 },
-  emptySub: { fontSize: '12px', color: '#9CA3AF', margin: 0 },
+  emptyTitle: { fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 },
+  emptySub: { fontSize: '12px', color: 'var(--text-muted)', margin: 0 },
 
   // ─── EDITOR ───
   editorCol: { flex: '2 1 400px', minWidth: 0, display: 'flex' },
   editorWrap: {
     flex: 1, display: 'flex', flexDirection: 'column',
-    backgroundColor: '#FFFFFF', borderRadius: '16px',
-    border: '1px solid rgba(0,0,0,0.06)',
+    backgroundColor: 'var(--bg-card)', borderRadius: '16px',
+    border: '1px solid var(--border)',
     boxShadow: '0 1px 4px rgba(0,0,0,0.04)', overflow: 'hidden',
   },
   titleInput: {
     padding: '24px 28px 4px', border: 'none', background: 'none',
     outline: 'none', fontSize: '22px', fontWeight: 700,
-    color: '#111827', fontFamily: 'inherit',
+    color: 'var(--text-primary)', fontFamily: 'inherit',
   },
   metaRow: {
     display: 'flex', alignItems: 'center', gap: '12px',
     padding: '8px 28px 12px', flexWrap: 'wrap',
-    borderBottom: '1px solid rgba(0,0,0,0.06)',
+    borderBottom: '1px solid var(--border)',
   },
   metaItem: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
-    fontSize: '11px', color: '#9CA3AF', fontWeight: 500,
+    fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500,
   },
   metaAction: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -534,61 +534,61 @@ const s = {
   metaDelete: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
     padding: '3px 8px', borderRadius: '6px', border: 'none',
-    background: 'transparent', color: '#DC2626', cursor: 'pointer',
+    background: 'transparent', color: 'var(--danger)', cursor: 'pointer',
     fontSize: '11px', fontWeight: 600, fontFamily: 'inherit',
     opacity: 0.5, transition: 'opacity 0.12s, background-color 0.12s',
   },
   toolbar: {
     display: 'flex', alignItems: 'center', gap: '2px',
-    padding: '6px 16px', borderBottom: '1px solid rgba(0,0,0,0.06)',
-    backgroundColor: '#F9FAFB', flexWrap: 'wrap',
+    padding: '6px 16px', borderBottom: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-subtle)', flexWrap: 'wrap',
     position: 'sticky', top: 0, zIndex: 10,
   },
   editorContent: {
     flex: 1, padding: '8px 28px 24px', overflowY: 'auto',
-    fontSize: '15px', color: '#111827', lineHeight: 1.8,
+    fontSize: '15px', color: 'var(--text-primary)', lineHeight: 1.8,
     fontFamily: '"Inter", "Segoe UI", system-ui, sans-serif',
     outline: 'none',
   },
   tagsRow: {
     display: 'flex', alignItems: 'center', gap: '6px',
     padding: '10px 28px 16px', flexWrap: 'wrap',
-    borderTop: '1px solid rgba(0,0,0,0.06)',
+    borderTop: '1px solid var(--border)',
   },
   editorTag: {
     display: 'inline-flex', alignItems: 'center', gap: '3px',
     padding: '2px 8px', borderRadius: '999px',
-    backgroundColor: '#F3F4F6', color: '#374151', fontSize: '11px', fontWeight: 600,
+    backgroundColor: 'var(--bg-card-hover)', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 600,
   },
   editorTagRemove: {
-    background: 'none', border: 'none', color: '#9CA3AF',
+    background: 'none', border: 'none', color: 'var(--text-muted)',
     cursor: 'pointer', padding: 0, fontSize: '13px', lineHeight: 1,
   },
   tagInputField: {
     border: 'none', background: 'none', outline: 'none',
-    fontSize: '11px', color: '#6B7280', fontFamily: 'inherit',
+    fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'inherit',
     flex: 1, minWidth: '80px',
   },
 
   // Link Dialog
   linkDialog: {
     display: 'flex', alignItems: 'center', gap: '6px',
-    padding: '8px 28px', backgroundColor: '#F9FAFB',
-    borderBottom: '1px solid rgba(0,0,0,0.06)',
+    padding: '8px 28px', backgroundColor: 'var(--bg-subtle)',
+    borderBottom: '1px solid var(--border)',
   },
   linkInput: {
     flex: 1, padding: '6px 10px', borderRadius: '6px',
-    border: '1px solid rgba(0,0,0,0.06)', outline: 'none',
-    fontSize: '12px', fontFamily: 'inherit', color: '#111827',
+    border: '1px solid var(--border)', outline: 'none',
+    fontSize: '12px', fontFamily: 'inherit', color: 'var(--text-primary)',
   },
   linkBtn: {
     padding: '6px 12px', borderRadius: '6px', border: 'none',
-    backgroundColor: '#111827', color: '#fff', cursor: 'pointer',
+    backgroundColor: 'var(--text-primary)', color: 'var(--bg-card)', cursor: 'pointer',
     fontSize: '11px', fontWeight: 600, fontFamily: 'inherit',
   },
   linkCancel: {
     padding: '6px 10px', borderRadius: '6px', border: 'none',
-    background: 'transparent', color: '#6B7280', cursor: 'pointer',
+    background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer',
     fontSize: '11px', fontWeight: 600, fontFamily: 'inherit',
   },
 
@@ -596,14 +596,14 @@ const s = {
   emptyEditor: {
     flex: 1, display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center', gap: '10px',
-    backgroundColor: '#FFFFFF', borderRadius: '16px',
-    border: '1px solid rgba(0,0,0,0.06)',
+    backgroundColor: 'var(--bg-card)', borderRadius: '16px',
+    border: '1px solid var(--border)',
     boxShadow: '0 1px 4px rgba(0,0,0,0.04)', padding: '40px',
   },
   emptyIconBox: {
     width: '56px', height: '56px', borderRadius: '14px',
-    backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  emptyTitle: { fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 },
-  emptyText: { fontSize: '13px', color: '#9CA3AF', margin: 0, textAlign: 'center', maxWidth: '240px', lineHeight: 1.4 },
+  emptyTitle: { fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: 0 },
+  emptyText: { fontSize: '13px', color: 'var(--text-muted)', margin: 0, textAlign: 'center', maxWidth: '240px', lineHeight: 1.4 },
 };

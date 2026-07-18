@@ -56,10 +56,10 @@ function buildActivityData(boards, tasks, projects) {
 
 function getActivityColor(count) {
   if (count === 0) return 'var(--border)';
-  if (count <= 2) return '#A7F3D0';
-  if (count <= 4) return '#34D399';
-  if (count <= 6) return '#10B981';
-  return '#059669';
+  if (count <= 2) return 'var(--emerald-border)';
+  if (count <= 4) return 'var(--emerald-light)';
+  if (count <= 6) return 'var(--emerald)';
+  return 'var(--emerald-dark)';
 }
 
 // Smooth tooltip component
@@ -700,7 +700,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
                 return (
                   <div key={project.id} style={{ ...styles.projectBlock, opacity: isInactive ? 0.7 : 1 }}>
                     <div style={styles.projectBlockHead}>
-                      <div style={{ ...styles.blockDot, backgroundColor: project.color || '#6B7280' }} />
+                      <div style={{ ...styles.blockDot, backgroundColor: project.color || 'var(--text-muted)' }} />
                       <span style={styles.blockName}>{project.name}</span>
                       {project.deadline && (
                         <span style={styles.blockDeadline}>{formatDate(project.deadline)}</span>

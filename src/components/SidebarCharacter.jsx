@@ -23,7 +23,7 @@ const RAW = [
 const C = {
   t: 'transparent',
   1: '#8B9DC3',
-  2: '#D1D5DB',
+  2: 'var(--border-strong)',
   3: '#F9A8D4',
   4: '#1F2937',
   5: '#F9A8D4',
@@ -36,7 +36,7 @@ function SmokePuff({ id, x, y, onEnd }) {
   return (
     <motion.circle
       key={id}
-      fill="#D1D5DB"
+      fill="var(--border-strong)"
       initial={{
         opacity: 0.6,
         r: size * 0.5,
@@ -152,12 +152,12 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
           <g>{cells}</g>
 
           {/* Whiskers */}
-          <line x1="32" y1="28" x2="42" y2="26" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="42" y2="30" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
-          <line x1="31" y1="30" x2="42" y2="32" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="15" y2="26" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="15" y2="30" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
-          <line x1="31" y1="30" x2="15" y2="32" stroke="#D1D5DB" strokeWidth="0.8" opacity="0.6" />
+          <line x1="32" y1="28" x2="42" y2="26" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
+          <line x1="32" y1="28" x2="42" y2="30" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
+          <line x1="31" y1="30" x2="42" y2="32" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
+          <line x1="32" y1="28" x2="15" y2="26" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
+          <line x1="32" y1="28" x2="15" y2="30" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
+          <line x1="31" y1="30" x2="15" y2="32" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
 
           {/* Cigarette */}
           <motion.g
@@ -165,7 +165,7 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
             transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
             style={{ transformOrigin: '42px 29px' }}
           >
-            <line x1="42" y1="29" x2="58" y2="28" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="42" y1="29" x2="58" y2="28" stroke="var(--bg-card)" strokeWidth="2.5" strokeLinecap="round" />
             <line x1="58" y1="28" x2="64" y2="27" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" />
             <motion.circle
               cx="64" cy="27" fill="#F97316"

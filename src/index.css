@@ -8,20 +8,11 @@
   --emerald:        #10B981;
   --emerald-light:  #34D399;
   --emerald-dark:   #059669;
-  --emerald-bg:     #ECFDF5;
-  --emerald-border: #A7F3D0;
-
-  /* Soft Pastel Accents */
-  --mint:           #D1FAE5;
-  --lavender:       #EDE9FE;
-  --peach:          #FEE2E2;
-  --sky:            #DBEAFE;
 
   /* Status */
+  --success:        #22C55E;
   --warning:        #F59E0B;
-  --warning-bg:     #FFFBEB;
   --danger:         #EF4444;
-  --danger-bg:      #FEF2F2;
 
   /* Radius */
   --r-sm:  6px;
@@ -52,12 +43,12 @@
 /* ─── Light Theme ────────────────────────────────────── */
 .light-theme {
   --bg-page:       #F9FAFB;
+  --bg-sidebar:    #FFFFFF;
   --bg-card:       #FFFFFF;
   --bg-card-hover: #F3F4F6;
-  --bg-sidebar:    #FFFFFF;
   --bg-input:      #F9FAFB;
-  --primary:       #10B981;
-  --primary-text:  #FFFFFF;
+  --bg-canvas:     #F3F4F6;
+  --bg-subtle:     #F9FAFB;
 
   --text-primary:  #111827;
   --text-secondary:#4B5563;
@@ -71,45 +62,58 @@
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -4px rgba(0,0,0,0.05);
 
-  /* Primary action = black */
   --btn-primary-bg:   #000000;
   --btn-primary-text: #FFFFFF;
   --btn-primary-hover:#1F2937;
+
+  --overlay: rgba(0,0,0,0.45);
+
+  --emerald-bg:    #ECFDF5;
+  --emerald-border:#A7F3D0;
+  --lavender:      #EDE9FE;
+  --peach:         #FEE2E2;
+  --sky:           #DBEAFE;
+  --success-bg:    #D1FAE5;
+  --warning-bg:    #FFFBEB;
+  --danger-bg:     #FEF2F2;
 }
 
-/* ─── Dark Theme (True Black) ─────────────────────────── */
+/* ─── Dark Theme ──────────────────────────────────────── */
 .dark-theme {
-  --bg-page:       #000000;
-  --bg-card:       #111111;
-  --bg-card-hover: #1a1a1a;
-  --bg-sidebar:    #000000;
-  --bg-input:      #1a1a1a;
-  --primary:       #10B981;
-  --primary-text:  #FFFFFF;
+  --bg-page:       #0F1115;
+  --bg-sidebar:    #11151D;
+  --bg-card:       #1B212C;
+  --bg-card-hover: #232B38;
+  --bg-input:      #1B212C;
+  --bg-canvas:     #151922;
+  --bg-subtle:     #151922;
 
-  --text-primary:  #F9FAFB;
-  --text-secondary:#D1D5DB;
-  --text-muted:    #555555;
-  --text-invert:   #000000;
+  --text-primary:  #F5F7FA;
+  --text-secondary:#A4AFBF;
+  --text-muted:    #7B8798;
+  --text-invert:   #0F1115;
 
-  --border:        #222222;
-  --border-strong: #333333;
+  --border:        #2A3342;
+  --border-strong: #3A4456;
 
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.6);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.6), 0 2px 4px -2px rgba(0,0,0,0.5);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.7), 0 4px 6px -4px rgba(0,0,0,0.6);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.45);
 
-  /* Primary action = white */
-  --btn-primary-bg:   #FFFFFF;
-  --btn-primary-text: #111111;
-  --btn-primary-hover:#E5E7EB;
+  --btn-primary-bg:   #10B981;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover:#059669;
 
-  /* Pastel Accents dimmed in dark */
-  --emerald-bg:    rgba(16,185,129,0.1);
+  --overlay: rgba(0,0,0,0.6);
+
+  --emerald-bg:    rgba(16,185,129,0.12);
   --emerald-border:rgba(16,185,129,0.25);
   --lavender:      rgba(139,92,246,0.15);
   --peach:         rgba(239,68,68,0.12);
   --sky:           rgba(59,130,246,0.12);
+  --success-bg:    rgba(34,197,94,0.12);
+  --warning-bg:    rgba(245,158,11,0.12);
+  --danger-bg:     rgba(239,68,68,0.12);
 }
 
 /* ─── Global Reset ───────────────────────────────────── */
@@ -148,7 +152,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   min-height: 100vh;
   background-color: var(--bg-page);
   color: var(--text-primary);
-  transition: background-color var(--t-slow), color var(--t-slow);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.app-root * {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────── */
@@ -158,8 +165,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ─── Skeleton Loader ────────────────────────────────── */
-@keyframes spin { to { transform: rotate(360deg); } }
-
 @keyframes pulse-skeleton {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
@@ -201,11 +206,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
   font-weight: 600;
   letter-spacing: 0.2px;
 }
-.badge-emerald { background: var(--emerald-bg);  color: var(--emerald-dark); }
+.badge-emerald { background: var(--emerald-bg);  color: var(--emerald); }
 .badge-gray    { background: var(--border);       color: var(--text-secondary); }
 .badge-danger  { background: var(--danger-bg);    color: var(--danger); }
 .badge-warning { background: var(--warning-bg);   color: var(--warning); }
-.badge-sky     { background: var(--sky);          color: #1D4ED8; }
+.badge-sky     { background: var(--sky);          color: var(--sky, #1D4ED8); }
 .badge-lavender{ background: var(--lavender);     color: #7C3AED; }
 
 /* ─── Button Base ────────────────────────────────────── */

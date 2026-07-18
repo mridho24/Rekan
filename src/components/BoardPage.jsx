@@ -192,7 +192,7 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
       onDragEnd={handleDragEnd}
       style={{
         ...bcStyles.card,
-        borderColor: isComplete ? '#A7F3D0' : 'var(--border)',
+        borderColor: isComplete ? 'var(--emerald-border)' : 'var(--border)',
       }}
       whileHover={{ y: -1, boxShadow: 'var(--shadow-md)' }}
       onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; }}
@@ -272,7 +272,7 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             onClick={() => onDeleteBoard(board.id)}
             style={bcStyles.deleteBtn}
             title="Hapus board"
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FEE2E2'; e.currentTarget.style.opacity = '1'; }}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--peach)'; e.currentTarget.style.opacity = '1'; }}
             onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
           >
             <Trash2 size={14} />
@@ -344,15 +344,15 @@ const bcStyles = {
   name: { fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.3px', flex: 1 },
   completeBadge: {
     display: 'inline-flex', alignItems: 'center', gap: '3px',
-    fontSize: '9px', fontWeight: 700, color: '#047857',
-    backgroundColor: '#D1FAE5', padding: '1px 6px',
+    fontSize: '9px', fontWeight: 700, color: 'var(--emerald-dark)',
+    backgroundColor: 'var(--success-bg)', padding: '1px 6px',
     borderRadius: 'var(--r-full)',
   },
   deleteBtn: {
     width: '26px', height: '26px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: '#EF4444', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
+    color: 'var(--danger)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
     transition: 'background-color 0.15s, opacity 0.15s',
   },
   desc: { fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 },
@@ -549,7 +549,7 @@ function ProjectCardMenu({ project, isActive, onSelectProject, onDeleteProject, 
         </button>
       )}
       <div style={styles.cardMenuDivider} />
-      <button style={{ ...styles.cardMenuItem, color: '#EF4444' }} onClick={handleDelete}>
+      <button style={{ ...styles.cardMenuItem, color: 'var(--danger)' }} onClick={handleDelete}>
         <Trash2 size={14} /> Delete Project
       </button>
     </motion.div>
@@ -806,7 +806,7 @@ export default function BoardPage({
                           <h3 style={styles.projectCardName}>{project.name}</h3>
                           <div style={styles.projectCardActions}>
                             <span style={styles.statusBadge}>
-                              <span style={{ ...styles.statusDot, backgroundColor: '#22C55E' }} />
+                              <span style={{ ...styles.statusDot, backgroundColor: 'var(--success)' }} />
                               Active
                             </span>
                             <div style={{ position: 'relative' }}>
@@ -815,7 +815,7 @@ export default function BoardPage({
                                 style={styles.moreBtn}
                                 title="More"
                               >
-                                <MoreHorizontal size={16} color="#6B7280" />
+                                <MoreHorizontal size={16} color="var(--text-muted)" />
                               </button>
                               <AnimatePresence>
                                 {menuProjectId === project.id && (
@@ -932,7 +932,7 @@ export default function BoardPage({
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
                     style={styles.projectCard}
-                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#A7F3D0' }}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: 'var(--emerald-border)' }}
                   >
                     <div style={{
                       ...styles.projectCardInner,
@@ -942,7 +942,7 @@ export default function BoardPage({
                       padding: isMobile ? '16px' : '24px',
                     }}>
                       <div style={styles.projectCardLeft}>
-                        <div style={{ ...styles.projectIconBox, backgroundColor: '#D1FAE5' }}>
+                        <div style={{ ...styles.projectIconBox, backgroundColor: 'var(--success-bg)' }}>
                           <IconComponent size={22} color="#10B981" strokeWidth={1.5} />
                         </div>
                       </div>
@@ -961,7 +961,7 @@ export default function BoardPage({
                                 style={styles.moreBtn}
                                 title="More"
                               >
-                                <MoreHorizontal size={16} color="#6B7280" />
+                                <MoreHorizontal size={16} color="var(--text-muted)" />
                               </button>
                               <AnimatePresence>
                                 {menuProjectId === project.id && (
@@ -1078,7 +1078,7 @@ export default function BoardPage({
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
                     style={styles.projectCard}
-                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#ECECEC' }}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: 'var(--border)' }}
                   >
                     <div style={{
                       ...styles.projectCardInner,
@@ -1088,8 +1088,8 @@ export default function BoardPage({
                       padding: isMobile ? '16px' : '24px',
                     }}>
                       <div style={styles.projectCardLeft}>
-                        <div style={{ ...styles.projectIconBox, backgroundColor: '#F3F4F6' }}>
-                          <IconComponent size={22} color="#9CA3AF" strokeWidth={1.5} />
+                        <div style={{ ...styles.projectIconBox, backgroundColor: 'var(--bg-card-hover)' }}>
+                          <IconComponent size={22} color="var(--text-muted)" strokeWidth={1.5} />
                         </div>
                       </div>
 
@@ -1098,7 +1098,7 @@ export default function BoardPage({
                           <h3 style={styles.projectCardName}>{project.name}</h3>
                           <div style={styles.projectCardActions}>
                             <span style={styles.statusBadge}>
-                              <span style={{ ...styles.statusDot, backgroundColor: '#D1D5DB' }} />
+                              <span style={{ ...styles.statusDot, backgroundColor: 'var(--border-strong)' }} />
                               Archived
                             </span>
                             <div style={{ position: 'relative' }}>
@@ -1107,7 +1107,7 @@ export default function BoardPage({
                                 style={styles.moreBtn}
                                 title="More"
                               >
-                                <MoreHorizontal size={16} color="#6B7280" />
+                                <MoreHorizontal size={16} color="var(--text-muted)" />
                               </button>
                               <AnimatePresence>
                                 {menuProjectId === project.id && (
@@ -1187,10 +1187,10 @@ export default function BoardPage({
 
       {hasProjectSelected && isCompleted && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          style={{ ...styles.completeBanner, backgroundColor: '#D1FAE5', borderColor: '#10B981' }}>
+          style={{ ...styles.completeBanner, backgroundColor: 'var(--success-bg)', borderColor: '#10B981' }}>
           <div style={styles.completeBannerLeft}>
             <CheckCircle2 size={20} color="#10B981" />
-            <span style={{ ...styles.completeBannerText, color: '#047857' }}>
+            <span style={{ ...styles.completeBannerText, color: 'var(--emerald-dark)' }}>
               Project <strong>{currentProject.name}</strong> sudah selesai
             </span>
           </div>
@@ -1386,7 +1386,7 @@ const styles = {
     width: '24px', height: '24px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: '#EF4444', cursor: 'pointer', opacity: 0.6,
+    color: 'var(--danger)', cursor: 'pointer', opacity: 0.6,
   },
   boardRow: {
     display: 'flex',
@@ -1407,7 +1407,7 @@ const styles = {
   completeBanner: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     flexWrap: 'wrap', gap: '12px', padding: '14px 20px',
-    borderRadius: 'var(--r-lg)', border: '1.5px solid #A7F3D0', backgroundColor: '#ECFDF5',
+    borderRadius: 'var(--r-lg)', border: '1.5px solid var(--emerald-border)', backgroundColor: '#ECFDF5',
   },
   completeBannerLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
   completeBannerText: { fontSize: 'var(--text-base)', color: '#065F46', fontWeight: 500 },
@@ -1428,14 +1428,14 @@ const styles = {
   },
   projectListSub: {
     marginTop: '2px',
-    fontSize: '13px', color: '#9CA3AF', fontWeight: 400,
+    fontSize: '13px', color: 'var(--text-muted)', fontWeight: 400,
   },
   projectGrid: {
     display: 'flex', flexDirection: 'column', gap: '12px',
   },
   projectCard: {
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #ECECEC',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
     borderRadius: '16px',
     overflow: 'hidden',
     transition: 'border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease',
@@ -1464,8 +1464,8 @@ const styles = {
   },
   statusBtn: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '13px', fontWeight: 500, color: '#6B7280',
-    background: 'none', border: '1px solid #E5E7EB', cursor: 'pointer',
+    fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)',
+    background: 'none', border: '1px solid var(--border)', cursor: 'pointer',
     padding: '6px 14px', borderRadius: '10px',
     transition: 'background-color 0.15s ease, border-color 0.15s ease',
     fontFamily: 'inherit',
@@ -1473,13 +1473,13 @@ const styles = {
   backBtn: {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     width: '36px', height: '36px',
-    background: 'none', border: '1px solid #E5E7EB', cursor: 'pointer',
-    borderRadius: '10px', color: '#374151',
+    background: 'none', border: '1px solid var(--border)', cursor: 'pointer',
+    borderRadius: '10px', color: 'var(--text-secondary)',
     transition: 'background-color 0.15s ease',
     fontFamily: 'inherit',
   },
   projectCardName: {
-    fontSize: '18px', fontWeight: 600, color: '#111827',
+    fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)',
     letterSpacing: '-0.3px', lineHeight: 1.3,
     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
   },
@@ -1488,7 +1488,7 @@ const styles = {
   },
   statusBadge: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '13px', fontWeight: 500, color: '#6B7280',
+    fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)',
   },
   statusDot: {
     width: '8px', height: '8px', borderRadius: '50%',
@@ -1503,8 +1503,8 @@ const styles = {
   cardMenu: {
     position: 'absolute', right: 0, top: 'calc(100% + 4px)',
     minWidth: '180px',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid #ECECEC',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
     borderRadius: '12px',
     boxShadow: '0 8px 30px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06)',
     zIndex: 50,
@@ -1515,17 +1515,17 @@ const styles = {
     display: 'flex', alignItems: 'center', gap: '8px',
     width: '100%', padding: '9px 12px',
     border: 'none', background: 'none', cursor: 'pointer',
-    fontSize: '13px', fontWeight: 500, color: '#374151',
+    fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)',
     textAlign: 'left', borderRadius: '8px',
     transition: 'background-color 0.12s',
     fontFamily: 'inherit',
   },
   cardMenuDivider: {
-    height: '1px', backgroundColor: '#F3F4F6',
+    height: '1px', backgroundColor: 'var(--bg-card-hover)',
     margin: '4px 8px',
   },
   projectWorkspace: {
-    fontSize: '13px', fontWeight: 400, color: '#9CA3AF',
+    fontSize: '13px', fontWeight: 400, color: 'var(--text-muted)',
     margin: 0, lineHeight: 1.3,
   },
   projectMeta: {
@@ -1534,11 +1534,11 @@ const styles = {
   },
   projectMetaItem: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '13px', fontWeight: 500, color: '#6B7280',
+    fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)',
   },
   metaSep: {
     width: '3px', height: '3px', borderRadius: '50%',
-    backgroundColor: '#D1D5DB', flexShrink: 0,
+    backgroundColor: 'var(--border-strong)', flexShrink: 0,
   },
   projectCardRight: {
     flexShrink: 0,
@@ -1546,9 +1546,9 @@ const styles = {
   openBtn: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
     padding: '8px 18px',
-    borderRadius: '10px', border: '1px solid #E5E7EB',
-    backgroundColor: '#FFFFFF',
-    color: '#374151',
+    borderRadius: '10px', border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-card)',
+    color: 'var(--text-secondary)',
     fontSize: '13px', fontWeight: 600,
     cursor: 'pointer', whiteSpace: 'nowrap',
     transition: 'background-color 0.15s ease, border-color 0.15s ease',
@@ -1556,7 +1556,7 @@ const styles = {
   noProject: {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     justifyContent: 'center', gap: '12px', padding: '80px 40px',
-    border: '2px dashed #ECECEC', borderRadius: 'var(--r-xl)', textAlign: 'center', flex: 1,
+    border: '2px dashed var(--border)', borderRadius: 'var(--r-xl)', textAlign: 'center', flex: 1,
   },
   noProjectTitle: { fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px' },
   noProjectText: { fontSize: 'var(--text-base)', color: 'var(--text-muted)', maxWidth: '380px', lineHeight: 1.5 },

@@ -26,7 +26,7 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
 
             <div style={s.iconWrap}>
               <div style={{ ...s.iconBg, backgroundColor: danger ? '#FEF2F2' : '#FFFBEB' }}>
-                <AlertTriangle size={20} color={danger ? '#EF4444' : '#F59E0B'} />
+                <AlertTriangle size={20} color={danger ? 'var(--danger)' : '#F59E0B'} />
               </div>
             </div>
 
@@ -37,7 +37,7 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
               <button onClick={onClose} style={s.cancelBtn}>{cancelText}</button>
               <button
                 onClick={() => { onConfirm?.(); onClose(); }}
-                style={{ ...s.confirmBtn, backgroundColor: danger ? '#EF4444' : '#000' }}
+                style={{ ...s.confirmBtn, backgroundColor: danger ? 'var(--danger)' : '#000' }}
               >
                 {confirmText}
               </button>

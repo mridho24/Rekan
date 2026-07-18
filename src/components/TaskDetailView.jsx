@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 const STATUS_CFG = {
   'To Do':       { icon: Circle,       color: '#F59E0B' },
   'In Progress': { icon: Clock,        color: '#3B82F6' },
-  'Done':        { icon: CheckCircle2, color: '#10B981' },
+  'Done':        { icon: CheckCircle2, color: 'var(--emerald)' },
 };
 
 const PRIORITY_COLORS = {
-  High: '#EF4444', Medium: '#F59E0B', Low: '#6B7280',
+  High: 'var(--danger)', Medium: '#F59E0B', Low: 'var(--text-muted)',
 };
 
 const LABEL_COLORS = {
@@ -18,7 +18,7 @@ const LABEL_COLORS = {
   Database:    { bg: '#EDE9FE', text: '#6D28D9' },
   'UI/UX':     { bg: '#FCE7F3', text: '#BE185D' },
   API:         { bg: '#FEF3C7', text: '#B45309' },
-  Dokumentasi: { bg: '#F3F4F6', text: '#4B5563' },
+  Dokumentasi: { bg: 'var(--bg-card-hover)', text: 'var(--text-secondary)' },
   Review:      { bg: '#CCFBF1', text: '#0F766E' },
   Perancangan: { bg: '#E0E7FF', text: '#4338CA' },
 };
@@ -119,7 +119,7 @@ export default function TaskDetailView({ isOpen, onClose, task, boards, projects
               {task.labels?.length > 0 && (
                 <div style={s.labelsRow}>
                   {task.labels.map(l => {
-                    const c = LABEL_COLORS[l] || { bg: '#F3F4F6', text: '#4B5563' };
+                    const c = LABEL_COLORS[l] || { bg: 'var(--bg-card-hover)', text: 'var(--text-secondary)' };
                     return <span key={l} style={{ ...s.label, backgroundColor: c.bg, color: c.text }}>{l}</span>;
                   })}
                 </div>
@@ -143,8 +143,8 @@ export default function TaskDetailView({ isOpen, onClose, task, boards, projects
                       <div key={st.id} style={s.subtaskItem}>
                         <div style={{
                           ...s.subCheckbox,
-                          backgroundColor: st.done ? '#10B981' : 'transparent',
-                          borderColor: st.done ? '#10B981' : 'var(--border-strong)',
+                          backgroundColor: st.done ? 'var(--emerald)' : 'transparent',
+                          borderColor: st.done ? 'var(--emerald)' : 'var(--border-strong)',
                         }}>
                           {st.done && <CheckCircle2 size={8} color="#fff" />}
                         </div>
@@ -261,7 +261,7 @@ const s = {
   },
   progressBarFill: {
     height: '100%', borderRadius: 'var(--r-full)',
-    backgroundColor: '#10B981', transition: 'width 0.3s ease',
+    backgroundColor: 'var(--emerald)', transition: 'width 0.3s ease',
   },
   subtaskList: {
     display: 'flex', flexDirection: 'column', gap: '4px',

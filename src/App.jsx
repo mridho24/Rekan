@@ -534,7 +534,7 @@ const styles = {
   confirmBackdrop: {
     position: 'absolute',
     inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'var(--overlay)',
     backdropFilter: 'blur(4px)',
     zIndex: 1,
   },

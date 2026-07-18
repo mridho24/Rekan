@@ -16,18 +16,18 @@ import {
 const hoverStyle = document.createElement('style');
 hoverStyle.textContent = `
   .cal-day-btn { height: 40px; border-radius: 10px; border: 1.5px solid transparent; cursor: pointer; font-size: 13px; font-family: inherit; text-align: center; transition: background-color 0.12s, border-color 0.12s, color 0.12s; display: flex; align-items: center; justify-content: center; }
-  .cal-day-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-day-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; }
-  .cal-nav-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-nav-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 8px; }
-  .cal-header-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-header-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 6px; }
-  .cal-picker-cell:hover { background-color: #F3F4F6 !important; }
-  .cal-picker-cell:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 10px; }
-  .cal-footer-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-footer-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 8px; }
-  .cal-year-nav-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-year-nav-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 8px; }
+  .cal-day-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-day-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+  .cal-nav-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-nav-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
+  .cal-header-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-header-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 6px; }
+  .cal-picker-cell:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-picker-cell:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 10px; }
+  .cal-footer-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-footer-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
+  .cal-year-nav-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-year-nav-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 8px; }
 `;
 document.head.appendChild(hoverStyle);
 
@@ -240,7 +240,7 @@ function CalendarPopover({ value, onChange, placeholder = 'Pilih tanggal', disab
                   >
                     {year}
                   </button>
-                  <ChevronDown size={12} color="#9CA3AF" style={{ flexShrink: 0 }} />
+                  <ChevronDown size={12} color="var(--text-muted)" style={{ flexShrink: 0 }} />
                 </div>
 
                 <button type="button" onClick={nextMonth} className="cal-nav-btn" style={s.navBtn} aria-label="Berikutnya">
@@ -267,8 +267,8 @@ function CalendarPopover({ value, onChange, placeholder = 'Pilih tanggal', disab
                         onClick={() => selectMonth(i)}
                         style={{
                           ...s.pickerCell,
-                          backgroundColor: i === month ? '#111827' : 'transparent',
-                          color: i === month ? '#fff' : '#374151',
+                          backgroundColor: i === month ? 'var(--text-primary)' : 'transparent',
+                          color: i === month ? '#fff' : 'var(--text-secondary)',
                         }}
                       >
                         {m}
@@ -300,8 +300,8 @@ function CalendarPopover({ value, onChange, placeholder = 'Pilih tanggal', disab
                             onClick={() => selectYear(y)}
                             style={{
                               ...s.pickerCell,
-                              backgroundColor: y === year ? '#111827' : 'transparent',
-                              color: y === year ? '#fff' : '#374151',
+                              backgroundColor: y === year ? 'var(--text-primary)' : 'transparent',
+                              color: y === year ? '#fff' : 'var(--text-secondary)',
                             }}
                           >
                             {y}
@@ -358,9 +358,9 @@ function CalendarPopover({ value, onChange, placeholder = 'Pilih tanggal', disab
                             aria-selected={isSelectedDate}
                             style={{
                               ...s.dayBtn,
-                              backgroundColor: isSelectedDate ? '#111827' : 'transparent',
-                              color: isSelectedDate ? '#fff' : isTodayDate ? '#111827' : '#111827',
-                              border: isTodayDate && !isSelectedDate ? '1.5px solid #111827' : '1.5px solid transparent',
+                              backgroundColor: isSelectedDate ? 'var(--text-primary)' : 'transparent',
+                              color: isSelectedDate ? '#fff' : isTodayDate ? 'var(--text-primary)' : 'var(--text-primary)',
+                              border: isTodayDate && !isSelectedDate ? '1.5px solid var(--text-primary)' : '1.5px solid transparent',
                               fontWeight: isSelectedDate || isTodayDate ? 600 : 400,
                             }}
                           >
@@ -414,8 +414,8 @@ const s = {
   },
   popover: {
     width: '340px',
-    backgroundColor: '#FFFFFF',
-    border: '1px solid rgba(0,0,0,0.06)',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
     borderRadius: '16px',
     boxShadow: '0 10px 30px rgba(0,0,0,0.08), 0 20px 50px rgba(0,0,0,0.12)',
     padding: '16px',
@@ -429,7 +429,7 @@ const s = {
     display: 'flex', alignItems: 'center', gap: '2px',
   },
   headerLabelBtn: {
-    fontSize: '14px', fontWeight: 700, color: '#111827',
+    fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)',
     background: 'none', border: 'none', cursor: 'pointer',
     padding: '4px 6px', borderRadius: '6px',
     fontFamily: 'inherit',
@@ -438,7 +438,7 @@ const s = {
   navBtn: {
     width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: '8px', border: 'none', background: 'transparent',
-    color: '#6B7280', cursor: 'pointer',
+    color: 'var(--text-muted)', cursor: 'pointer',
     transition: 'background-color 0.12s',
   },
   pickerGrid3x4: {
@@ -463,7 +463,7 @@ const s = {
   yearNavBtn: {
     display: 'flex', alignItems: 'center', gap: '4px',
     padding: '6px 10px', borderRadius: '8px', border: 'none',
-    background: 'transparent', color: '#6B7280',
+    background: 'transparent', color: 'var(--text-muted)',
     cursor: 'pointer', fontSize: '11px', fontWeight: 600,
     fontFamily: 'inherit',
     transition: 'background-color 0.12s',
@@ -473,7 +473,7 @@ const s = {
   },
   dayHeader: {
     textAlign: 'center', fontSize: '11px', fontWeight: 600,
-    color: '#9CA3AF', padding: '4px 0',
+    color: 'var(--text-muted)', padding: '4px 0',
   },
   grid: {
     display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px',
@@ -487,17 +487,17 @@ const s = {
   },
   footer: {
     display: 'flex', alignItems: 'center', gap: '8px',
-    paddingTop: '12px', borderTop: '1px solid rgba(0,0,0,0.06)',
+    paddingTop: '12px', borderTop: '1px solid var(--border)',
   },
   footerBtn: {
     padding: '6px 12px', borderRadius: '8px', border: 'none',
-    background: 'transparent', color: '#6B7280',
+    background: 'transparent', color: 'var(--text-muted)',
     cursor: 'pointer', fontSize: '12px', fontWeight: 600,
     fontFamily: 'inherit', transition: 'background-color 0.12s',
   },
   clearFooterBtn: {
     padding: '6px 12px', borderRadius: '8px', border: 'none',
-    background: 'transparent', color: '#DC2626',
+    background: 'transparent', color: 'var(--danger)',
     cursor: 'pointer', fontSize: '12px', fontWeight: 600,
     fontFamily: 'inherit', transition: 'background-color 0.12s',
   },

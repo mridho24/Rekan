@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, ExternalLin
 
 const calStyle = document.createElement('style');
 calStyle.textContent = `
-  .cal-nav-btn:hover { background-color: #F3F4F6 !important; }
-  .cal-nav-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 10px; }
-  .cal-day-cell:hover { border-color: #D1D5DB !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; }
-  .cal-day-cell:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 10px; }
-  .cal-open-btn:hover { background-color: #E5E7EB !important; }
-  .cal-open-btn:focus-visible { outline: 2px solid #111827; outline-offset: 2px; border-radius: 6px; }
+  .cal-nav-btn:hover { background-color: var(--bg-card-hover) !important; }
+  .cal-nav-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 10px; }
+  .cal-day-cell:hover { border-color: var(--border-strong) !important; box-shadow: 0 1px 4px var(--border) !important; }
+  .cal-day-cell:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 10px; }
+  .cal-open-btn:hover { background-color: var(--border) !important; }
+  .cal-open-btn:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; border-radius: 6px; }
   .cal-project-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }
 `;
 document.head.appendChild(calStyle);
@@ -140,14 +140,14 @@ export default function CalendarPage({ projects = [], onNavigate, onSelectProjec
                       onClick={() => setSelectedDate(date)}
                       style={{
                         ...s.dayCell,
-                        backgroundColor: isToday ? '#F5F5F5' : isSelected ? '#F5F5F5' : '#FFFFFF',
-                        borderColor: isToday ? '#111827' : isSelected ? '#D1D5DB' : '#F3F4F6',
-                        boxShadow: isSelected ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
+                        backgroundColor: isToday ? 'var(--bg-card-hover)' : isSelected ? 'var(--bg-card-hover)' : 'var(--bg-card)',
+                        borderColor: isToday ? 'var(--text-primary)' : isSelected ? 'var(--border-strong)' : 'var(--bg-card-hover)',
+                        boxShadow: isSelected ? '0 1px 3px var(--border)' : 'none',
                       }}
                     >
                       <span style={{
                         ...s.dayNum,
-                        color: isToday ? '#111827' : '#111827',
+                        color: isToday ? 'var(--text-primary)' : 'var(--text-primary)',
                         fontWeight: isToday ? 700 : 500,
                       }}>
                         {day}
@@ -164,7 +164,7 @@ export default function CalendarPage({ projects = [], onNavigate, onSelectProjec
                               style={s.chip}
                               title={p.name}
                             >
-                              <span style={{ ...s.chipDot, backgroundColor: p.color || '#6B7280' }} />
+                              <span style={{ ...s.chipDot, backgroundColor: p.color || 'var(--text-muted)' }} />
                               <span style={s.chipLabel}>{p.name}</span>
                             </motion.div>
                           ))}
@@ -206,7 +206,7 @@ export default function CalendarPage({ projects = [], onNavigate, onSelectProjec
                     className="cal-project-card"
                     style={s.projectCard}
                   >
-                    <div style={{ ...s.projectBar, backgroundColor: p.color || '#6B7280' }} />
+                    <div style={{ ...s.projectBar, backgroundColor: p.color || 'var(--text-muted)' }} />
                     <div style={s.projectBody}>
                       <div style={s.projectHead}>
                         <span style={s.projectName}>{p.name}</span>
@@ -216,7 +216,7 @@ export default function CalendarPage({ projects = [], onNavigate, onSelectProjec
                       )}
                       <div style={s.projectMeta}>
                         <span style={s.metaBadge}>
-                          <span style={{ ...s.metaDot, backgroundColor: p.status === 'active' ? '#10B981' : p.status === 'completed' ? '#6B7280' : '#9CA3AF' }} />
+                          <span style={{ ...s.metaDot, backgroundColor: p.status === 'active' ? '#10B981' : p.status === 'completed' ? 'var(--text-muted)' : 'var(--text-muted)' }} />
                           {p.status === 'active' ? 'Active' : p.status === 'completed' ? 'Completed' : 'Archived'}
                         </span>
                         {p.deadline && (
@@ -300,8 +300,8 @@ const s = {
 
   // ── Calendar Card ──
   calCard: {
-    backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)',
-    borderRadius: '16px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+    borderRadius: '16px', padding: '20px', boxShadow: '0 1px 4px var(--shadow-sm)',
   },
   nav: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -310,11 +310,11 @@ const s = {
   navBtn: {
     width: '36px', height: '36px', display: 'flex', alignItems: 'center',
     justifyContent: 'center', borderRadius: '10px', border: 'none',
-    background: 'transparent', color: '#6B7280', cursor: 'pointer',
+    background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer',
     transition: 'background-color 0.12s',
   },
   monthLabel: {
-    fontSize: '16px', fontWeight: 700, color: '#111827',
+    fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)',
   },
 
   // ── Day Headers ──
@@ -323,7 +323,7 @@ const s = {
   },
   dayHeader: {
     textAlign: 'center', fontSize: '11px', fontWeight: 600,
-    color: '#9CA3AF', padding: '4px 0',
+    color: 'var(--text-muted)', padding: '4px 0',
   },
 
   // ── Grid ──
@@ -333,7 +333,7 @@ const s = {
   emptyCell: { minHeight: '88px' },
   dayCell: {
     display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-    gap: '4px', padding: '6px', borderRadius: '10px', border: '1.5px solid #F3F4F6',
+    gap: '4px', padding: '6px', borderRadius: '10px', border: '1.5px solid var(--bg-card-hover)',
     cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
     transition: 'border-color 0.15s, box-shadow 0.15s',
     minHeight: '88px', width: '100', boxSizing: 'border-box',
@@ -351,23 +351,23 @@ const s = {
   chip: {
     display: 'flex', alignItems: 'center', gap: '4px',
     height: '20px', padding: '0 6px', borderRadius: '999px',
-    backgroundColor: '#F9FAFB', overflow: 'hidden',
+    backgroundColor: 'var(--bg-subtle)', overflow: 'hidden',
     maxWidth: '100%', cursor: 'default',
   },
   chipDot: { width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0 },
   chipLabel: {
-    fontSize: '9px', fontWeight: 600, color: '#374151',
+    fontSize: '9px', fontWeight: 600, color: 'var(--text-secondary)',
     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
   moreChip: {
-    fontSize: '9px', fontWeight: 600, color: '#9CA3AF',
+    fontSize: '9px', fontWeight: 600, color: 'var(--text-muted)',
     paddingLeft: '2px',
   },
 
   // ── Agenda Panel ──
   agendaCard: {
-    backgroundColor: '#FFFFFF', border: '1px solid rgba(0,0,0,0.06)',
-    borderRadius: '16px', padding: '20px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+    borderRadius: '16px', padding: '20px', boxShadow: '0 1px 4px var(--shadow-sm)',
     display: 'flex', flexDirection: 'column', gap: '16px',
   },
   agendaHeader: {
@@ -375,12 +375,12 @@ const s = {
     flexWrap: 'wrap', gap: '8px',
   },
   agendaDate: {
-    fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0,
+    fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', margin: 0,
   },
   agendaCount: {
-    fontSize: '11px', fontWeight: 600, color: '#6B7280',
+    fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)',
     padding: '2px 8px', borderRadius: '999px',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'var(--bg-card-hover)',
   },
 
   // ── Project List ──
@@ -388,8 +388,8 @@ const s = {
     display: 'flex', flexDirection: 'column', gap: '10px',
   },
   projectCard: {
-    display: 'flex', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.06)',
-    overflow: 'hidden', backgroundColor: '#FFFFFF',
+    display: 'flex', borderRadius: '12px', border: '1px solid var(--border)',
+    overflow: 'hidden', backgroundColor: 'var(--bg-card)',
     boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
     transition: 'box-shadow 0.12s',
   },
@@ -403,11 +403,11 @@ const s = {
     display: 'flex', alignItems: 'center', gap: '6px',
   },
   projectName: {
-    fontSize: '13px', fontWeight: 700, color: '#111827',
+    fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)',
     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
   projectDesc: {
-    fontSize: '11px', color: '#6B7280', lineHeight: 1.4, margin: 0,
+    fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0,
     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
   projectMeta: {
@@ -415,24 +415,24 @@ const s = {
   },
   metaBadge: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
-    fontSize: '10px', fontWeight: 600, color: '#6B7280',
+    fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)',
   },
   metaDot: { width: '5px', height: '5px', borderRadius: '50%' },
   metaDate: {
     display: 'inline-flex', alignItems: 'center', gap: '3px',
-    fontSize: '10px', fontWeight: 600, color: '#9CA3AF',
+    fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)',
   },
   projectFooter: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     marginTop: '2px',
   },
   workspace: {
-    fontSize: '10px', fontWeight: 600, color: '#9CA3AF',
+    fontSize: '10px', fontWeight: 600, color: 'var(--text-muted)',
   },
   openBtn: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
     padding: '4px 10px', borderRadius: '6px', border: 'none',
-    backgroundColor: '#F3F4F6', color: '#374151',
+    backgroundColor: 'var(--bg-card-hover)', color: 'var(--text-secondary)',
     cursor: 'pointer', fontSize: '10px', fontWeight: 600,
     fontFamily: 'inherit', transition: 'background-color 0.12s',
   },
@@ -445,13 +445,13 @@ const s = {
   },
   emptyIcon: {
     width: '48px', height: '48px', borderRadius: '12px',
-    backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', color: '#D1D5DB',
+    backgroundColor: 'var(--bg-subtle)', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', color: 'var(--border-strong)',
   },
   emptyTitle: {
-    fontSize: '14px', fontWeight: 700, color: '#111827', margin: 0,
+    fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: 0,
   },
   emptyText: {
-    fontSize: '12px', color: '#9CA3AF', margin: 0, lineHeight: 1.4,
+    fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4,
   },
 };

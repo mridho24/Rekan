@@ -10,9 +10,9 @@ const STATUS_OPTIONS = [
 ];
 
 const PRIORITY_OPTIONS = [
-  { value: 'High', label: 'High', color: '#EF4444' },
+  { value: 'High', label: 'High', color: 'var(--danger)' },
   { value: 'Medium', label: 'Medium', color: '#F59E0B' },
-  { value: 'Low', label: 'Low', color: '#6B7280' },
+  { value: 'Low', label: 'Low', color: 'var(--text-muted)' },
 ];
 
 function formatDateInput(iso) {
@@ -26,11 +26,11 @@ const LABEL_PRESETS = [
 
 const LABEL_COLORS = {
   Frontend:    { bg: '#DBEAFE', text: '#1D4ED8' },
-  Backend:     { bg: '#D1FAE5', text: '#047857' },
+  Backend:     { bg: '#D1FAE5', text: 'var(--emerald-dark)' },
   Database:    { bg: '#EDE9FE', text: '#6D28D9' },
   'UI/UX':     { bg: '#FCE7F3', text: '#BE185D' },
   API:         { bg: '#FEF3C7', text: '#B45309' },
-  Dokumentasi: { bg: '#F3F4F6', text: '#4B5563' },
+  Dokumentasi: { bg: 'var(--bg-card-hover)', text: 'var(--text-secondary)' },
   Review:      { bg: '#CCFBF1', text: '#0F766E' },
   Perancangan: { bg: '#E0E7FF', text: '#4338CA' },
 };
@@ -256,7 +256,7 @@ export default function TaskDetailModal({ isOpen, onClose, onSave, task, boards 
                 {labels.length > 0 && (
                   <div style={s.labelsList}>
                     {labels.map(l => {
-                      const c = LABEL_COLORS[l] || { bg: '#F3F4F6', text: '#4B5563' };
+                      const c = LABEL_COLORS[l] || { bg: 'var(--bg-card-hover)', text: 'var(--text-secondary)' };
                       return (
                         <span key={l} style={{ ...s.labelBadge, backgroundColor: c.bg, color: c.text }}>
                           {l}

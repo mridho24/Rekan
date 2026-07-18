@@ -32,9 +32,9 @@ function SubtaskItem({ subtask, onUpdate, onRemove }) {
 }
 
 const PRIORITY_OPTIONS = [
-  { value: 'High',   color: '#EF4444' },
+  { value: 'High',   color: 'var(--danger)' },
   { value: 'Medium', color: '#F59E0B' },
-  { value: 'Low',    color: '#6B7280' },
+  { value: 'Low',    color: 'var(--text-muted)' },
 ];
 
 const LABEL_PRESETS = ['Frontend', 'Backend', 'Database', 'UI/UX', 'API', 'Dokumentasi', 'Review', 'Perancangan'];
@@ -53,7 +53,7 @@ const siStyles = {
   },
   removeBtn: {
     width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: 'none', background: 'none', color: '#EF4444', cursor: 'pointer', opacity: 0.5, flexShrink: 0,
+    border: 'none', background: 'none', color: 'var(--danger)', cursor: 'pointer', opacity: 0.5, flexShrink: 0,
     padding: 0,
   },
 };
@@ -198,7 +198,7 @@ const tfStyles = {
   index: { fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' },
   removeBtn: {
     display: 'flex', alignItems: 'center', gap: '3px',
-    background: 'none', border: 'none', color: '#EF4444',
+    background: 'none', border: 'none', color: 'var(--danger)',
     cursor: 'pointer', fontSize: '10px', fontWeight: 600, opacity: 0.6, padding: 0,
   },
   input: {

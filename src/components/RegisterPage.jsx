@@ -31,7 +31,7 @@ function MiniKanbanPreview() {
   const columns = [
     { title: 'To Do', color: '#F59E0B', cards: ['Desain UI', 'Setup API', 'Tulis docs'] },
     { title: 'In Progress', color: '#3B82F6', cards: ['Integrasi DB', 'Auth logic'] },
-    { title: 'Done', color: '#10B981', cards: ['Wireframe', 'Research'] },
+    { title: 'Done', color: 'var(--emerald)', cards: ['Wireframe', 'Research'] },
   ];
   return (
     <div style={{
@@ -453,7 +453,7 @@ const styles = {
     flex: '1',
     position: 'relative',
     overflow: 'hidden',
-    background: 'linear-gradient(135deg, #047857 0%, #059669 25%, #10B981 55%, #34D399 85%, #6EE7B7 100%)',
+    background: 'linear-gradient(135deg, #047857 0%, var(--emerald-dark) 25%, var(--emerald) 55%, #34D399 85%, #6EE7B7 100%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -510,7 +510,7 @@ const styles = {
     fontWeight: 800,
     letterSpacing: '-1px',
     lineHeight: 1.15,
-    color: '#ffffff',
+    color: 'var(--bg-card)',
     marginBottom: '10px',
   },
   visualDesc: {

@@ -48,6 +48,7 @@ sidebarStyle.textContent = `
   .sd-logout-btn:hover { background-color: rgba(239,68,68,0.08) !important; color: #EF4444 !important; }
   .sd-logout-btn:focus-visible { outline: 2px solid #EF4444; outline-offset: 2px; border-radius: 8px; }
   .sd-user-card:hover { background-color: var(--bg-card-hover) !important; }
+  .sd-nav-item:hover { background-color: var(--bg-card-hover) !important; }
 `;
 document.head.appendChild(sidebarStyle);
 
@@ -88,12 +89,15 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
               key={id}
               onClick={() => onNavigate(id)}
               title={collapsed ? label : undefined}
+              className="sd-nav-item"
               style={{
                 ...styles.navItem,
                 backgroundColor: isActive ? 'var(--emerald-bg)' : 'transparent',
-                color: isActive ? 'var(--emerald-dark)' : 'var(--text-secondary)',
+                color: isActive ? 'var(--emerald)' : 'var(--text-secondary)',
                 fontWeight: isActive ? 600 : 500,
                 justifyContent: collapsed ? 'center' : 'flex-start',
+                borderLeft: isActive ? '3px solid var(--emerald)' : '3px solid transparent',
+                paddingLeft: isActive ? '9px' : '12px',
               }}
             >
               <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
