@@ -4,6 +4,7 @@ import {
   MoreVertical, Lock, Globe, Calendar, Trash2, Edit3,
   Target, Flame, TrendingUp, Activity, ChevronDown,
   ListTodo, Circle, ArrowUpRight, FolderPlus,
+  Archive, CheckCircle2, ArrowLeft,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StatsCard from './StatsCard';
@@ -583,10 +584,16 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
   const selectedProject = currentProjectId;
   const setSelectedProject = onSelectProject;
 
-  const totalTasks = tasks.length;
+  const   totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === 'Done').length;
   const activeProjects = projects.filter(p => p.status === 'active').length;
   const completePct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const [projectViewMode, setProjectViewMode] = useState('active');
+  const activeProjList = useMemo(() => projects.filter(p => p.status === 'active'), [projects]);
+  const completedProjList = useMemo(() => projects.filter(p => p.status === 'completed'), [projects]);
+  const archivedProjList = useMemo(() => projects.filter(p => p.status === 'archived'), [projects]);
+  const visibleProjList = projectViewMode === 'active' ? activeProjList : projectViewMode === 'completed' ? completedProjList : archivedProjList;
 
   const enrichedBoards = useMemo(() => boards.map(b => {
     const boardTasks = tasks.filter(t => t.boardId === b.id);
@@ -657,22 +664,41 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
         <div style={styles.leftCol}>
           <div style={styles.sectionHead}>
             <h2 style={styles.h2}>
-              <FolderPlus size={16} /> Semua Project
+              <FolderPlus size={16} /> {projectViewMode === 'active' ? 'Project Aktif' : projectViewMode === 'completed' ? 'Project Selesai' : 'Project Arsip'}
             </h2>
-            <span className="badge badge-emerald">{projects.length} Project</span>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {projectViewMode !== 'active' && (
+                <button className="btn btn-ghost btn-sm" onClick={() => setProjectViewMode('active')}>
+                  <ArrowLeft size={13} /> Aktif
+                </button>
+              )}
+              {completedProjList.length > 0 && projectViewMode !== 'completed' && (
+                <button className="btn btn-ghost btn-sm" onClick={() => setProjectViewMode('completed')}>
+                  <CheckCircle2 size={13} /> {completedProjList.length}
+                </button>
+              )}
+              {archivedProjList.length > 0 && projectViewMode !== 'archived' && (
+                <button className="btn btn-ghost btn-sm" onClick={() => setProjectViewMode('archived')}>
+                  <Archive size={13} /> {archivedProjList.length}
+                </button>
+              )}
+            </div>
           </div>
 
-          {projects.length === 0 ? (
+          {visibleProjList.length === 0 ? (
             <div style={styles.empty}>
               <FolderPlus size={36} color="var(--text-muted)" />
-              <p style={styles.emptyText}>Belum ada project.</p>
+              <p style={styles.emptyText}>
+                {projectViewMode === 'active' ? 'Belum ada project aktif.' : projectViewMode === 'completed' ? 'Belum ada project selesai.' : 'Belum ada project diarsipkan.'}
+              </p>
             </div>
           ) : (
             <div style={styles.boardGridWrap}>
-              {projects.map(project => {
+              {visibleProjList.map(project => {
                 const projectBoards = boards.filter(b => b.projectId === project.id);
+                const isInactive = project.status !== 'active';
                 return (
-                  <div key={project.id} style={styles.projectBlock}>
+                  <div key={project.id} style={{ ...styles.projectBlock, opacity: isInactive ? 0.7 : 1 }}>
                     <div style={styles.projectBlockHead}>
                       <div style={{ ...styles.blockDot, backgroundColor: project.color || '#6B7280' }} />
                       <span style={styles.blockName}>{project.name}</span>
