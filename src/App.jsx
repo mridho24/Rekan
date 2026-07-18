@@ -8,6 +8,8 @@ import { LogOut } from 'lucide-react';
 import BoardPage from './components/BoardPage';
 import TestimonialsPage from './components/TestimonialsPage';
 import AllTasksPage from './components/AllTasksPage';
+import CalendarPage from './components/CalendarPage';
+import NotesPage from './components/NotesPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
@@ -357,13 +359,16 @@ export default function App() {
             projects={projects}
           />
         );
-      case 'search':
+      case 'calendar':
         return (
-          <div style={styles.placeholder}>
-            <h2 style={styles.placeholderTitle}>Search</h2>
-            <p style={styles.placeholderSub}>Fitur pencarian akan segera tersedia.</p>
-          </div>
+          <CalendarPage
+            tasks={tasks}
+            boards={boards}
+            projects={projects}
+          />
         );
+      case 'notes':
+        return <NotesPage />;
       case 'testimonials':
         return <TestimonialsPage />;
       default:

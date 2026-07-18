@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare, LogOut
+  Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare, LogOut,
+  Calendar, FileText,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import SidebarCharacter from './SidebarCharacter';
@@ -10,7 +11,7 @@ const NAV_ITEMS = [
   { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
   { id: 'boards',       label: 'Boards',       icon: KanbanSquare },
   { id: 'tasks',        label: 'All Tasks',    icon: ListChecks },
-  { id: 'search',       label: 'Search',       icon: Search },
+  { id: 'calendar',     label: 'Calendar',     icon: Calendar },
   { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
 ];
 
@@ -217,8 +218,19 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
         })}
       </div>
 
-      {/* Bottom: Settings + Theme toggle + User */}
+      {/* Bottom: Notes + Settings + Theme toggle + User */}
       <div style={styles.bottomArea}>
+        {/* Notes */}
+        <button
+          className="btn-icon"
+          title="Catatan"
+          onClick={() => onNavigate('notes')}
+          style={{ ...styles.navItem, justifyContent: collapsed ? 'center' : 'flex-start' }}
+        >
+          <FileText size={17} />
+          {!collapsed && <span style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)', fontWeight: 500 }}>Catatan</span>}
+        </button>
+
         {/* Settings */}
         <button
           className="btn-icon"
