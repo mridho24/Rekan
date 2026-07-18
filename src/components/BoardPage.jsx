@@ -196,6 +196,8 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
         borderColor: isComplete ? '#A7F3D0' : 'var(--border)',
       }}
       whileHover={{ y: -1, boxShadow: 'var(--shadow-md)' }}
+      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; }}
+      onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; }}
     >
       <div style={{ ...bcStyles.colorBar, backgroundColor: board.color || '#6366F1' }} />
 
@@ -213,16 +215,15 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
           )}
           
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
-              style={{
-                ...bcStyles.moveBtn,
-                opacity: showMoveMenu ? 1 : 0.4,
-              }}
-              title="Pindahkan board"
-            >
-              <MoreHorizontal size={10} />
-            </button>
+    <button
+      onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
+      style={bcStyles.moveBtn}
+      title="Pindahkan board"
+      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; e.currentTarget.style.opacity = '1'; }}
+      onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
+    >
+      <MoreHorizontal size={14} />
+    </button>
             <AnimatePresence>
               {showMoveMenu && (
                 <>
@@ -272,8 +273,10 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             onClick={() => onDeleteBoard(board.id)}
             style={bcStyles.deleteBtn}
             title="Hapus board"
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#FEE2E2'; e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
           >
-            <Trash2 size={10} />
+            <Trash2 size={14} />
           </button>
         </div>
 
@@ -293,6 +296,11 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             />
           </div>
           <span style={bcStyles.progressText}>{pct}%</span>
+        </div>
+
+        <div style={bcStyles.dateRow}>
+          <Calendar size={9} />
+          <span>{board.createdAt ? formatDate(board.createdAt) : '-'}</span>
         </div>
 
         <div style={bcStyles.taskList}>
@@ -346,7 +354,7 @@ const bcStyles = {
     borderRadius: 'var(--r-xl)',
     overflow: 'hidden',
     boxShadow: 'var(--shadow-sm)',
-    transition: 'border-color 0.2s, box-shadow 0.2s',
+    transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.15s',
     cursor: 'grab',
   },
   colorBar: { width: '4px', flexShrink: 0 },
@@ -366,10 +374,11 @@ const bcStyles = {
     borderRadius: 'var(--r-full)',
   },
   deleteBtn: {
-    width: '20px', height: '20px',
+    width: '26px', height: '26px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: '#EF4444', cursor: 'pointer', opacity: 0.4, flexShrink: 0,
+    color: '#EF4444', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
+    transition: 'background-color 0.15s, opacity 0.15s',
   },
   desc: { fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 },
   progressWrap: { display: 'flex', alignItems: 'center', gap: '6px' },
@@ -379,6 +388,7 @@ const bcStyles = {
   },
   progressFill: { height: '100%', borderRadius: 'var(--r-full)', transition: 'width 0.3s ease' },
   progressText: { fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', minWidth: '28px', textAlign: 'right' },
+  dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' },
   taskList: { display: 'flex', flexDirection: 'column', gap: '1px', marginTop: '2px' },
   emptyTasks: { fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 0' },
   addTaskRow: {
@@ -398,11 +408,11 @@ const bcStyles = {
     flexShrink: 0,
   },
   moveBtn: {
-    width: '20px', height: '20px',
+    width: '26px', height: '26px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.4, flexShrink: 0,
-    transition: 'opacity 0.15s',
+    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
+    transition: 'background-color 0.15s, opacity 0.15s',
   },
   moveMenu: {
     position: 'absolute', right: 0, top: 'calc(100% + 4px)',
