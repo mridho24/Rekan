@@ -612,9 +612,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
           <button className="btn btn-ghost" onClick={onAddProject}>
             <Plus size={16} /> Project Baru
           </button>
-          <button className="btn btn-primary" onClick={onCreateBoard}>
-            <Plus size={16} /> Buat Board
-          </button>
+
         </div>
       </div>
 
@@ -666,9 +664,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
                 </span>
               )}
             </h2>
-            <button className="btn btn-ghost btn-sm" onClick={onCreateBoard}>
-              <Plus size={14} /> Baru
-            </button>
+
           </div>
 
           {visibleBoards.length === 0 ? (
@@ -679,7 +675,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
                   ? 'Belum ada board. Buat board pertama Anda!'
                   : 'Belum ada board untuk project ini.'}
               </p>
-              <button className="btn btn-primary btn-sm" onClick={onCreateBoard}>Buat Board</button>
+
             </div>
           ) : (
             <motion.div
@@ -767,10 +763,7 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
               )}
             </div>
 
-            {/* Quick action */}
-            <button className="btn btn-ghost btn-sm" onClick={onCreateBoard} style={{ width: '100%', justifyContent: 'center' }}>
-              <Plus size={14} /> Buat Board Baru
-            </button>
+
           </div>
         </div>
       </div>
