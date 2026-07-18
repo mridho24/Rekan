@@ -343,7 +343,7 @@ const styles = {
     gap: '10px',
     padding: '9px 13px',
     borderRadius: 'var(--r-md)',
-    border: 'none',
+    borderStyle: 'none',
     cursor: 'pointer',
     transition: 'var(--t-fast)',
     background: 'transparent',

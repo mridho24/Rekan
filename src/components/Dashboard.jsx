@@ -651,54 +651,49 @@ export default function Dashboard({ boards, tasks, onCreateBoard, onEditBoard, o
         </div>
       </motion.div>
 
-      {/* Board List + Task Overview (2-col) */}
+      {/* Project List + Task Overview (2-col) */}
       <div style={styles.twoCol}>
-        {/* Left: Board List */}
+        {/* Left: Project List */}
         <div style={styles.leftCol}>
           <div style={styles.sectionHead}>
             <h2 style={styles.h2}>
-              <LayoutDashboard size={16} /> Semua Board
+              <FolderPlus size={16} /> Semua Project
             </h2>
-            <span className="badge badge-emerald">{boards.length} Board</span>
+            <span className="badge badge-emerald">{projects.length} Project</span>
           </div>
 
-          {boards.length === 0 ? (
+          {projects.length === 0 ? (
             <div style={styles.empty}>
-              <LayoutDashboard size={36} color="var(--text-muted)" />
-              <p style={styles.emptyText}>Belum ada board.</p>
+              <FolderPlus size={36} color="var(--text-muted)" />
+              <p style={styles.emptyText}>Belum ada project.</p>
             </div>
           ) : (
             <div style={styles.boardGridWrap}>
-              {(() => {
-                const withProj = boards.map(b => ({
-                  ...b,
-                  project: projects.find(p => p.id === b.projectId) || { id: 'other', name: 'Lainnya', color: '#6B7280' },
-                }));
-                const grouped = {};
-                withProj.forEach(b => {
-                  const pid = b.projectId || 'other';
-                  if (!grouped[pid]) grouped[pid] = { project: b.project, boards: [] };
-                  grouped[pid].boards.push(b);
-                });
-                return Object.values(grouped).map(g => (
-                  <div key={g.project.id} style={styles.projectBlock}>
+              {projects.map(project => {
+                const projectBoards = boards.filter(b => b.projectId === project.id);
+                return (
+                  <div key={project.id} style={styles.projectBlock}>
                     <div style={styles.projectBlockHead}>
-                      <div style={{ ...styles.blockDot, backgroundColor: g.project.color || '#6B7280' }} />
-                      <span style={styles.blockName}>{g.project.name}</span>
-                      <span style={styles.blockCount}>{g.boards.length}</span>
+                      <div style={{ ...styles.blockDot, backgroundColor: project.color || '#6B7280' }} />
+                      <span style={styles.blockName}>{project.name}</span>
+                      <span style={styles.blockCount}>{projectBoards.length}</span>
                     </div>
                     <div style={styles.blockList}>
-                      {g.boards.map(board => (
-                        <div key={board.id} style={styles.blockItem}>
-                          <div style={{ ...styles.blockItemDot, backgroundColor: board.color || '#10B981' }} />
-                          <span style={styles.blockItemName}>{board.name}</span>
-                          <span style={styles.blockItemDate}>{formatDate(board.createdAt)}</span>
-                        </div>
-                      ))}
+                      {projectBoards.length === 0 ? (
+                        <div style={styles.blockEmpty}>Belum ada board</div>
+                      ) : (
+                        projectBoards.map(board => (
+                          <div key={board.id} style={styles.blockItem}>
+                            <div style={{ ...styles.blockItemDot, backgroundColor: board.color || '#10B981' }} />
+                            <span style={styles.blockItemName}>{board.name}</span>
+                            <span style={styles.blockItemDate}>{formatDate(board.createdAt)}</span>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
-                ));
-              })()}
+                );
+              })}
             </div>
           )}
         </div>
@@ -1066,5 +1061,12 @@ const styles = {
     color: 'var(--text-muted)',
     whiteSpace: 'nowrap',
     flexShrink: 0,
+  },
+  blockEmpty: {
+    padding: '14px 16px',
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 };
