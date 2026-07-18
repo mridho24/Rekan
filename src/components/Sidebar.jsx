@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, KanbanSquare, ListChecks, Settings,
-  Sun, Moon, ChevronLeft, ChevronRight, MessageSquare, LogOut,
-  Calendar, FileText,
+  LayoutDashboard, KanbanSquare, ListChecks,
+  Sun, Moon, ChevronLeft, ChevronRight, LogOut,
+  Calendar, FileText, Settings,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import SidebarCharacter from './SidebarCharacter';
 
 const NAV_ITEMS = [
-  { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard },
-  { id: 'boards',       label: 'Projects',     icon: KanbanSquare },
-  { id: 'tasks',        label: 'All Tasks',    icon: ListChecks },
-  { id: 'calendar',     label: 'Calendar',     icon: Calendar },
-  { id: 'testimonials', label: 'Testimonials', icon: MessageSquare },
+  { id: 'dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
+  { id: 'boards',     label: 'Projects',   icon: KanbanSquare },
+  { id: 'tasks',      label: 'All Tasks',  icon: ListChecks },
+  { id: 'calendar',   label: 'Calendar',   icon: Calendar },
+  { id: 'notes',      label: 'Notes',      icon: FileText },
+  { id: 'settings',   label: 'Settings',   icon: Settings },
 ];
 
-// Rekan SVG Logo
 function RekanLogo({ size = 20, collapsed = false }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
@@ -44,6 +43,14 @@ function RekanLogo({ size = 20, collapsed = false }) {
   );
 }
 
+const sidebarStyle = document.createElement('style');
+sidebarStyle.textContent = `
+  .sd-logout-btn:hover { background-color: rgba(239,68,68,0.08) !important; color: #EF4444 !important; }
+  .sd-logout-btn:focus-visible { outline: 2px solid #EF4444; outline-offset: 2px; border-radius: 8px; }
+  .sd-user-card:hover { background-color: var(--bg-card-hover) !important; }
+`;
+document.head.appendChild(sidebarStyle);
+
 export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {} }) {
   const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
 
@@ -52,8 +59,6 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
       setCollapsed(true);
     }
   }, []);
-
-  const sidebarWidth = collapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)';
 
   return (
     <motion.aside
@@ -70,10 +75,7 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
           style={{ marginLeft: 'auto', flexShrink: 0 }}
           title={collapsed ? 'Perluas sidebar' : 'Perkecil sidebar'}
         >
-          {collapsed
-            ? <ChevronRight size={16} />
-            : <ChevronLeft size={16} />
-          }
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
@@ -90,8 +92,6 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
                 ...styles.navItem,
                 backgroundColor: isActive ? 'var(--emerald-bg)' : 'transparent',
                 color: isActive ? 'var(--emerald-dark)' : 'var(--text-secondary)',
-                borderLeft: isActive ? '3px solid var(--emerald)' : '3px solid transparent',
-                paddingLeft: isActive ? '13px' : '13px',
                 fontWeight: isActive ? 600 : 500,
                 justifyContent: collapsed ? 'center' : 'flex-start',
               }}
@@ -107,48 +107,19 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
         })}
       </nav>
 
-      {/* Bottom: Notes + Settings + Theme toggle + User */}
-      <div style={styles.bottomArea}>
-        {/* Notes */}
-        <button
-          className="btn-icon"
-          title="Catatan"
-          onClick={() => onNavigate('notes')}
-          style={{ ...styles.navItem, justifyContent: collapsed ? 'center' : 'flex-start' }}
-        >
-          <FileText size={17} />
-          {!collapsed && <span style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)', fontWeight: 500 }}>Catatan</span>}
-        </button>
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
 
-        {/* Settings */}
-        <button
-          className="btn-icon"
-          title="Settings"
-          style={{ ...styles.navItem, justifyContent: collapsed ? 'center' : 'flex-start' }}
-        >
-          <Settings size={17} />
-          {!collapsed && <span style={{ fontSize: 'var(--text-base)', color: 'var(--text-secondary)', fontWeight: 500 }}>Settings</span>}
-        </button>
-
-        {/* Divider */}
-        <div style={styles.divider} />
-
-        {/* Theme toggle */}
-        <div style={{
-          ...styles.themeRow,
-          justifyContent: collapsed ? 'center' : 'space-between',
-          padding: collapsed ? '8px 4px' : '8px 16px',
-        }}>
+      {/* Bottom Section */}
+      <div style={styles.bottomSection}>
+        {/* Theme Toggle */}
+        <div style={styles.themeRow}>
           {!collapsed && (
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', fontWeight: 500 }}>
-              {theme === 'dark' ? 'Mode Malam' : 'Mode Terang'}
+            <span style={styles.themeLabel}>
+              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
             </span>
           )}
-          <button
-            onClick={onToggleTheme}
-            title={theme === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Malam'}
-            style={styles.themeToggleBtn}
-          >
+          <button onClick={onToggleTheme} title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'} style={styles.themeToggleBtn}>
             <div style={{
               ...styles.toggleTrack,
               backgroundColor: theme === 'dark' ? 'var(--emerald)' : 'var(--border-strong)'
@@ -162,51 +133,40 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
                   marginRight: theme === 'dark' ? '2px' : 'auto',
                 }}
               >
-                {theme === 'dark'
-                  ? <Moon size={9} color="var(--emerald)" />
-                  : <Sun size={9} color="var(--warning)" />
-                }
+                {theme === 'dark' ? <Moon size={9} color="var(--emerald)" /> : <Sun size={9} color="var(--warning)" />}
               </motion.div>
             </div>
           </button>
         </div>
 
-        {/* Divider */}
-        <div style={styles.divider} />
-
-        {/* User Profile */}
-        <div style={{
-          ...styles.userRow,
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? '10px 4px' : '10px 16px',
-        }}>
-          <div style={styles.avatar}>U</div>
-          {!collapsed && (
-            <div style={styles.userInfo}>
-              <span style={styles.userName}>Pengguna</span>
-              <span style={styles.userEmail}>user@rekan.app</span>
-            </div>
-          )}
-          <button
-            onClick={onLogout}
-            title="Keluar"
-            style={{
-              ...styles.logoutBtn,
-              marginLeft: collapsed ? '0' : 'auto',
-            }}
-          >
-            <LogOut size={15} />
-          </button>
+        {/* User Card */}
+        <div style={styles.userCard}>
+          <div style={styles.userCardInner}>
+            <div style={styles.avatar}>U</div>
+            {!collapsed && (
+              <div style={styles.userInfo}>
+                <span style={styles.userName}>Pengguna</span>
+                <span style={styles.userEmail}>user@rekan.app</span>
+              </div>
+            )}
+          </div>
+          {!collapsed && <div style={styles.workspaceBadge}>Personal Workspace</div>}
         </div>
 
-      </div>
+        {/* Logout */}
+        <button onClick={onLogout} title="Logout" className="sd-logout-btn" style={styles.logoutBtn}>
+          <LogOut size={14} />
+          {!collapsed && <span>Logout</span>}
+        </button>
 
-      {/* ════════════════════════════════════ */}
-      {/* Sidebar bottom character */}
-      <div style={{ flexShrink: 0 }}>
-        <SidebarCharacter collapsed={collapsed} theme={theme} />
+        {/* Version */}
+        {!collapsed && (
+          <div style={styles.versionRow}>
+            <span style={styles.versionText}>Workspace · Personal</span>
+            <span style={styles.versionText}>v1.0.0</span>
+          </div>
+        )}
       </div>
-
     </motion.aside>
   );
 }
@@ -236,38 +196,39 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '2px',
-    padding: '12px 8px',
+    padding: '10px 8px',
   },
   navItem: {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    padding: '9px 13px',
+    padding: '9px 12px',
     borderRadius: 'var(--r-md)',
-    borderStyle: 'none',
+    border: 'none',
     cursor: 'pointer',
     transition: 'var(--t-fast)',
     background: 'transparent',
     width: '100%',
     textAlign: 'left',
   },
-  spacer: { flexGrow: 1 },
-  bottomArea: {
-    borderTop: '1px solid var(--border)',
+  bottomSection: {
     display: 'flex',
     flexDirection: 'column',
+    gap: '6px',
     padding: '8px',
-    gap: '2px',
-  },
-  divider: {
-    height: '1px',
-    backgroundColor: 'var(--border)',
-    margin: '4px 8px',
+    borderTop: '1px solid var(--border)',
   },
   themeRow: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '4px 8px',
     borderRadius: 'var(--r-md)',
+  },
+  themeLabel: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    fontWeight: 500,
   },
   themeToggleBtn: {
     background: 'none',
@@ -296,16 +257,23 @@ const styles = {
     justifyContent: 'center',
     boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
   },
-  userRow: {
+  userCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    padding: '10px 10px',
+    borderRadius: 'var(--r-lg)',
+    backgroundColor: 'var(--bg-card-hover)',
+    transition: 'var(--t-fast)',
+  },
+  userCardInner: {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    borderRadius: 'var(--r-md)',
-    cursor: 'default',
   },
   avatar: {
-    width: '32px',
-    height: '32px',
+    width: '34px',
+    height: '34px',
     borderRadius: '50%',
     backgroundColor: 'var(--emerald-bg)',
     color: 'var(--emerald-dark)',
@@ -313,7 +281,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: 700,
-    fontSize: '13px',
+    fontSize: '14px',
     border: '1.5px solid var(--emerald-border)',
     flexShrink: 0,
   },
@@ -322,6 +290,7 @@ const styles = {
     flexDirection: 'column',
     gap: '1px',
     overflow: 'hidden',
+    flex: 1,
   },
   userName: {
     fontSize: 'var(--text-sm)',
@@ -338,35 +307,40 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  logoutBtn: {
-    background: 'none',
-    border: 'none',
+  workspaceBadge: {
+    fontSize: '11px',
+    fontWeight: 500,
     color: 'var(--text-muted)',
-    cursor: 'pointer',
-    padding: '6px',
+    padding: '3px 8px',
     borderRadius: 'var(--r-sm)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'var(--t-fast)',
-    flexShrink: 0,
+    backgroundColor: 'var(--bg-sidebar)',
+    textAlign: 'center',
   },
-  deleteBtn: {
-    position: 'absolute',
-    right: '8px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: '22px',
-    height: '22px',
+  logoutBtn: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 'var(--r-sm)',
+    gap: '6px',
+    width: '100%',
+    padding: '9px 12px',
+    borderRadius: 'var(--r-md)',
     border: 'none',
-    background: 'transparent',
+    backgroundColor: 'transparent',
     color: 'var(--text-muted)',
     cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 600,
     transition: 'var(--t-fast)',
-    zIndex: 2,
+  },
+  versionRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '4px 8px',
+  },
+  versionText: {
+    fontSize: '10px',
+    color: 'var(--text-muted)',
+    fontWeight: 500,
   },
 };
