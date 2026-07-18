@@ -339,7 +339,7 @@ const bcStyles = {
   },
 };
 
-function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, getBoardTasks }) {
+function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, onAddTask, getBoardTasks, isMobile }) {
   const [dragOver, setDragOver] = useState(false);
   const Icon = column.icon;
 
@@ -350,6 +350,10 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
         ...colStyles.column,
         borderColor: dragOver ? column.color : 'var(--border)',
         backgroundColor: dragOver ? 'var(--bg-card-hover)' : 'transparent',
+        minWidth: isMobile ? 'calc(100vw - 48px)' : colStyles.column.minWidth,
+        maxWidth: isMobile ? '100%' : colStyles.column.maxWidth,
+        maxHeight: isMobile ? 'calc(100vh - 220px)' : colStyles.column.maxHeight,
+        scrollSnapAlign: isMobile ? 'center' : 'none',
       }}
       onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOver(true); }}
       onDragLeave={() => setDragOver(false)}
@@ -490,6 +494,17 @@ export default function BoardPage({
   onAddProject, onDeleteProject, onDeleteBoard,
   onUpdateProjects,
 }) {
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+  const isXS = windowWidth < 480;
+
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [menuProjectId, setMenuProjectId] = useState(null);
@@ -583,15 +598,27 @@ export default function BoardPage({
   const getBoardTasks = (boardId) => filterTasks(projectTasks.filter(t => t.boardId === boardId));
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
+    <div style={{
+      ...styles.page,
+      padding: isMobile ? '16px 16px 32px' : '32px 36px',
+    }}>
+      <div style={{
+        ...styles.header,
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'flex-start',
+        gap: isMobile ? '12px' : '16px',
+      }}>
         <div>
           <h1 style={styles.h1}>Boards</h1>
           {hasProjectSelected && (
             <p style={styles.subtitle}>{projectTasks.length} tugas di {projectBoards.length} board</p>
           )}
         </div>
-        <div style={styles.headerActions}>
+        <div style={{
+          ...styles.headerActions,
+          flexWrap: 'wrap',
+          marginTop: isMobile ? '4px' : '0',
+        }}>
           <motion.div
             ref={searchRef}
             animate={{ width: isSearchOpen || searchQuery ? 200 : 36 }}
@@ -707,7 +734,13 @@ export default function BoardPage({
                     style={styles.projectCard}
                     whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: project.color }}
                   >
-                    <div style={styles.projectCardInner}>
+                    <div style={{
+                      ...styles.projectCardInner,
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'stretch' : 'center',
+                      gap: isMobile ? '16px' : '20px',
+                      padding: isMobile ? '16px' : '24px',
+                    }}>
                       <div style={styles.projectCardLeft}>
                         <div style={{ ...styles.projectIconBox, backgroundColor: `${project.color}12` }}>
                           <IconComponent size={22} color={project.color} strokeWidth={1.5} />
@@ -767,10 +800,17 @@ export default function BoardPage({
                         </div>
                       </div>
 
-                      <div style={styles.projectCardRight}>
+                      <div style={{
+                        ...styles.projectCardRight,
+                        marginTop: isMobile ? '8px' : '0',
+                      }}>
                         <button
                           onClick={() => onSelectProject(project.id)}
-                          style={styles.openBtn}
+                          style={{
+                            ...styles.openBtn,
+                            width: isMobile ? '100%' : 'auto',
+                            justifyContent: isMobile ? 'center' : 'flex-start',
+                          }}
                         >
                           Open Board
                           <ArrowRight size={14} />
@@ -840,7 +880,13 @@ export default function BoardPage({
                     style={styles.projectCard}
                     whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#A7F3D0' }}
                   >
-                    <div style={styles.projectCardInner}>
+                    <div style={{
+                      ...styles.projectCardInner,
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'stretch' : 'center',
+                      gap: isMobile ? '16px' : '20px',
+                      padding: isMobile ? '16px' : '24px',
+                    }}>
                       <div style={styles.projectCardLeft}>
                         <div style={{ ...styles.projectIconBox, backgroundColor: '#D1FAE5' }}>
                           <IconComponent size={22} color="#10B981" strokeWidth={1.5} />
@@ -900,10 +946,17 @@ export default function BoardPage({
                         </div>
                       </div>
 
-                      <div style={styles.projectCardRight}>
+                      <div style={{
+                        ...styles.projectCardRight,
+                        marginTop: isMobile ? '8px' : '0',
+                      }}>
                         <button
                           onClick={() => onSelectProject(project.id)}
-                          style={styles.openBtn}
+                          style={{
+                            ...styles.openBtn,
+                            width: isMobile ? '100%' : 'auto',
+                            justifyContent: isMobile ? 'center' : 'flex-start',
+                          }}
                         >
                           Open Board
                           <ArrowRight size={14} />
@@ -973,7 +1026,13 @@ export default function BoardPage({
                     style={styles.projectCard}
                     whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#ECECEC' }}
                   >
-                    <div style={styles.projectCardInner}>
+                    <div style={{
+                      ...styles.projectCardInner,
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'stretch' : 'center',
+                      gap: isMobile ? '16px' : '20px',
+                      padding: isMobile ? '16px' : '24px',
+                    }}>
                       <div style={styles.projectCardLeft}>
                         <div style={{ ...styles.projectIconBox, backgroundColor: '#F3F4F6' }}>
                           <IconComponent size={22} color="#9CA3AF" strokeWidth={1.5} />
@@ -1033,10 +1092,17 @@ export default function BoardPage({
                         </div>
                       </div>
 
-                      <div style={styles.projectCardRight}>
+                      <div style={{
+                        ...styles.projectCardRight,
+                        marginTop: isMobile ? '8px' : '0',
+                      }}>
                         <button
                           onClick={() => onSelectProject(project.id)}
-                          style={styles.openBtn}
+                          style={{
+                            ...styles.openBtn,
+                            width: isMobile ? '100%' : 'auto',
+                            justifyContent: isMobile ? 'center' : 'flex-start',
+                          }}
                         >
                           Open Board
                           <ArrowRight size={14} />
@@ -1103,7 +1169,14 @@ export default function BoardPage({
       )}
 
       {hasProjectSelected && (searchQuery ? filteredBoards.length > 0 : projectBoards.length > 0) && (
-        <motion.div layout style={styles.boardRow}>
+        <motion.div 
+          layout 
+          style={{
+            ...styles.boardRow,
+            scrollSnapType: isMobile ? 'x mandatory' : 'none',
+            paddingBottom: isMobile ? '10px' : '20px',
+          }}
+        >
           {COLUMNS.map(col => (
             <BoardColumn
               key={col.id}
@@ -1116,6 +1189,7 @@ export default function BoardPage({
               onDeleteBoard={onDeleteBoard}
               onAddTask={handleAddTask}
               getBoardTasks={getBoardTasks}
+              isMobile={isMobile}
             />
           ))}
         </motion.div>

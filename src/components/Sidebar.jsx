@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Plus, LayoutDashboard, KanbanSquare, ListChecks, Search, Settings,
   Sun, Moon, ChevronLeft, ChevronRight, Trash2, MessageSquare, LogOut
@@ -44,8 +44,14 @@ function RekanLogo({ size = 20, collapsed = false }) {
 }
 
 export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, projects = [], currentProjectId = 'all', onSelectProject = () => {}, onCreateProjectClick = () => {}, onDeleteProject = () => {}, onLogout = () => {} }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [hoveredProject, setHoveredProject] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setCollapsed(true);
+    }
+  }, []);
 
   const sidebarWidth = collapsed ? 'var(--sidebar-w-collapsed)' : 'var(--sidebar-w)';
 
