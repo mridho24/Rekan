@@ -11,6 +11,7 @@ import AllTasksPage from './components/AllTasksPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
+import ConfirmDialog from './components/ConfirmDialog';
 import './index.css';
 
 // ─── Mock Data ──────────────────────────────────────────
@@ -143,6 +144,7 @@ export default function App() {
   const [completionTrigger, setCompletionTrigger] = useState(0);
   const [activityLog, setActivityLog] = useState([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [boardToDelete, setBoardToDelete] = useState(null);
 
   const handleLogin = (userData) => {
     localStorage.setItem('rekan_logged_in', 'true');
@@ -272,9 +274,14 @@ export default function App() {
   };
 
   const handleDeleteBoard = (id) => {
-    if (window.confirm('Hapus board ini? Tindakan ini tidak dapat diurungkan.')) {
-      setBoards(bs => bs.filter(b => b.id !== id));
-      setTasks(prev => prev.filter(t => t.boardId !== id));
+    setBoardToDelete(id);
+  };
+
+  const confirmDeleteBoard = () => {
+    if (boardToDelete) {
+      setBoards(bs => bs.filter(b => b.id !== boardToDelete));
+      setTasks(prev => prev.filter(t => t.boardId !== boardToDelete));
+      setBoardToDelete(null);
     }
   };
 
@@ -465,6 +472,24 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+      {/* Delete Board Confirmation */}
+      <ConfirmDialog
+        isOpen={!!boardToDelete}
+        onClose={() => setBoardToDelete(null)}
+        onConfirm={confirmDeleteBoard}
+        title="Hapus Board"
+        message={
+          (() => {
+            const targetBoard = boards.find(b => b.id === boardToDelete);
+            return targetBoard 
+              ? `Apakah Anda yakin ingin menghapus board "${targetBoard.name}"? Semua tugas di dalamnya juga akan ikut terhapus.`
+              : 'Apakah Anda yakin ingin menghapus board ini? Tindakan ini tidak dapat diurungkan.';
+          })()
+        }
+        confirmText="Ya, Hapus"
+        cancelText="Batal"
+        danger
+      />
     </div>
   );
 }
