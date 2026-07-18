@@ -3,8 +3,8 @@ import {
   Plus, Calendar, Trash2, CheckCircle2, Circle,
   ChevronDown, ChevronRight, FolderPlus, LayoutDashboard,
   Flag, ListChecks, Clock, GripVertical,
-  MoreHorizontal, Users, Layers, ArrowRight, Folder,
-  KanbanSquare, SquareStack,
+  MoreHorizontal, Users, Layers, ArrowRight, ArrowLeft,
+  Folder, KanbanSquare, SquareStack, Archive,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskDetailModal from './TaskDetailModal';
@@ -491,7 +491,7 @@ export default function BoardPage({
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [menuProjectId, setMenuProjectId] = useState(null);
-  const [showArchived, setShowArchived] = useState(false);
+  const [viewMode, setViewMode] = useState('projects');
   const [archiveConfirmId, setArchiveConfirmId] = useState(null);
 
   const selectedProject = currentProjectId;
@@ -519,12 +519,9 @@ export default function BoardPage({
     return map;
   }, [projectBoards, projectTasks]);
 
-  const visibleProjects = useMemo(() =>
-    showArchived ? projects : projects.filter(p => !p.completed),
-    [projects, showArchived]
-  );
-
-  const archivedCount = projects.filter(p => p.completed).length;
+  const activeProjects = useMemo(() => projects.filter(p => !p.completed), [projects]);
+  const archivedProjects = useMemo(() => projects.filter(p => p.completed), [projects]);
+  const visibleProjects = viewMode === 'archived' ? archivedProjects : activeProjects;
 
   const handleBoardDrop = (boardId, columnId) => {
     onUpdateBoards(prev => prev.map(b =>
@@ -594,25 +591,25 @@ export default function BoardPage({
         </div>
       </div>
 
-      {!hasProjectSelected && (
+      {!hasProjectSelected && viewMode === 'projects' && (
         <div style={styles.projectListWrap}>
           <div style={styles.projectListHeader}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <h2 style={styles.projectListTitle}>Projects</h2>
-              {archivedCount > 0 && (
+            <h2 style={styles.projectListTitle}>Projects</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {archivedProjects.length > 0 && (
                 <button
-                  onClick={() => setShowArchived(v => !v)}
-                  style={styles.archivedToggle}
+                  onClick={() => setViewMode('archived')}
+                  style={styles.archivedBtn}
                 >
-                  {showArchived ? 'Active' : 'Archived'} ({archivedCount})
+                  <Archive size={14} /> Archived ({archivedProjects.length})
                 </button>
               )}
+              <button className="btn btn-primary btn-sm" onClick={onAddProject}>
+                <Plus size={15} /> New Project
+              </button>
             </div>
-            <button className="btn btn-primary btn-sm" onClick={onAddProject}>
-              <Plus size={15} /> New Project
-            </button>
           </div>
-          {visibleProjects.length === 0 ? (
+          {activeProjects.length === 0 ? (
             <div style={styles.noProject}>
               <FolderPlus size={48} color="var(--text-muted)" />
               <h2 style={styles.noProjectTitle}>No projects yet</h2>
@@ -625,8 +622,7 @@ export default function BoardPage({
             </div>
           ) : (
             <div style={styles.projectGrid}>
-              {visibleProjects.map((project, idx) => {
-                const isActive = !project.completed;
+              {activeProjects.map((project, idx) => {
                 const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
                 const projectTaskList = tasks.filter(t => t.projectId === project.id);
                 const totalTasks = projectTaskList.length;
@@ -642,12 +638,12 @@ export default function BoardPage({
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
                     style={styles.projectCard}
-                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: isActive ? project.color : '#ECECEC' }}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: project.color }}
                   >
                     <div style={styles.projectCardInner}>
                       <div style={styles.projectCardLeft}>
-                        <div style={{ ...styles.projectIconBox, backgroundColor: isActive ? `${project.color}12` : '#F3F4F6' }}>
-                          <IconComponent size={22} color={isActive ? project.color : '#9CA3AF'} strokeWidth={1.5} />
+                        <div style={{ ...styles.projectIconBox, backgroundColor: `${project.color}12` }}>
+                          <IconComponent size={22} color={project.color} strokeWidth={1.5} />
                         </div>
                       </div>
 
@@ -656,11 +652,8 @@ export default function BoardPage({
                           <h3 style={styles.projectCardName}>{project.name}</h3>
                           <div style={styles.projectCardActions}>
                             <span style={styles.statusBadge}>
-                              <span style={{
-                                ...styles.statusDot,
-                                backgroundColor: isActive ? '#22C55E' : '#D1D5DB',
-                              }} />
-                              {isActive ? 'Active' : 'Archived'}
+                              <span style={{ ...styles.statusDot, backgroundColor: '#22C55E' }} />
+                              Active
                             </span>
                             <div style={{ position: 'relative' }}>
                               <button
@@ -674,7 +667,123 @@ export default function BoardPage({
                                 {menuProjectId === project.id && (
                                   <ProjectCardMenu
                                     project={project}
-                                    isActive={isActive}
+                                    isActive={true}
+                                    onSelectProject={onSelectProject}
+                                    onDeleteProject={onDeleteProject}
+                                    onUpdateProjects={onUpdateProjects}
+                                    onArchiveRequest={(id) => setArchiveConfirmId(id)}
+                                    onClose={() => setMenuProjectId(null)}
+                                  />
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </div>
+                        </div>
+
+                        <p style={styles.projectWorkspace}>Personal Workspace</p>
+
+                        <div style={styles.projectMeta}>
+                          <span style={styles.projectMetaItem}>
+                            <Layers size={14} />
+                            {projectBoardCount} {projectBoardCount === 1 ? 'Board' : 'Boards'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <SquareStack size={14} />
+                            {totalTasks} {totalTasks === 1 ? 'Task' : 'Tasks'}
+                          </span>
+                          <span style={styles.metaSep} />
+                          <span style={styles.projectMetaItem}>
+                            <Users size={14} />
+                            1 Member
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardRight}>
+                        <button
+                          onClick={() => onSelectProject(project.id)}
+                          style={styles.openBtn}
+                        >
+                          Open Board
+                          <ArrowRight size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!hasProjectSelected && viewMode === 'archived' && (
+        <div style={styles.projectListWrap}>
+          <div style={styles.projectListHeader}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button onClick={() => setViewMode('projects')} style={styles.backBtn}>
+                <ArrowLeft size={16} />
+              </button>
+              <h2 style={styles.projectListTitle}>Archived Projects</h2>
+            </div>
+          </div>
+          {archivedProjects.length === 0 ? (
+            <div style={styles.noProject}>
+              <Archive size={48} color="var(--text-muted)" />
+              <h2 style={styles.noProjectTitle}>No archived projects</h2>
+              <p style={styles.noProjectText}>
+                Archived projects will appear here.
+              </p>
+            </div>
+          ) : (
+            <div style={styles.projectGrid}>
+              {archivedProjects.map((project, idx) => {
+                const projectBoardCount = boards.filter(b => b.projectId === project.id).length;
+                const projectTaskList = tasks.filter(t => t.projectId === project.id);
+                const totalTasks = projectTaskList.length;
+                const PROJECT_ICONS = [Folder, LayoutDashboard, KanbanSquare, Layers];
+                const IconComponent = PROJECT_ICONS[idx % PROJECT_ICONS.length];
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+                    style={styles.projectCard}
+                    whileHover={{ y: -3, boxShadow: '0 12px 32px rgba(0,0,0,0.08)', borderColor: '#ECECEC' }}
+                  >
+                    <div style={styles.projectCardInner}>
+                      <div style={styles.projectCardLeft}>
+                        <div style={{ ...styles.projectIconBox, backgroundColor: '#F3F4F6' }}>
+                          <IconComponent size={22} color="#9CA3AF" strokeWidth={1.5} />
+                        </div>
+                      </div>
+
+                      <div style={styles.projectCardCenter}>
+                        <div style={styles.projectCardTopRow}>
+                          <h3 style={styles.projectCardName}>{project.name}</h3>
+                          <div style={styles.projectCardActions}>
+                            <span style={styles.statusBadge}>
+                              <span style={{ ...styles.statusDot, backgroundColor: '#D1D5DB' }} />
+                              Archived
+                            </span>
+                            <div style={{ position: 'relative' }}>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setMenuProjectId(menuProjectId === project.id ? null : project.id); }}
+                                style={styles.moreBtn}
+                                title="More"
+                              >
+                                <MoreHorizontal size={16} color="#6B7280" />
+                              </button>
+                              <AnimatePresence>
+                                {menuProjectId === project.id && (
+                                  <ProjectCardMenu
+                                    project={project}
+                                    isActive={false}
                                     onSelectProject={onSelectProject}
                                     onDeleteProject={onDeleteProject}
                                     onUpdateProjects={onUpdateProjects}
@@ -902,10 +1011,19 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     gap: '12px',
   },
-  archivedToggle: {
-    fontSize: '13px', fontWeight: 500, color: '#6366F1',
-    background: 'none', border: 'none', cursor: 'pointer',
-    padding: '4px 10px', borderRadius: '8px',
+  archivedBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    fontSize: '13px', fontWeight: 500, color: '#6B7280',
+    background: 'none', border: '1px solid #E5E7EB', cursor: 'pointer',
+    padding: '6px 14px', borderRadius: '10px',
+    transition: 'background-color 0.15s ease, border-color 0.15s ease',
+    fontFamily: 'inherit',
+  },
+  backBtn: {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    width: '36px', height: '36px',
+    background: 'none', border: '1px solid #E5E7EB', cursor: 'pointer',
+    borderRadius: '10px', color: '#374151',
     transition: 'background-color 0.15s ease',
     fontFamily: 'inherit',
   },
