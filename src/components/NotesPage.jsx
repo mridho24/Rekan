@@ -19,6 +19,7 @@ import {
   Bold, Italic, Heading, List, ListOrdered, Quote, Code, Image, Link, Table as TableIcon,
   Undo, Redo, CheckSquare, Minus, Strikethrough, Underline as UnderlineIcon,
 } from 'lucide-react';
+import ConfirmDialog from './ConfirmDialog';
 
 const STORAGE_KEY = 'rekan_notes';
 
@@ -316,6 +317,8 @@ export default function NotesPage() {
     ));
   }, []);
 
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
   const deleteNote = useCallback((id) => {
     setNotes(prev => prev.filter(n => n.id !== id));
     if (activeId === id) setActiveId(null);
@@ -370,6 +373,7 @@ export default function NotesPage() {
   const rt = activeNote ? readingTime(activeNote.content || '') : 0;
 
   return (
+    <>
     <div style={s.page}>
       <div style={s.twoCol}>
         {/* ═══════════ SIDEBAR: SEARCH + NEW NOTE + NOTE LIST ═══════════ */}
@@ -461,7 +465,7 @@ export default function NotesPage() {
                 <button
                   type="button"
                   className="ns-delete-btn"
-                  onClick={() => deleteNote(activeNote.id)}
+                  onClick={() => setDeleteConfirmId(activeNote.id)}
                   style={s.metaDelete}
                 >
                   <Trash2 size={11} /> Hapus
@@ -550,6 +554,15 @@ export default function NotesPage() {
         </div>
       </div>
     </div>
+
+      <ConfirmDialog
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={() => { deleteNote(deleteConfirmId); setDeleteConfirmId(null); }}
+        title="Hapus catatan"
+        message="Apakah kamu yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan."
+      />
+    </>
   );
 }
 
