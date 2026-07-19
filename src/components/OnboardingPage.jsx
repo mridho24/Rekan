@@ -322,6 +322,45 @@ function MockBoard() {
 
 /* Calendar + Tasks Mockup */
 function MockCalendar() {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dates = [
+    { col: 0, row: 0, val: '29', cur: false },
+    { col: 1, row: 0, val: '30', cur: false },
+    { col: 2, row: 0, val: '1',  cur: true },
+    { col: 3, row: 0, val: '2',  cur: true },
+    { col: 4, row: 0, val: '3',  cur: true },
+    { col: 5, row: 0, val: '4',  cur: true },
+    { col: 6, row: 0, val: '5',  cur: true },
+    { col: 0, row: 1, val: '6',  cur: true },
+    { col: 1, row: 1, val: '7',  cur: true },
+    { col: 2, row: 1, val: '8',  cur: true, dot: 'var(--emerald)' },
+    { col: 3, row: 1, val: '9',  cur: true },
+    { col: 4, row: 1, val: '10', cur: true },
+    { col: 5, row: 1, val: '11', cur: true },
+    { col: 6, row: 1, val: '12', cur: true },
+    { col: 0, row: 2, val: '13', cur: true },
+    { col: 1, row: 2, val: '14', cur: true },
+    { col: 2, row: 2, val: '15', cur: true, today: true },
+    { col: 3, row: 2, val: '16', cur: true },
+    { col: 4, row: 2, val: '17', cur: true },
+    { col: 5, row: 2, val: '18', cur: true },
+    { col: 6, row: 2, val: '19', cur: true },
+    { col: 0, row: 3, val: '20', cur: true },
+    { col: 1, row: 3, val: '21', cur: true, dot: 'var(--warning)' },
+    { col: 2, row: 3, val: '22', cur: true },
+    { col: 3, row: 3, val: '23', cur: true },
+    { col: 4, row: 3, val: '24', cur: true },
+    { col: 5, row: 3, val: '25', cur: true },
+    { col: 6, row: 3, val: '26', cur: true },
+    { col: 0, row: 4, val: '27', cur: true },
+    { col: 1, row: 4, val: '28', cur: true },
+    { col: 2, row: 4, val: '29', cur: true },
+    { col: 3, row: 4, val: '30', cur: true },
+    { col: 4, row: 4, val: '31', cur: true },
+    { col: 5, row: 4, val: '1',  cur: false },
+    { col: 6, row: 4, val: '2',  cur: false },
+  ];
+
   return (
     <svg viewBox="0 0 600 420" fill="none" style={{ width: '100%', height: '100%' }}>
       <rect width="600" height="420" rx="16" fill="var(--bg-canvas)" />
@@ -346,53 +385,63 @@ function MockCalendar() {
       <circle cx="36" cy="390" r="4" fill="var(--emerald)" />
 
       {/* Title */}
-      <text x="92" y="34" fill="var(--text-primary)" fontSize="15" fontWeight="700" fontFamily="Inter, sans-serif">July 2026</text>
-      <rect x="240" y="19" width="20" height="20" rx="6" fill="var(--bg-card-hover)" />
-      <path d="M246 29L250 25L254 29" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <rect x="264" y="19" width="20" height="20" rx="6" fill="var(--bg-card-hover)" />
-      <path d="M270 25L274 29L278 25" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="92" y="32" fill="var(--text-primary)" fontSize="14" fontWeight="700" fontFamily="Inter, sans-serif">July 2026</text>
+      <rect x="230" y="18" width="18" height="18" rx="5" fill="var(--bg-card-hover)" />
+      <path d="M237 28L240 24L243 28" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="252" y="18" width="18" height="18" rx="5" fill="var(--bg-card-hover)" />
+      <path d="M257 24L261 28L265 24" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Calendar Grid */}
-      <g transform="translate(92, 50)">
-        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => (
-          <text key={i} x={i * 68} y="12" fill="var(--text-muted)" fontSize="10" fontWeight="500" fontFamily="Inter, sans-serif">{d}</text>
+      <g transform="translate(92, 42)">
+        {days.map((d, i) => (
+          <text key={i} x={i * 68 + 12} y="10" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="Inter, sans-serif">{d}</text>
         ))}
-        {[
-          [0, 6, 24, false], [1, 6, 24, false], [2, 6, 24, false], [3, 6, 24, false],
-          [4, 0, 28, false], [5, 0, 28, false], [6, 0, 28, false],
-          [0, 1, 28, false], [1, 1, 28, false], [2, 1, 28, false], [3, 1, 28, false], [4, 1, 28, false], [5, 1, 28, false], [6, 1, 28, false],
-          [0, 2, 28, false], [1, 2, 28, true], [2, 2, 28, false], [3, 2, 28, false], [4, 2, 28, false], [5, 2, 28, false], [6, 2, 28, false],
-          [0, 3, 28, false], [1, 3, 28, false], [2, 3, 28, false], [3, 3, 28, false], [4, 3, 28, false], [5, 3, 28, false], [6, 3, 28, false],
-          [0, 4, 28, false], [1, 4, 28, false], [2, 4, 28, false], [3, 4, 28, false], [4, 4, 28, false], [5, 4, 28, false], [6, 4, 28, false],
-        ].map(([col, row, size, isToday], i) => (
-          <g key={i}>
-            <rect x={col * 68 + 10} y={row * 28 + 22} width={size} height={size} rx="6" fill={isToday ? 'var(--emerald)' : 'transparent'} />
-            {isToday && <text x={col * 68 + 18} y={row * 28 + 40} fill="white" fontSize="11" fontWeight="600" fontFamily="Inter, sans-serif">15</text>}
-            {!isToday && <text x={col * 68 + 18} y={row * 28 + 40} fill="var(--text-secondary)" fontSize="11" fontFamily="Inter, sans-serif">{i - 3}</text>}
-            {i === 8 && <circle cx={col * 68 + 32} cy={row * 28 + 42} r="2" fill="var(--emerald)" opacity="0.6" />}
-            {i === 15 && <circle cx={col * 68 + 32} cy={row * 28 + 42} r="2" fill="var(--warning)" opacity="0.6" />}
-          </g>
-        ))}
+        {dates.map((item, i) => {
+          const cx = item.col * 68 + 12;
+          const cy = item.row * 20 + 20;
+          return (
+            <g key={i}>
+              {item.today && (
+                <rect x={cx - 11} y={cy - 10} width="22" height="16" rx="4" fill="var(--emerald)" />
+              )}
+              <text
+                x={cx}
+                y={cy + 2}
+                textAnchor="middle"
+                fill={item.today ? 'white' : item.cur ? 'var(--text-primary)' : 'var(--text-muted)'}
+                opacity={item.today ? 1 : item.cur ? 0.9 : 0.35}
+                fontSize="10"
+                fontWeight={item.today ? '700' : '500'}
+                fontFamily="Inter, sans-serif"
+              >
+                {item.val}
+              </text>
+              {item.dot && (
+                <circle cx={cx} cy={cy + 6} r="1.5" fill={item.dot} opacity="0.8" />
+              )}
+            </g>
+          );
+        })}
       </g>
 
-      {/* Today's Tasks */}
-      <text x="92" y="208" fill="var(--text-primary)" fontSize="13" fontWeight="600" fontFamily="Inter, sans-serif">Today's Tasks</text>
-      <rect x="92" y="218" width="496" height="1" fill="var(--border)" opacity="0.5" />
+      {/* Today's Tasks Heading & Divider */}
+      <rect x="92" y="186" width="496" height="1" fill="var(--border)" opacity="0.5" />
+      <text x="92" y="206" fill="var(--text-primary)" fontSize="12" fontWeight="700" fontFamily="Inter, sans-serif">Today's Tasks</text>
 
       {[
-        [228, true, 'Review PR', '--emerald', ''],
-        [266, false, 'Update documentation', '', ''],
-        [304, false, 'Team meeting', '--warning', '14:00'],
-        [342, false, 'Deploy release v2.1', '--danger', '16:30'],
+        [216, true, 'Review PR', '--emerald', ''],
+        [252, false, 'Update documentation', '', ''],
+        [288, false, 'Team meeting', '--warning', '14:00'],
+        [324, false, 'Deploy release v2.1', '--danger', '16:30'],
       ].map(([y, done, title, col, time], i) => (
         <g key={i}>
-          <rect x={92} y={y} width="496" height="34" rx="8" fill={i === 0 ? 'var(--bg-card-hover)' : 'transparent'} opacity={i === 0 ? 0.4 : 0} />
-          <rect x={104} y={y + 8} width="16" height="16" rx="4" fill={done ? 'var(--emerald)' : 'var(--border)'} />
-          {done && <path d="M108 16L111 19L116 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" transform={`translate(0, ${y + 4})`} />}
-          <text x={128} y={y + 20} fill={done ? 'var(--text-muted)' : 'var(--text-primary)'} fontSize="12" fontWeight="500" fontFamily="Inter, sans-serif" textDecoration={done ? 'line-through' : 'none'}>{title}</text>
-          {time && <text x="560" y={y + 20} fill="var(--text-muted)" fontSize="11" fontFamily="Inter, sans-serif">{time}</text>}
-          {col === '--warning' && <rect x="540" y={y + 8} width="14" height="14" rx="3" fill={col} opacity="0.15" />}
-          {col === '--danger' && <rect x="540" y={y + 8} width="14" height="14" rx="3" fill={col} opacity="0.15" />}
+          <rect x={92} y={y} width="496" height="30" rx="7" fill={i === 0 ? 'var(--bg-card-hover)' : 'transparent'} opacity={i === 0 ? 0.4 : 0} />
+          <rect x={104} y={y + 7} width="16" height="16" rx="4" fill={done ? 'var(--emerald)' : 'var(--border)'} />
+          {done && <path d="M108 14L111 17L116 11" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" transform={`translate(0, ${y + 4})`} />}
+          <text x={128} y={y + 19} fill={done ? 'var(--text-muted)' : 'var(--text-primary)'} fontSize="11" fontWeight="500" fontFamily="Inter, sans-serif" textDecoration={done ? 'line-through' : 'none'}>{title}</text>
+          {time && <text x="560" y={y + 19} fill="var(--text-muted)" fontSize="10" fontFamily="Inter, sans-serif">{time}</text>}
+          {col === '--warning' && <rect x="540" y={y + 9} width="12" height="12" rx="3" fill={col} opacity="0.15" />}
+          {col === '--danger' && <rect x="540" y={y + 9} width="12" height="12" rx="3" fill={col} opacity="0.15" />}
         </g>
       ))}
     </svg>
@@ -491,9 +540,9 @@ const STEPS_DATA = [
   },
   {
     title: 'Ready to get started?',
-    desc: 'You\'re all set. Your workspace is ready.',
-    checks: ['Account created', 'Workspace configured', 'Preferences saved'],
-    btn: 'Go to Dashboard',
+    desc: 'You\'re all set. Sign in to access your workspace and start managing your tasks.',
+    checks: ['Workspace configured', 'Preferences saved', 'Ready for login'],
+    btn: 'Go to Login',
   },
 ];
 
