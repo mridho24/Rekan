@@ -385,6 +385,8 @@ export default function App() {
         <OnboardingPage
           onComplete={() => {
             localStorage.setItem('rekan_onboarding_done', 'true');
+            localStorage.removeItem('rekan_logged_in');
+            setIsLoggedIn(false);
             setShowOnboarding(false);
             setAuthPage('register');
           }}
