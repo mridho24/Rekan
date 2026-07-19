@@ -540,9 +540,9 @@ const STEPS_DATA = [
   },
   {
     title: 'Ready to get started?',
-    desc: 'You\'re all set. Sign in to access your workspace and start managing your tasks.',
-    checks: ['Workspace configured', 'Preferences saved', 'Ready for login'],
-    btn: 'Go to Login',
+    desc: 'You\'re all set. Create an account to access your workspace and start managing your tasks.',
+    checks: ['Workspace configured', 'Preferences saved', 'Ready for registration'],
+    btn: 'Go to Register',
   },
 ];
 
