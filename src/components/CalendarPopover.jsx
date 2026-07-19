@@ -206,12 +206,12 @@ function CalendarPopover({ value, onChange, placeholder = 'Pilih tanggal', disab
       <FloatingPortal>
         <AnimatePresence>
           {isOpen && (
-            <div ref={refs.setFloating} style={{ ...floatingStyles, zIndex: 9999 }} key="calendar-floating">
+            <div ref={refs.setFloating} style={{ ...floatingStyles, zIndex: 9999, backgroundColor: '#FFFFFF', borderRadius: '16px' }} key="calendar-floating">
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                 style={s.popover}
               role="dialog"
               aria-label="Pilih tanggal"
@@ -414,13 +414,12 @@ const s = {
   },
   popover: {
     width: '340px',
-    backgroundColor: 'var(--bg-card)',
-    border: '1px solid var(--border)',
+    backgroundColor: '#FFFFFF',
+    border: '1px solid rgba(0,0,0,0.06)',
     borderRadius: '16px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.08), 0 20px 50px rgba(0,0,0,0.12)',
+    boxShadow: '0 12px 40px rgba(0,0,0,.12)',
     padding: '16px',
     display: 'flex', flexDirection: 'column', gap: '12px',
-    zIndex: 9999,
   },
   header: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
