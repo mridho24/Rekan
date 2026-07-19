@@ -1,44 +1,48 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 
-const PX = 5;
-const N = 12;
+const PX = 6;
+const N = 16;
 const VB = N * PX;
 
 const RAW = [
-  [0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,3,0,0,3,0,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,1,1,1,1,1,1,1,1,0,0],
-  [0,0,1,1,4,0,4,1,1,1,0,0],
-  [0,0,1,1,1,5,1,1,1,1,0,0],
-  [0,0,0,1,2,2,1,1,1,0,0,0],
-  [0,0,0,1,2,2,1,1,0,0,0,0],
-  [0,0,0,0,1,1,1,0,0,0,0,0],
-  [0,0,0,0,0,1,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
+  [0,0,0,0,0,1,1,2,2,1,1,0,0,0,0,0],
+  [0,0,0,0,0,1,5,2,2,5,1,0,0,0,0,0],
+  [0,0,0,0,0,1,2,2,2,2,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,2,2,1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,1,2,2,1,0,0,0,0,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0],
+  [0,0,0,0,0,0,4,4,4,4,0,0,0,0,0,0],
+  [0,0,0,0,0,0,4,0,0,4,0,0,0,0,0,0],
+  [0,0,0,0,0,0,4,0,0,4,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ];
 
 const C = {
   t: 'transparent',
-  1: '#8B9DC3',
-  2: 'var(--border-strong)',
-  3: '#F9A8D4',
-  4: '#1F2937',
-  5: '#F9A8D4',
+  1: '#2D1B0E',
+  2: '#F5D6B8',
+  3: '#4F7EB3',
+  4: '#374151',
+  5: '#1F2937',
 };
 
 function SmokePuff({ id, x, y, onEnd }) {
   const drift = (Math.random() - 0.5) * 20;
-  const size = 3 + Math.random() * 4;
+  const size = 3 + Math.random() * 5;
 
   return (
     <motion.circle
       key={id}
-      fill="var(--border-strong)"
+      fill="rgba(180,180,190,0.5)"
       initial={{
-        opacity: 0.6,
+        opacity: 0.5,
         r: size * 0.5,
         cx: x,
         cy: y
@@ -47,9 +51,9 @@ function SmokePuff({ id, x, y, onEnd }) {
         opacity: 0,
         r: size * 2,
         cx: x + drift,
-        cy: y - 15 - Math.random() * 10,
+        cy: y - 20 - Math.random() * 12,
       }}
-      transition={{ duration: 1.2, ease: 'easeOut' }}
+      transition={{ duration: 1.4, ease: 'easeOut' }}
       onAnimationComplete={onEnd}
     />
   );
@@ -57,6 +61,7 @@ function SmokePuff({ id, x, y, onEnd }) {
 
 export default function SidebarCharacter({ collapsed = false, theme = 'light' }) {
   const [puffs, setPuffs] = useState([]);
+  const [excited, setExcited] = useState(false);
   const puffId = useRef(0);
 
   useEffect(() => {
@@ -65,16 +70,31 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
       const id = puffId.current;
       setPuffs(prev => [...prev, {
         id,
-        x: 55 + Math.random() * 4,
-        y: 24 + Math.random() * 2,
+        x: 76 + Math.random() * 4,
+        y: 20 + Math.random() * 2,
       }]);
-    }, 600 + Math.random() * 400);
+    }, 700 + Math.random() * 500);
 
     return () => clearInterval(interval);
   }, []);
 
   const removePuff = useCallback((id) => {
     setPuffs(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const handleInteract = useCallback(() => {
+    setExcited(true);
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => {
+        puffId.current += 1;
+        setPuffs(prev => [...prev, {
+          id: puffId.current,
+          x: 70 + Math.random() * 16,
+          y: 16 + Math.random() * 10,
+        }]);
+      }, i * 70);
+    }
+    setTimeout(() => setExcited(false), 600);
   }, []);
 
   const cells = useMemo(() => {
@@ -101,12 +121,12 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
 
   if (collapsed) {
     return (
-      <div style={{ padding: '6px 4px', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ padding: '6px 4px', display: 'flex', justifyContent: 'center', cursor: 'pointer' }} onClick={handleInteract}>
         <motion.svg
-          width="22" height="22"
+          width="24" height="24"
           viewBox={`0 0 ${VB} ${VB}`}
-          animate={{ y: [0, -1, 0, 1, 0] }}
-          transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+          animate={{ y: excited ? [0, -4, -7, -4, 0, -1, 0] : [0, -1, 0, 1, 0] }}
+          transition={{ repeat: excited ? 0 : Infinity, duration: excited ? 0.5 : 2.5, ease: 'easeInOut' }}
         >
           {RAW.map((row, y) => row.map((v, x) =>
             v === 0 ? null : (
@@ -120,65 +140,47 @@ export default function SidebarCharacter({ collapsed = false, theme = 'light' })
 
   return (
     <div style={{
-      padding: '4px 16px 12px',
+      padding: '8px 16px 12px',
       display: 'flex',
       alignItems: 'center',
       overflow: 'visible',
       position: 'relative',
-    }}>
+      cursor: 'pointer',
+    }} onClick={handleInteract}>
       <motion.div
-        animate={{ y: [0, -1, 0, 1, 0] }}
-        transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+        animate={{ y: excited ? [0, -6, -12, -6, 0, -3, 0] : [0, -1, 0, 1, 0] }}
+        transition={{ repeat: excited ? 0 : Infinity, duration: excited ? 0.6 : 2.5, ease: 'easeInOut' }}
         style={{ position: 'relative' }}
       >
         <svg
-          width="36"
-          height="36"
-          viewBox={`0 0 ${VB + 20} ${VB}`}
+          width="52"
+          height="52"
+          viewBox={`0 0 ${VB + 24} ${VB}`}
           style={{ display: 'block', overflow: 'visible' }}
         >
-          {/* Tail */}
-          <motion.path
-            d="M 25 45 Q 32 52 40 46 Q 48 38 46 28"
-            fill="none"
-            stroke="#8B9DC3"
-            strokeWidth="2"
-            strokeLinecap="round"
-            animate={{ pathLength: [1, 0.85, 1] }}
-            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          />
-
-          {/* Mouse body */}
-          <g>{cells}</g>
-
-          {/* Whiskers */}
-          <line x1="32" y1="28" x2="42" y2="26" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="42" y2="30" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-          <line x1="31" y1="30" x2="42" y2="32" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="15" y2="26" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-          <line x1="32" y1="28" x2="15" y2="30" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-          <line x1="31" y1="30" x2="15" y2="32" stroke="var(--border-strong)" strokeWidth="0.8" opacity="0.6" />
-
           {/* Cigarette */}
           <motion.g
             animate={{ rotate: [-2, 1, -2] }}
             transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-            style={{ transformOrigin: '42px 29px' }}
+            style={{ transformOrigin: '86px 14px' }}
           >
-            <line x1="42" y1="29" x2="58" y2="28" stroke="var(--bg-card)" strokeWidth="2.5" strokeLinecap="round" />
-            <line x1="58" y1="28" x2="64" y2="27" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="76" y1="16" x2="90" y2="14" stroke="var(--bg-card)" strokeWidth="3" strokeLinecap="round" />
+            <line x1="90" y1="14" x2="98" y2="13" stroke="#F97316" strokeWidth="3" strokeLinecap="round" />
             <motion.circle
-              cx="64" cy="27" fill="#F97316"
-              initial={{ r: 1.5 }}
-              animate={{ r: [1.5, 2.5, 1.5] }}
+              cx="98" cy="13" fill="#F97316"
+              initial={{ r: 2 }}
+              animate={{ r: [2, 3, 2] }}
               transition={{ repeat: Infinity, duration: 0.5, ease: 'easeInOut' }}
             />
             <motion.circle
-              cx="64" cy="27" r="0.8" fill="#FEF08A"
+              cx="98" cy="13" r="1" fill="#FEF08A"
               animate={{ opacity: [0, 1, 0] }}
               transition={{ repeat: Infinity, duration: 0.5, ease: 'easeInOut' }}
             />
           </motion.g>
+
+          {/* Body */}
+          <g>{cells}</g>
 
           {/* Smoke puffs */}
           {puffs.map(p => (

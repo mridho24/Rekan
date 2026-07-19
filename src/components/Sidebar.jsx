@@ -5,6 +5,7 @@ import {
   Calendar, FileText, Settings,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SidebarCharacter from './SidebarCharacter';
 
 const NAV_ITEMS = [
   { id: 'dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
@@ -113,6 +114,9 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
 
       {/* Spacer */}
       <div style={{ flex: 1 }} />
+
+      {/* Character */}
+      <SidebarCharacter collapsed={collapsed} theme={theme} />
 
       {/* Bottom Section */}
       <div style={styles.bottomSection}>
