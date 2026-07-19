@@ -135,6 +135,12 @@ export default function NotesPage() {
     return !search || n.title.toLowerCase().includes(search.toLowerCase()) || stripHtml(n.content).toLowerCase().includes(search.toLowerCase());
   });
 
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return 0;
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -287,7 +293,7 @@ export default function NotesPage() {
                 <p style={s.emptySub}>Create your first note.</p>
               </div>
             ) : (
-              filteredNotes.map(note => {
+              sortedNotes.map(note => {
                 const isActive = activeId === note.id;
                 return (
                   <motion.div
@@ -304,7 +310,10 @@ export default function NotesPage() {
                       boxShadow: isActive ? '0 1px 4px var(--border)' : 'none',
                     }}
                   >
-                    <div style={s.noteCardTitle}>{note.title || 'Untitled'}</div>
+                    <div style={{ ...s.noteCardTitle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {note.pinned && <Pin size={10} style={{ flexShrink: 0 }} />}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{note.title || 'Untitled'}</span>
+                    </div>
                     <div style={s.noteCardPreview}>
                       {stripHtml(note.content || '') || 'No content'}
                     </div>
