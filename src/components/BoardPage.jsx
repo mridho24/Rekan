@@ -218,8 +218,8 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
       onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
       style={bcStyles.moveBtn}
       title="Pindahkan board"
-      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; e.currentTarget.style.opacity = '1'; }}
-      onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
+      onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+      onMouseLeave={e => { e.currentTarget.style.opacity = '0.75'; }}
     >
       <MoreHorizontal size={14} />
     </button>
@@ -272,8 +272,8 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             onClick={(e) => { e.stopPropagation(); onEditBoard?.(board); }}
             style={bcStyles.editBtn}
             title="Ubah board"
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.opacity = '0.75'; }}
           >
             <Edit3 size={14} />
           </button>
@@ -282,8 +282,8 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             onClick={() => onDeleteBoard(board.id)}
             style={bcStyles.deleteBtn}
             title="Hapus board"
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--peach)'; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
+            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={e => { e.currentTarget.style.opacity = '0.75'; }}
           >
             <Trash2 size={14} />
           </button>

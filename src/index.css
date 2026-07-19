@@ -68,6 +68,10 @@
 
   --overlay: rgba(0,0,0,0.45);
 
+  --primary:       #6366F1;
+  --primary-rgb:   99, 102, 241;
+  --surface-hover: rgba(0,0,0,0.04);
+
   --emerald-bg:    #ECFDF5;
   --emerald-border:#A7F3D0;
   --lavender:      #EDE9FE;
@@ -105,6 +109,10 @@
   --btn-primary-hover:#059669;
 
   --overlay: rgba(0,0,0,0.6);
+
+  --primary:       #818CF8;
+  --primary-rgb:   129, 140, 248;
+  --surface-hover: rgba(255,255,255,0.06);
 
   --emerald-bg:    rgba(16,185,129,0.12);
   --emerald-border:rgba(16,185,129,0.25);
