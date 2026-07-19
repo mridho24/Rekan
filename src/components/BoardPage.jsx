@@ -3,7 +3,7 @@ import {
   Plus, Calendar, Trash2, CheckCircle2, Circle,
   ChevronDown, ChevronRight, FolderPlus, LayoutDashboard,
   Flag, ListChecks, Clock, GripVertical,
-  MoreHorizontal, Users, Layers, ArrowRight, ArrowLeft,
+  MoreHorizontal, Edit3, Users, Layers, ArrowRight, ArrowLeft,
   Folder, KanbanSquare, SquareStack, Archive, Search, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -162,7 +162,7 @@ const btStyles = {
   dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 },
 };
 
-function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onMoveBoard }) {
+function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onMoveBoard, onEditBoard }) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [hoveredColId, setHoveredColId] = useState(null);
 
@@ -267,6 +267,16 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
               )}
             </AnimatePresence>
           </div>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onEditBoard?.(board); }}
+            style={bcStyles.editBtn}
+            title="Ubah board"
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; e.currentTarget.style.opacity = '1'; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.opacity = ''; }}
+          >
+            <Edit3 size={14} />
+          </button>
 
           <button
             onClick={() => onDeleteBoard(board.id)}
@@ -374,6 +384,13 @@ const bcStyles = {
     color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
     transition: 'background-color 0.15s, opacity 0.15s',
   },
+  editBtn: {
+    width: '26px', height: '26px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
+    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
+    transition: 'background-color 0.15s, opacity 0.15s',
+  },
   moveMenu: {
     position: 'absolute', right: 0, top: 'calc(100% + 4px)',
     minWidth: '120px',
@@ -409,7 +426,7 @@ const bcStyles = {
   },
 };
 
-function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, getBoardTasks, isMobile, onMoveBoard }) {
+function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, getBoardTasks, isMobile, onMoveBoard, onEditBoard }) {
   const [dragOver, setDragOver] = useState(false);
   const Icon = column.icon;
 
@@ -459,6 +476,7 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
                 onToggleSubtask={onToggleSubtask}
                 onDeleteBoard={onDeleteBoard}
                 onMoveBoard={onMoveBoard}
+                onEditBoard={onEditBoard}
               />
             )))}
           </AnimatePresence>
@@ -560,7 +578,7 @@ export default function BoardPage({
   tasks, onUpdateTasks, boards, onUpdateBoards, projects,
   currentProjectId, onSelectProject,
   onCreateBoard, onCompleteProject,
-  onAddProject, onDeleteProject, onDeleteBoard,
+  onAddProject, onDeleteProject, onDeleteBoard, onEditBoard,
   onUpdateProjects,
 }) {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -1246,6 +1264,7 @@ export default function BoardPage({
                 getBoardTasks={getBoardTasks}
               isMobile={isMobile}
               onMoveBoard={handleBoardDrop}
+              onEditBoard={onEditBoard}
             />
           ))}
         </motion.div>

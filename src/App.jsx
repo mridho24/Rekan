@@ -348,6 +348,7 @@ export default function App() {
             onAddProject={() => setIsProjectModalOpen(true)}
             onDeleteProject={handleDeleteProject}
             onDeleteBoard={handleDeleteBoard}
+            onEditBoard={handleOpenEdit}
             onUpdateProjects={setProjects}
           />
         );
