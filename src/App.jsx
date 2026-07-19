@@ -13,6 +13,7 @@ import NotesPage from './components/NotesPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
+import OnboardingPage from './components/OnboardingPage';
 import ConfirmDialog from './components/ConfirmDialog';
 import './index.css';
 
@@ -147,6 +148,7 @@ export default function App() {
   const [activityLog, setActivityLog] = useState([]);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => localStorage.getItem('rekan_onboarding_done') !== 'true');
 
   const handleLogin = (userData) => {
     localStorage.setItem('rekan_logged_in', 'true');
@@ -376,6 +378,19 @@ export default function App() {
         return null;
     }
   };
+
+  if (showOnboarding) {
+    return (
+      <div className={`app-root ${theme}-theme`}>
+        <OnboardingPage
+          onComplete={() => {
+            localStorage.setItem('rekan_onboarding_done', 'true');
+            setShowOnboarding(false);
+          }}
+        />
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
