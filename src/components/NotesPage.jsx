@@ -76,7 +76,49 @@ hoverStyle.textContent = `
   .ns-editor ul, .ns-editor ol { padding-left: 1.5em; margin: 0.3em 0; }
   .ns-editor li { margin: 0.15em 0; line-height: 1.7; }
   .ns-editor blockquote { border-left: 3px solid var(--border-strong); margin: 0.5em 0; padding: 0.3em 1em; color: var(--text-muted); font-style: italic; }
-  .ns-editor pre { background: var(--bg-card-hover); border-radius: 8px; padding: 12px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; margin: 0.5em 0; }
+  .ns-editor pre {
+    position: relative;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 44px 14px 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    overflow-x: auto;
+    margin: 0.8em 0;
+  }
+  .ns-editor pre .copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    user-select: none;
+    z-index: 10;
+  }
+  .ns-editor pre .copy-code-btn:hover {
+    opacity: 1;
+    color: var(--text-primary);
+    background: var(--bg-subtle);
+    transform: scale(1.05);
+  }
+  .ns-editor pre .copy-code-btn.copied {
+    opacity: 1 !important;
+    color: #10B981 !important;
+    border-color: #10B981 !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+  }
   .ns-editor code { background: var(--bg-card-hover); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-family: 'JetBrains Mono', monospace; }
   .ns-editor hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }
   .ns-editor a { color: #2563EB; text-decoration: underline; cursor: pointer; }
@@ -92,8 +134,28 @@ hoverStyle.textContent = `
   .ns-editor ul[data-type="taskList"] li div { flex: 1; }
   .ns-editor p.is-editor-empty:first-child::before { color: var(--text-muted); content: attr(data-placeholder); float: left; height: 0; pointer-events: none; }
   .ns-toolbar-btn.is-active { background-color: var(--border) !important; color: var(--text-primary) !important; }
+  .ProseMirror { white-space: pre-wrap !important; outline: none; }
 `;
 document.head.appendChild(hoverStyle);
+
+const EDITOR_EXTENSIONS = [
+  StarterKit.configure({
+    history: { depth: 50 },
+    heading: { levels: [1, 2, 3] },
+    horizontalRule: false,
+  }),
+  Underline,
+  LinkExtension.configure({ openOnClick: true }),
+  ImageExtension,
+  Table.configure({ resizable: true }),
+  TableRow,
+  TableCell,
+  TableHeader,
+  TaskList,
+  TaskItem.configure({ nested: true }),
+  Placeholder.configure({ placeholder: 'Mulai menulis...' }),
+  HorizontalRule,
+];
 
 function ToolbarBtn({ icon: Icon, action, isActive, title }) {
   return (
@@ -142,23 +204,7 @@ export default function NotesPage() {
   });
 
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        history: { depth: 50 },
-        heading: { levels: [1, 2, 3] },
-      }),
-      Underline,
-      LinkExtension.configure({ openOnClick: true }),
-      ImageExtension,
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableCell,
-      TableHeader,
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      Placeholder.configure({ placeholder: 'Mulai menulis...' }),
-      HorizontalRule,
-    ],
+    extensions: EDITOR_EXTENSIONS,
     content: '',
     onUpdate: ({ editor }) => {
       if (activeId) {
@@ -190,6 +236,65 @@ export default function NotesPage() {
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const addCopyButtons = () => {
+      const container = document.querySelector('.ns-editor');
+      if (!container) return;
+      const pres = container.querySelectorAll('pre');
+      pres.forEach(pre => {
+        if (!pre.querySelector('.copy-code-btn')) {
+          const btn = document.createElement('button');
+          btn.className = 'copy-code-btn';
+          btn.setAttribute('type', 'button');
+          btn.setAttribute('contenteditable', 'false');
+          btn.setAttribute('title', 'Copy code');
+          btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
+
+          btn.onclick = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const codeEl = pre.querySelector('code');
+            let codeText = '';
+            if (codeEl) {
+              const clone = codeEl.cloneNode(true);
+              const btnInClone = clone.querySelector('.copy-code-btn');
+              if (btnInClone) btnInClone.remove();
+              codeText = clone.innerText;
+            } else {
+              const clone = pre.cloneNode(true);
+              const btnInClone = clone.querySelector('.copy-code-btn');
+              if (btnInClone) btnInClone.remove();
+              codeText = clone.innerText;
+            }
+
+            navigator.clipboard.writeText(codeText.trim()).then(() => {
+              btn.classList.add('copied');
+              btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+              setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`;
+              }, 2000);
+            }).catch(() => {});
+          };
+
+          pre.appendChild(btn);
+        }
+      });
+    };
+
+    const t1 = setTimeout(addCopyButtons, 50);
+    const t2 = setTimeout(addCopyButtons, 250);
+    editor.on('update', addCopyButtons);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      editor.off('update', addCopyButtons);
+    };
+  }, [editor, activeId]);
 
   const createNote = useCallback(() => {
     const note = {
