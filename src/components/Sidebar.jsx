@@ -53,7 +53,7 @@ sidebarStyle.textContent = `
 `;
 document.head.appendChild(sidebarStyle);
 
-export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {}, userVersion = 0 }) {
+export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {}, userVersion = 0, onOpenProfile }) {
   const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
   const [userName, setUserName] = useState(() => localStorage.getItem('rekan_user_name') || 'Pengguna');
   const [userEmail, setUserEmail] = useState(() => localStorage.getItem('rekan_user_email') || 'user@rekan.app');
@@ -158,7 +158,12 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
 
         {/* User Card */}
         <div style={styles.userCard}>
-          <div style={styles.userCardInner}>
+          <motion.div
+            style={styles.userCardInner}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onOpenProfile}
+          >
             {userAvatar ? (
               <img src={userAvatar} alt="" style={styles.avatarImg} />
             ) : (
@@ -170,7 +175,7 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
                 <span style={styles.userEmail}>{userEmail}</span>
               </div>
             )}
-          </div>
+          </motion.div>
           {!collapsed && (
             <button onClick={() => onNavigate('settings')} style={styles.editProfileBtn}>
               Edit Profile

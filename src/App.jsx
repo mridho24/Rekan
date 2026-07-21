@@ -15,6 +15,7 @@ import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
 import OnboardingPage from './components/OnboardingPage';
 import SettingsPage from './components/SettingsPage';
+import ProfileCard from './components/ProfileCard';
 import ConfirmDialog from './components/ConfirmDialog';
 import './index.css';
 
@@ -150,6 +151,7 @@ export default function App() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(() => localStorage.getItem('rekan_onboarding_done') !== 'true');
+  const [showProfileCard, setShowProfileCard] = useState(false);
   const [userVersion, setUserVersion] = useState(0);
   const handleUpdateUser = (data) => {
     if (data.name) localStorage.setItem('rekan_user_name', data.name);
@@ -437,6 +439,7 @@ export default function App() {
         onToggleTheme={toggleTheme}
         onLogout={handleLogoutClick}
         userVersion={userVersion}
+        onOpenProfile={() => setShowProfileCard(true)}
       />
 
       {/* Main scrollable content */}
@@ -457,6 +460,23 @@ export default function App() {
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
         onSave={handleSaveProject}
+      />
+
+      {/* Profile Card Modal */}
+      <ProfileCard
+        isOpen={showProfileCard}
+        onClose={() => setShowProfileCard(false)}
+        onEditProfile={() => {
+          setShowProfileCard(false);
+          setActiveView('settings');
+        }}
+        onSettings={() => {
+          setShowProfileCard(false);
+          setActiveView('settings');
+        }}
+        onNavigate={setActiveView}
+        tasks={tasks}
+        boards={boards}
       />
 
       {/* Pet Companion */}
