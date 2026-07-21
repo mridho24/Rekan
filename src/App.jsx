@@ -14,6 +14,7 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Pet from './components/Pet';
 import OnboardingPage from './components/OnboardingPage';
+import SettingsPage from './components/SettingsPage';
 import ConfirmDialog from './components/ConfirmDialog';
 import './index.css';
 
@@ -372,6 +373,8 @@ export default function App() {
         );
       case 'notes':
         return <NotesPage />;
+      case 'settings':
+        return <SettingsPage />;
       case 'testimonials':
         return <TestimonialsPage />;
       default:

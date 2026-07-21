@@ -55,6 +55,9 @@ document.head.appendChild(sidebarStyle);
 
 export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {} }) {
   const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const userName = localStorage.getItem('rekan_user_name') || 'Pengguna';
+  const userEmail = localStorage.getItem('rekan_user_email') || 'user@rekan.app';
+  const userAvatar = localStorage.getItem('rekan_user_avatar') || '';
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -150,11 +153,15 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
         {/* User Card */}
         <div style={styles.userCard}>
           <div style={styles.userCardInner}>
-            <div style={styles.avatar}>U</div>
+            {userAvatar ? (
+              <img src={userAvatar} alt="" style={styles.avatarImg} />
+            ) : (
+              <div style={styles.avatar}>{userName.charAt(0).toUpperCase()}</div>
+            )}
             {!collapsed && (
               <div style={styles.userInfo}>
-                <span style={styles.userName}>Pengguna</span>
-                <span style={styles.userEmail}>user@rekan.app</span>
+                <span style={styles.userName}>{userName}</span>
+                <span style={styles.userEmail}>{userEmail}</span>
               </div>
             )}
           </div>
@@ -290,6 +297,14 @@ const styles = {
     justifyContent: 'center',
     fontWeight: 700,
     fontSize: '14px',
+    border: '1.5px solid var(--emerald-border)',
+    flexShrink: 0,
+  },
+  avatarImg: {
+    width: '34px',
+    height: '34px',
+    borderRadius: '50%',
+    objectFit: 'cover',
     border: '1.5px solid var(--emerald-border)',
     flexShrink: 0,
   },
