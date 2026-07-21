@@ -53,11 +53,17 @@ sidebarStyle.textContent = `
 `;
 document.head.appendChild(sidebarStyle);
 
-export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {} }) {
+export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, onLogout = () => {}, userVersion = 0 }) {
   const [collapsed, setCollapsed] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
-  const userName = localStorage.getItem('rekan_user_name') || 'Pengguna';
-  const userEmail = localStorage.getItem('rekan_user_email') || 'user@rekan.app';
-  const userAvatar = localStorage.getItem('rekan_user_avatar') || '';
+  const [userName, setUserName] = useState(() => localStorage.getItem('rekan_user_name') || 'Pengguna');
+  const [userEmail, setUserEmail] = useState(() => localStorage.getItem('rekan_user_email') || 'user@rekan.app');
+  const [userAvatar, setUserAvatar] = useState(() => localStorage.getItem('rekan_user_avatar') || '');
+
+  useEffect(() => {
+    setUserName(localStorage.getItem('rekan_user_name') || 'Pengguna');
+    setUserEmail(localStorage.getItem('rekan_user_email') || 'user@rekan.app');
+    setUserAvatar(localStorage.getItem('rekan_user_avatar') || '');
+  }, [userVersion]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {

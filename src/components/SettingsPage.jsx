@@ -11,7 +11,7 @@ const MENU_ITEMS = [
   { id: 'delete',   label: 'Hapus Akun',        icon: Trash2 },
 ];
 
-function ProfileForm() {
+function ProfileForm({ onUpdateUser }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
@@ -27,10 +27,7 @@ function ProfileForm() {
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('rekan_user_name', name);
-    localStorage.setItem('rekan_user_email', email);
-    localStorage.setItem('rekan_user_bio', bio);
-    localStorage.setItem('rekan_user_avatar', avatar);
+    onUpdateUser({ name, email, bio, avatar });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -147,12 +144,12 @@ function DeleteAccount() {
   );
 }
 
-export default function SettingsPage() {
+export default function SettingsPage({ onUpdateUser }) {
   const [activeMenu, setActiveMenu] = useState('profile');
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'profile':  return <ProfileForm />;
+      case 'profile':  return <ProfileForm onUpdateUser={onUpdateUser} />;
       case 'password': return <PasswordForm />;
       case 'email':    return <EmailVerification />;
       case 'delete':   return <DeleteAccount />;

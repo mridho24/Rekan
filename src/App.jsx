@@ -150,6 +150,14 @@ export default function App() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [boardToDelete, setBoardToDelete] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(() => localStorage.getItem('rekan_onboarding_done') !== 'true');
+  const [userVersion, setUserVersion] = useState(0);
+  const handleUpdateUser = (data) => {
+    if (data.name) localStorage.setItem('rekan_user_name', data.name);
+    if (data.email) localStorage.setItem('rekan_user_email', data.email);
+    if (data.bio !== undefined) localStorage.setItem('rekan_user_bio', data.bio);
+    if (data.avatar !== undefined) localStorage.setItem('rekan_user_avatar', data.avatar);
+    setUserVersion(v => v + 1);
+  };
 
   const handleLogin = (userData) => {
     localStorage.setItem('rekan_logged_in', 'true');
@@ -374,7 +382,7 @@ export default function App() {
       case 'notes':
         return <NotesPage />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage onUpdateUser={handleUpdateUser} />;
       case 'testimonials':
         return <TestimonialsPage />;
       default:
@@ -429,6 +437,7 @@ export default function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onLogout={handleLogoutClick}
+        userVersion={userVersion}
       />
 
       {/* Main scrollable content */}
