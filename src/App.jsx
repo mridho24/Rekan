@@ -381,7 +381,7 @@ export default function App() {
       case 'notes':
         return <NotesPage />;
       case 'settings':
-        return <SettingsPage onUpdateUser={handleUpdateUser} />;
+        return <SettingsPage onUpdateUser={handleUpdateUser} theme={theme} onToggleTheme={toggleTheme} />;
       case 'testimonials':
         return <TestimonialsPage />;
       default:
