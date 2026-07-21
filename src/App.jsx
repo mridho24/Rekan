@@ -175,10 +175,9 @@ export default function App() {
   };
 
   const handleRegister = (userData) => {
-    localStorage.setItem('rekan_logged_in', 'true');
     localStorage.setItem('rekan_user_name', userData.name);
     localStorage.setItem('rekan_user_email', userData.email);
-    setIsLoggedIn(true);
+    setAuthPage('login');
   };
 
   const handleUpdateTasks = (updater) => {
