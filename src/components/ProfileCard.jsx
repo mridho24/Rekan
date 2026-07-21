@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const SKILL_BG = ['var(--emerald-bg)', 'var(--lavender)', 'var(--sky)', 'var(--peach)'];
 const SKILL_TEXT = ['var(--emerald-dark)', '#7C3AED', '#1D4ED8', 'var(--danger)'];
 
-function ProfileBanner({ avatar, name, onEditProfile }) {
+function ProfileBanner({ onEditProfile }) {
   return (
     <div style={styles.banner}>
       <div style={styles.bannerGradient} />
@@ -21,15 +21,6 @@ function ProfileBanner({ avatar, name, onEditProfile }) {
       >
         <Pencil size={13} />
       </motion.button>
-      <div style={styles.avatarOuter}>
-        {avatar ? (
-          <img src={avatar} alt="" style={styles.avatarImage} />
-        ) : (
-          <div style={styles.avatarPlaceholder}>
-            {name.charAt(0).toUpperCase()}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
@@ -232,7 +223,16 @@ export default function ProfileCard({
                 <X size={16} />
               </button>
 
-              <ProfileBanner avatar={avatar} name={name} onEditProfile={openEditModal} />
+              <ProfileBanner onEditProfile={openEditModal} />
+              <div style={styles.avatarOuter}>
+                {avatar ? (
+                  <img src={avatar} alt="" style={styles.avatarImage} />
+                ) : (
+                  <div style={styles.avatarPlaceholder}>
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
               <div style={styles.cardBody}>
                 <ProfileInfo name={name} email={email} role={role} location={location} />
                 <ProfileActions onEditProfile={openEditModal} onSettings={handleSettings} />
@@ -390,8 +390,9 @@ const styles = {
 
   // ─── Banner ───
   banner: {
-    position: 'relative',
-    height: '160px',
+    height: '140px',
+    borderTopLeftRadius: '20px',
+    borderTopRightRadius: '20px',
     overflow: 'hidden',
   },
   bannerGradient: {
@@ -425,14 +426,14 @@ const styles = {
   },
   avatarOuter: {
     position: 'absolute',
-    bottom: '-40px',
+    top: '90px',
     left: '32px',
-    zIndex: 5,
-    width: '88px',
-    height: '88px',
+    zIndex: 10,
+    width: '100px',
+    height: '100px',
     borderRadius: '50%',
     border: '4px solid var(--bg-card)',
-    boxShadow: 'var(--shadow-md)',
+    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
     overflow: 'hidden',
     backgroundColor: 'var(--bg-card)',
   },
@@ -457,7 +458,7 @@ const styles = {
 
   // ─── Card Body ───
   cardBody: {
-    padding: '52px 28px 28px',
+    padding: '68px 28px 28px',
   },
 
   // ─── Info Section ───
