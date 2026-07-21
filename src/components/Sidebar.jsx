@@ -165,7 +165,11 @@ export default function Sidebar({ activeView, onNavigate, theme, onToggleTheme, 
               </div>
             )}
           </div>
-          {!collapsed && <div style={styles.workspaceBadge}>Personal Workspace</div>}
+          {!collapsed && (
+            <button onClick={() => onNavigate('settings')} style={styles.editProfileBtn}>
+              Edit Profile
+            </button>
+          )}
         </div>
 
         {/* Logout */}
@@ -330,14 +334,17 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  workspaceBadge: {
-    fontSize: '11px',
-    fontWeight: 500,
-    color: 'var(--text-muted)',
-    padding: '3px 8px',
+  editProfileBtn: {
+    fontSize: '12px',
+    fontWeight: 600,
+    color: 'var(--emerald)',
+    padding: '5px 8px',
     borderRadius: 'var(--r-sm)',
-    backgroundColor: 'var(--bg-sidebar)',
+    backgroundColor: 'var(--emerald-bg)',
+    border: 'none',
+    cursor: 'pointer',
     textAlign: 'center',
+    transition: 'var(--t-fast)',
   },
   logoutBtn: {
     display: 'flex',
