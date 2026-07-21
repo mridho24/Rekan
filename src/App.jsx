@@ -158,6 +158,8 @@ export default function App() {
     if (data.email) localStorage.setItem('rekan_user_email', data.email);
     if (data.bio !== undefined) localStorage.setItem('rekan_user_bio', data.bio);
     if (data.avatar !== undefined) localStorage.setItem('rekan_user_avatar', data.avatar);
+    if (data.phone !== undefined) localStorage.setItem('rekan_user_phone', data.phone);
+    if (data.location !== undefined) localStorage.setItem('rekan_user_location', data.location);
     setUserVersion(v => v + 1);
   };
 

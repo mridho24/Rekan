@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   User, Shield, Lock, Bell, Palette, Camera, Save,
   Eye, EyeOff, Trash2, TabletSmartphone, Mail, MessageSquare,
-  Sun, Moon, ChevronRight,
+  Sun, Moon, ChevronRight, Phone, MapPin, Search, ChevronDown, X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -93,11 +93,92 @@ function SettingsSidebar({ activeMenu, onMenuChange, isMobile }) {
   );
 }
 
+const LOCATION_DATA = {
+  Indonesia: {
+    Aceh: ['Banda Aceh', 'Lhokseumawe', 'Langsa', 'Sabang', 'Meulaboh'],
+  },
+};
+
+function LocationSelect({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [country] = useState('Indonesia');
+  const [province, setProvince] = useState('');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) setQuery('');
+  }, [open]);
+
+  useEffect(() => {
+    const handleClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const provinces = LOCATION_DATA[country] ? Object.keys(LOCATION_DATA[country]) : [];
+  const cities = province && LOCATION_DATA[country]?.[province] ? LOCATION_DATA[country][province] : [];
+  const filteredCities = query ? cities.filter(c => c.toLowerCase().includes(query.toLowerCase())) : cities;
+
+  const selectCity = (c) => {
+    const label = province ? `${c}, ${province}` : c;
+    onChange(label);
+    setOpen(false);
+    setQuery('');
+  };
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div onClick={() => setOpen(!open)} style={styles.selectTrigger}>
+        <MapPin size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+        <span style={{ flex: 1, color: value ? 'var(--text-primary)' : 'var(--text-muted)', fontSize: 'var(--text-base)' }}>
+          {value || 'Pilih lokasi...'}
+        </span>
+        <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+      </div>
+      {open && (
+        <div style={styles.selectDropdown}>
+          <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
+            <div style={styles.searchInputWrapper}>
+              <Search size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+              <input style={styles.searchInput} placeholder="Cari kota..." value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+              {query && <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }}><X size={12} /></button>}
+            </div>
+          </div>
+          <div style={{ padding: '6px 0 2px', borderBottom: '1px solid var(--border)' }}>
+            <span style={styles.selectSectionLabel}>Provinsi</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', padding: '0 8px 6px' }}>
+              {provinces.map(p => (
+                <button key={p} onClick={() => { setProvince(p); setQuery(''); }} style={{ ...styles.optionPill, backgroundColor: province === p ? 'var(--emerald-bg)' : 'transparent', color: province === p ? 'var(--emerald)' : 'var(--text-secondary)' }}>{p}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+            <span style={styles.selectSectionLabel}>Kota</span>
+            {filteredCities.length === 0 ? (
+              <div style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>{province ? 'Kota tidak ditemukan' : 'Pilih provinsi terlebih dahulu'}</div>
+            ) : (
+              filteredCities.map(c => (
+                <button key={c} onClick={() => selectCity(c)} style={{ ...styles.optionItem, backgroundColor: city === c ? 'var(--emerald-bg)' : 'transparent', color: city === c ? 'var(--emerald)' : 'var(--text-primary)', fontWeight: city === c ? 600 : 400 }}>
+                  <MapPin size={13} style={{ color: city === c ? 'var(--emerald)' : 'var(--text-muted)' }} />
+                  {c}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProfileForm({ onUpdateUser }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -106,10 +187,14 @@ function ProfileForm({ onUpdateUser }) {
     setEmail(localStorage.getItem('rekan_user_email') || 'user@rekan.app');
     setBio(localStorage.getItem('rekan_user_bio') || '');
     setAvatar(localStorage.getItem('rekan_user_avatar') || '');
+    setPhone(localStorage.getItem('rekan_user_phone') || '');
+    setLocation(localStorage.getItem('rekan_user_location') || '');
   }, []);
 
   const handleSave = () => {
-    onUpdateUser({ name, email, bio, avatar });
+    onUpdateUser({ name, email, bio, avatar, phone, location });
+    localStorage.setItem('rekan_user_phone', phone);
+    localStorage.setItem('rekan_user_location', location);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -121,6 +206,8 @@ function ProfileForm({ onUpdateUser }) {
     reader.onload = (ev) => setAvatar(ev.target.result);
     reader.readAsDataURL(file);
   };
+
+  const isMobile = window.innerWidth < 720;
 
   return (
     <motion.div
@@ -163,36 +250,59 @@ function ProfileForm({ onUpdateUser }) {
         </motion.div>
       </div>
 
-      <div style={styles.field}>
-        <label style={styles.label}>Nama Lengkap</label>
-        <input
-          style={styles.input}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Masukkan nama Anda"
-        />
-      </div>
+      <div style={{ ...styles.profileGrid, gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
+        <div style={styles.field}>
+          <label style={styles.label}>Nama Lengkap</label>
+          <input
+            style={styles.input}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Masukkan nama Anda"
+          />
+        </div>
 
-      <div style={styles.field}>
-        <label style={styles.label}>Email</label>
-        <input
-          style={styles.input}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Masukkan email Anda"
-        />
-      </div>
+        <div style={styles.field}>
+          <label style={styles.label}>Email</label>
+          <input
+            style={styles.input}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="nama@email.com"
+          />
+        </div>
 
-      <div style={styles.field}>
-        <label style={styles.label}>Bio</label>
-        <textarea
-          style={styles.textarea}
-          rows={3}
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          placeholder="Ceritakan tentang diri Anda..."
-        />
+        <div style={styles.field}>
+          <label style={styles.label}>No. Telepon</label>
+          <div style={styles.inputWrapper}>
+            <Phone size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            <input
+              style={styles.inputInner}
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+62 812 3456 7890"
+            />
+          </div>
+        </div>
+
+        <div style={styles.field}>
+          <label style={styles.label}>Lokasi</label>
+          <LocationSelect value={location} onChange={setLocation} />
+        </div>
+
+        <div style={{ gridColumn: '1 / -1' }}>
+          <div style={styles.field}>
+            <label style={styles.label}>Bio</label>
+            <textarea
+              style={styles.textarea}
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Ceritakan tentang diri Anda..."
+            />
+          </div>
+        </div>
       </div>
 
       <motion.button
@@ -203,6 +313,7 @@ function ProfileForm({ onUpdateUser }) {
           backgroundColor: saved ? 'var(--success)' : 'var(--emerald)',
         }}
         onClick={handleSave}
+        type="button"
       >
         <Save size={16} />
         {saved ? 'Tersimpan!' : 'Simpan Perubahan'}
@@ -713,6 +824,13 @@ const styles = {
     transition: 'var(--t-fast)',
   },
 
+  // ─── Profile Grid ───
+  profileGrid: {
+    display: 'grid',
+    gap: '18px',
+    marginBottom: '4px',
+  },
+
   // ─── Form Fields ───
   field: {
     marginBottom: '20px',
@@ -756,6 +874,7 @@ const styles = {
     border: '1px solid var(--border)',
     backgroundColor: 'var(--bg-input)',
     transition: 'var(--t-fast)',
+    height: '40px',
   },
   inputInner: {
     flex: 1,
@@ -789,6 +908,80 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     marginTop: '8px',
+    transition: 'var(--t-fast)',
+  },
+
+  // ─── Location Select ───
+  selectTrigger: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '0 14px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    cursor: 'pointer',
+    height: '40px',
+    transition: 'var(--t-fast)',
+  },
+  selectDropdown: {
+    position: 'absolute',
+    top: 'calc(100% + 4px)',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: 'var(--r-lg)',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow-lg)',
+    zIndex: 100,
+  },
+  searchInputWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '0 10px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+  },
+  searchInput: {
+    flex: 1,
+    padding: '7px 0',
+    border: 'none',
+    background: 'none',
+    color: 'var(--text-primary)',
+    fontSize: 'var(--text-sm)',
+    outline: 'none',
+  },
+  selectSectionLabel: {
+    display: 'block',
+    padding: '6px 14px 4px',
+    fontSize: '10px',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    color: 'var(--text-muted)',
+  },
+  optionPill: {
+    padding: '4px 10px',
+    borderRadius: 'var(--r-full)',
+    border: 'none',
+    fontSize: 'var(--text-xs)',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+  optionItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    width: '100%',
+    padding: '8px 14px',
+    border: 'none',
+    background: 'none',
+    fontSize: 'var(--text-sm)',
+    cursor: 'pointer',
+    textAlign: 'left',
     transition: 'var(--t-fast)',
   },
 
