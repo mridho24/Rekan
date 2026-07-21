@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   X, Pencil, MapPin, Briefcase, Star, ArrowRight,
   CheckSquare, ListTodo, Activity, UserPlus, Camera, Save,
+  Phone, Search, ChevronDown,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -116,6 +117,308 @@ function MiniCard({ icon: Icon, bg, title, desc, link, onClick }) {
   );
 }
 
+const LOCATION_DATA = {
+  Indonesia: {
+    Aceh: ['Banda Aceh', 'Lhokseumawe', 'Langsa', 'Sabang', 'Meulaboh'],
+  },
+};
+
+function LocationSelect({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [country, setCountry] = useState('Indonesia');
+  const [province, setProvince] = useState('');
+  const [city, setCity] = useState('');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (value) {
+      const parts = value.split(', ');
+      if (parts[0]) setCity(parts[0]);
+      if (parts[1]) setProvince(parts[1]);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    const handleClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const provinces = LOCATION_DATA[country] ? Object.keys(LOCATION_DATA[country]) : [];
+  const cities = province && LOCATION_DATA[country]?.[province] ? LOCATION_DATA[country][province] : [];
+
+  const filteredCities = query
+    ? cities.filter(c => c.toLowerCase().includes(query.toLowerCase()))
+    : cities;
+
+  const selectCity = (c) => {
+    setCity(c);
+    const label = province ? `${c}, ${province}` : c;
+    onChange(label);
+    setOpen(false);
+    setQuery('');
+  };
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={styles.selectTrigger}
+      >
+        <MapPin size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+        <span style={{ flex: 1, color: value ? 'var(--text-primary)' : 'var(--text-muted)', fontSize: 'var(--text-base)' }}>
+          {value || 'Pilih lokasi...'}
+        </span>
+        <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />
+      </div>
+
+      {open && (
+        <div style={styles.selectDropdown}>
+          <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
+            <div style={styles.searchInputWrapper}>
+              <Search size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+              <input
+                style={styles.searchInput}
+                placeholder="Cari kota..."
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                autoFocus
+              />
+              {query && (
+                <button onClick={() => setQuery('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px' }}>
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{ padding: '6px 0 2px', borderBottom: '1px solid var(--border)' }}>
+            <span style={styles.selectSectionLabel}>Provinsi</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', padding: '0 8px 6px' }}>
+              {provinces.map(p => (
+                <button
+                  key={p}
+                  onClick={() => { setProvince(p); setQuery(''); }}
+                  style={{
+                    ...styles.optionPill,
+                    backgroundColor: province === p ? 'var(--emerald-bg)' : 'transparent',
+                    color: province === p ? 'var(--emerald)' : 'var(--text-secondary)',
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+            <span style={styles.selectSectionLabel}>Kota</span>
+            {filteredCities.length === 0 ? (
+              <div style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+                {province ? 'Kota tidak ditemukan' : 'Pilih provinsi terlebih dahulu'}
+              </div>
+            ) : (
+              filteredCities.map(c => (
+                <button
+                  key={c}
+                  onClick={() => selectCity(c)}
+                  style={{
+                    ...styles.optionItem,
+                    backgroundColor: city === c ? 'var(--emerald-bg)' : 'transparent',
+                    color: city === c ? 'var(--emerald)' : 'var(--text-primary)',
+                    fontWeight: city === c ? 600 : 400,
+                  }}
+                >
+                  <MapPin size={13} style={{ color: city === c ? 'var(--emerald)' : 'var(--text-muted)' }} />
+                  {c}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EditProfileModal({
+  editName, setEditName,
+  editEmail, setEditEmail,
+  editBio, setEditBio,
+  editAvatar, setEditAvatar,
+  editPhone, setEditPhone,
+  editLocation, setEditLocation,
+  saved, onSave, onClose,
+  fileInputRef, onAvatarChange,
+}) {
+  const [editPhoneLocal, setEditPhoneLocal] = useState(editPhone);
+  const modalRef = useRef(null);
+  const firstFocusableRef = useRef(null);
+
+  useEffect(() => {
+    setEditPhoneLocal(editPhone);
+  }, [editPhone]);
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (firstFocusableRef.current) firstFocusableRef.current.focus();
+  }, []);
+
+  const handleSave = () => {
+    setEditPhone(editPhoneLocal);
+    onSave();
+  };
+
+  const isMobile = window.innerWidth < 640;
+
+  return (
+    <div className="em-edit-overlay" style={styles.editOverlay}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+        style={styles.editBackdrop}
+        onClick={onClose}
+      />
+      <motion.div
+        ref={modalRef}
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ type: 'spring', duration: 0.35, bounce: 0.08 }}
+        style={{
+          ...styles.editCard,
+          maxWidth: isMobile ? 'calc(100vw - 32px)' : '680px',
+          maxHeight: isMobile ? '95vh' : '90vh',
+        }}
+      >
+        {/* Header */}
+        <div style={styles.editHeader}>
+          <div>
+            <h2 style={styles.editTitle}>Edit Profile</h2>
+            <p style={styles.editDesc}>Perbarui informasi profil Anda</p>
+          </div>
+          <button onClick={onClose} style={styles.editCloseBtn}>
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Scrollable Body */}
+        <div style={styles.editBody}>
+          {/* Avatar */}
+          <div style={styles.editAvatarSection}>
+            <div style={styles.editAvatarWrapper}>
+              {editAvatar ? (
+                <img src={editAvatar} alt="" style={styles.editAvatarImg} />
+              ) : (
+                <div style={styles.editAvatarPlaceholder}>
+                  {editName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => fileInputRef.current?.click()}
+                style={styles.editCameraBtn}
+              >
+                <Camera size={13} />
+              </motion.button>
+              <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={onAvatarChange} />
+            </div>
+          </div>
+
+          {/* Fields */}
+          <div className="em-fields-grid" style={styles.editFieldsGrid}>
+            <div style={styles.editField}>
+              <label style={styles.editLabel}>Nama Lengkap</label>
+              <input
+                ref={firstFocusableRef}
+                style={styles.editInput}
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                placeholder="Masukkan nama Anda"
+              />
+            </div>
+
+            <div style={styles.editField}>
+              <label style={styles.editLabel}>Email</label>
+              <input
+                style={styles.editInput}
+                type="email"
+                value={editEmail}
+                onChange={e => setEditEmail(e.target.value)}
+                placeholder="nama@email.com"
+              />
+            </div>
+
+            <div style={styles.editField}>
+              <label style={styles.editLabel}>No. Telepon</label>
+              <div style={styles.editInputWrapper}>
+                <Phone size={15} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                <input
+                  style={styles.editInputInner}
+                  type="tel"
+                  value={editPhoneLocal}
+                  onChange={e => setEditPhoneLocal(e.target.value)}
+                  placeholder="+62 812 3456 7890"
+                />
+              </div>
+            </div>
+
+            <div style={styles.editField}>
+              <label style={styles.editLabel}>Lokasi</label>
+              <LocationSelect value={editLocation} onChange={setEditLocation} />
+            </div>
+
+            <div style={{ ...styles.editField, gridColumn: '1 / -1' }}>
+              <label style={styles.editLabel}>Bio</label>
+              <textarea
+                style={styles.editTextarea}
+                rows={3}
+                value={editBio}
+                onChange={e => setEditBio(e.target.value)}
+                placeholder="Ceritakan tentang diri Anda..."
+              />
+              <span style={styles.editHelper}>{editBio.length} karakter</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={styles.editFooter}>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            style={styles.editCancelBtn}
+            onClick={onClose}
+          >
+            Cancel
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              ...styles.editSaveBtn,
+              backgroundColor: saved ? 'var(--success)' : 'var(--emerald)',
+            }}
+            onClick={handleSave}
+          >
+            <Save size={15} />
+            {saved ? 'Tersimpan!' : 'Save Changes'}
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function ProfileCard({
   isOpen,
   onClose,
@@ -137,6 +440,8 @@ export default function ProfileCard({
   const [editEmail, setEditEmail] = useState('');
   const [editBio, setEditBio] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editLocation, setEditLocation] = useState('');
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -161,6 +466,8 @@ export default function ProfileCard({
     setEditEmail(email);
     setEditBio(localStorage.getItem('rekan_user_bio') || '');
     setEditAvatar(avatar);
+    setEditPhone(localStorage.getItem('rekan_user_phone') || '');
+    setEditLocation(localStorage.getItem('rekan_user_location') || '');
     setSaved(false);
     setShowEditModal(true);
   };
@@ -171,9 +478,12 @@ export default function ProfileCard({
     if (data.email) localStorage.setItem('rekan_user_email', data.email);
     if (data.bio !== undefined) localStorage.setItem('rekan_user_bio', data.bio);
     if (data.avatar !== undefined) localStorage.setItem('rekan_user_avatar', data.avatar);
+    localStorage.setItem('rekan_user_phone', editPhone);
+    localStorage.setItem('rekan_user_location', editLocation);
     setName(editName);
     setEmail(editEmail);
     setAvatar(editAvatar);
+    setLocation(editLocation);
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
@@ -267,75 +577,22 @@ export default function ProfileCard({
         )}
       </AnimatePresence>
 
-      {/* Inline Edit Profile Modal */}
+      {/* Edit Profile Modal */}
       <AnimatePresence>
         {showEditModal && (
-          <div style={styles.overlay}>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              style={styles.backdrop}
-              onClick={() => setShowEditModal(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
-              style={{ ...styles.card, maxWidth: '440px' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 700, color: 'var(--text-primary)' }}>Edit Profile</h3>
-                <button onClick={() => setShowEditModal(false)} style={styles.closeBtn}>
-                  <X size={16} />
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-                <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-                  {editAvatar ? (
-                    <img src={editAvatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--border)' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', backgroundColor: 'var(--emerald-bg)', color: 'var(--emerald-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 700, border: '3px solid var(--emerald-border)' }}>
-                      {editName.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    style={{ position: 'absolute', bottom: '0', right: '0', width: '28px', height: '28px', borderRadius: '50%', backgroundColor: 'var(--emerald)', color: '#ffffff', border: '2px solid var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                  >
-                    <Camera size={12} />
-                  </button>
-                  <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '16px' }}>
-                <label style={styles.label}>Nama Lengkap</label>
-                <input style={styles.input} value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nama Anda" />
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={styles.label}>Email</label>
-                <input style={styles.input} type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} placeholder="Email Anda" />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={styles.label}>Bio</label>
-                <textarea style={{ ...styles.input, resize: 'vertical', minHeight: '60px', fontFamily: 'inherit' }} rows={2} value={editBio} onChange={(e) => setEditBio(e.target.value)} placeholder="Tentang Anda..." />
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', borderRadius: 'var(--r-md)', backgroundColor: saved ? 'var(--success)' : 'var(--emerald)', color: '#ffffff', fontWeight: 600, fontSize: 'var(--text-base)', border: 'none', cursor: 'pointer', transition: 'var(--t-fast)' }}
-                onClick={handleEditSave}
-              >
-                <Save size={16} />
-                {saved ? 'Tersimpan!' : 'Simpan'}
-              </motion.button>
-            </motion.div>
-          </div>
+          <EditProfileModal
+            editName={editName} setEditName={setEditName}
+            editEmail={editEmail} setEditEmail={setEditEmail}
+            editBio={editBio} setEditBio={setEditBio}
+            editAvatar={editAvatar} setEditAvatar={setEditAvatar}
+            editPhone={editPhone} setEditPhone={setEditPhone}
+            editLocation={editLocation} setEditLocation={setEditLocation}
+            saved={saved}
+            onSave={handleEditSave}
+            onClose={() => setShowEditModal(false)}
+            fileInputRef={fileInputRef}
+            onAvatarChange={handleAvatarChange}
+          />
         )}
       </AnimatePresence>
     </>
@@ -621,15 +878,137 @@ const styles = {
     flexShrink: 0,
   },
 
-  // ─── Edit Modal Fields ───
-  label: {
-    display: 'block',
+  // ─── Edit Modal Overlay ───
+  editOverlay: {
+    position: 'fixed',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 99999,
+    padding: '32px',
+  },
+  editBackdrop: {
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'var(--overlay)',
+    backdropFilter: 'blur(6px)',
+    zIndex: 1,
+  },
+  editCard: {
+    position: 'relative',
+    zIndex: 2,
+    width: '100%',
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: '16px',
+    boxShadow: '0 25px 60px -12px rgba(0,0,0,0.4)',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  editHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: '24px 28px 0',
+    flexShrink: 0,
+  },
+  editTitle: {
+    fontSize: 'var(--text-lg)',
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+    letterSpacing: '-0.3px',
+  },
+  editDesc: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    marginTop: '4px',
+  },
+  editCloseBtn: {
+    width: '32px',
+    height: '32px',
+    borderRadius: 'var(--r-md)',
+    backgroundColor: 'transparent',
+    color: 'var(--text-muted)',
+    border: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    flexShrink: 0,
+    transition: 'var(--t-fast)',
+  },
+
+  // ─── Edit Modal Body ───
+  editBody: {
+    padding: '24px 28px',
+    overflowY: 'auto',
+    flex: 1,
+  },
+  editAvatarSection: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '28px',
+  },
+  editAvatarWrapper: {
+    position: 'relative',
+    width: '88px',
+    height: '88px',
+  },
+  editAvatarImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: '50%',
+    objectFit: 'cover',
+    border: '3px solid var(--border)',
+  },
+  editAvatarPlaceholder: {
+    width: '100%',
+    height: '100%',
+    borderRadius: '50%',
+    backgroundColor: 'var(--emerald-bg)',
+    color: 'var(--emerald-dark)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '30px',
+    fontWeight: 700,
+    border: '3px solid var(--emerald-border)',
+  },
+  editCameraBtn: {
+    position: 'absolute',
+    bottom: '0',
+    right: '-2px',
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    backgroundColor: 'var(--emerald)',
+    color: '#ffffff',
+    border: '2.5px solid var(--bg-card)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+
+  // ─── Edit Fields ───
+  editFieldsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '18px',
+  },
+  editField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+  },
+  editLabel: {
     fontSize: 'var(--text-sm)',
     fontWeight: 600,
     color: 'var(--text-secondary)',
-    marginBottom: '6px',
   },
-  input: {
+  editInput: {
     width: '100%',
     padding: '10px 14px',
     borderRadius: 'var(--r-md)',
@@ -638,6 +1017,154 @@ const styles = {
     color: 'var(--text-primary)',
     fontSize: 'var(--text-base)',
     outline: 'none',
+    transition: 'var(--t-fast)',
+    height: '40px',
+  },
+  editInputWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '0 14px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    transition: 'var(--t-fast)',
+    height: '40px',
+  },
+  editInputInner: {
+    flex: 1,
+    border: 'none',
+    background: 'none',
+    color: 'var(--text-primary)',
+    fontSize: 'var(--text-base)',
+    outline: 'none',
+    padding: '0',
+    height: '100%',
+  },
+  editTextarea: {
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    color: 'var(--text-primary)',
+    fontSize: 'var(--text-base)',
+    outline: 'none',
+    resize: 'vertical',
+    transition: 'var(--t-fast)',
+    fontFamily: 'inherit',
+  },
+  editHelper: {
+    fontSize: 'var(--text-xs)',
+    color: 'var(--text-muted)',
+    textAlign: 'right',
+  },
+
+  // ─── Edit Footer ───
+  editFooter: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+    padding: '16px 28px 24px',
+    borderTop: '1px solid var(--border)',
+    flexShrink: 0,
+  },
+  editCancelBtn: {
+    padding: '9px 20px',
+    borderRadius: 'var(--r-md)',
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    fontWeight: 600,
+    fontSize: 'var(--text-base)',
+    border: '1px solid var(--border)',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+  editSaveBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '9px 22px',
+    borderRadius: 'var(--r-md)',
+    color: '#ffffff',
+    fontWeight: 600,
+    fontSize: 'var(--text-base)',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+
+  // ─── Select Component ───
+  selectTrigger: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '0 14px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+    cursor: 'pointer',
+    height: '40px',
+    transition: 'var(--t-fast)',
+  },
+  selectDropdown: {
+    position: 'absolute',
+    top: 'calc(100% + 4px)',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: 'var(--r-lg)',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow-lg)',
+    zIndex: 100,
+  },
+  searchInputWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '0 10px',
+    borderRadius: 'var(--r-md)',
+    border: '1px solid var(--border)',
+    backgroundColor: 'var(--bg-input)',
+  },
+  searchInput: {
+    flex: 1,
+    padding: '7px 0',
+    border: 'none',
+    background: 'none',
+    color: 'var(--text-primary)',
+    fontSize: 'var(--text-sm)',
+    outline: 'none',
+  },
+  selectSectionLabel: {
+    display: 'block',
+    padding: '6px 14px 4px',
+    fontSize: '10px',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    color: 'var(--text-muted)',
+  },
+  optionPill: {
+    padding: '4px 10px',
+    borderRadius: 'var(--r-full)',
+    border: 'none',
+    fontSize: 'var(--text-xs)',
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+  optionItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    width: '100%',
+    padding: '8px 14px',
+    border: 'none',
+    background: 'none',
+    fontSize: 'var(--text-sm)',
+    cursor: 'pointer',
+    textAlign: 'left',
     transition: 'var(--t-fast)',
   },
 
@@ -654,3 +1181,13 @@ function useIsMobile(breakpoint = 600) {
   }, [breakpoint]);
   return isMobile;
 }
+
+// Responsive style injection for edit modal
+const r = document.createElement('style');
+r.textContent = `
+  @media (max-width: 720px) {
+    .em-edit-overlay { padding: 16px !important; }
+    .em-fields-grid { grid-template-columns: 1fr !important; }
+  }
+`;
+document.head.appendChild(r);
