@@ -4,7 +4,7 @@ import {
   ChevronDown, ChevronRight, FolderPlus, LayoutDashboard,
   Flag, ListChecks, Clock, GripVertical,
   MoreHorizontal, Edit3, Users, Layers, ArrowRight, ArrowLeft,
-  Folder, KanbanSquare, SquareStack, Archive, Search, X,
+  Folder, KanbanSquare, SquareStack, Archive, Search, X, Eye,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskDetailModal from './TaskDetailModal';
@@ -35,135 +35,11 @@ function formatDate(iso) {
   return `${d.getDate()} ${months[d.getMonth()]}`;
 }
 
-function SubtasksPreview({ subtasks, onToggleSubtask, taskId }) {
-  const [open, setOpen] = useState(false);
-  const total = subtasks?.length || 0;
-  const done = subtasks?.filter(s => s.done).length || 0;
-  if (total === 0) return null;
 
-  return (
-    <div>
-      <button
-        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
-        style={spStyles.toggle}
-      >
-        <ListChecks size={13} />
-        <span style={spStyles.summary}>{done}/{total} subtasks</span>
-        {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div style={spStyles.list}>
-              {subtasks.map(st => (
-                <div key={st.id} style={spStyles.item}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onToggleSubtask(taskId, st.id); }}
-                    style={spStyles.checkBtn}
-                  >
-                    <div style={{
-                      ...spStyles.checkbox,
-                      backgroundColor: st.done ? '#10B981' : 'transparent',
-                      borderColor: st.done ? '#10B981' : 'var(--border-strong)',
-                    }}>
-                      {st.done && <CheckCircle2 size={9} color="#fff" />}
-                    </div>
-                  </button>
-                  <span style={{
-                    ...spStyles.text,
-                    textDecoration: st.done ? 'line-through' : 'none',
-                    color: st.done ? 'var(--text-muted)' : 'var(--text-secondary)',
-                  }}>{st.text}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
-const spStyles = {
-  toggle: {
-    display: 'flex', alignItems: 'center', gap: '6px',
-    background: 'none', border: 'none', cursor: 'pointer',
-    padding: '4px 8px', borderRadius: 'var(--r-sm)',
-    fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600,
-    transition: 'var(--t-fast)',
-    width: '100%',
-    justifyContent: 'flex-start',
-  },
-  summary: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 },
-  list: { padding: '6px 0 2px 4px', display: 'flex', flexDirection: 'column', gap: '4px' },
-  item: { display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 0' },
-  checkBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 },
-  checkbox: { width: '16px', height: '16px', borderRadius: '4px', border: '2px solid', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--t-fast)' },
-  text: { fontSize: '12px', fontWeight: 500, lineHeight: 1.4 },
-};
 
-function BoardTask({ task, onToggleTask, onToggleSubtask }) {
-  const isDone = task.status === 'Done';
 
-  return (
-    <div style={btStyles.row}>
-      <button
-        onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
-        style={btStyles.checkBtn}
-        title={isDone ? 'Tandai belum selesai' : 'Tandai selesai'}
-      >
-        <div style={{
-          ...btStyles.checkbox,
-          backgroundColor: isDone ? '#10B981' : 'transparent',
-          borderColor: isDone ? '#10B981' : 'var(--border-strong)',
-        }}>
-          {isDone && <CheckCircle2 size={10} color="#fff" />}
-        </div>
-      </button>
-      <div style={btStyles.content}>
-        <span style={{
-          ...btStyles.title,
-          textDecoration: isDone ? 'line-through' : 'none',
-          color: isDone ? 'var(--text-muted)' : 'var(--text-primary)',
-        }}>{task.title}</span>
-        {task.deadline && (
-          <div style={btStyles.dateRow}>
-            <Calendar size={10} /> {formatDate(task.deadline)}
-          </div>
-        )}
-        <SubtasksPreview subtasks={task.subtasks} onToggleSubtask={onToggleSubtask} taskId={task.id} />
-      </div>
-    </div>
-  );
-}
-
-const btStyles = {
-  row: {
-    display: 'flex', gap: '10px', alignItems: 'flex-start',
-    padding: '8px 10px', transition: 'var(--t-fast)',
-    borderRadius: 'var(--r-md)',
-  },
-  checkBtn: {
-    background: 'none', border: 'none', cursor: 'pointer',
-    padding: '3px 0 0 0', flexShrink: 0,
-  },
-  checkbox: {
-    width: '18px', height: '18px', borderRadius: '5px',
-    border: '2px solid',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'var(--t-fast)',
-  },
-  content: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' },
-  title: { fontSize: '13px', fontWeight: 600, lineHeight: 1.4 },
-  dateRow: { display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 },
-};
-
-function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onMoveBoard, onEditBoard }) {
+function BoardCard({ board, tasks, onDeleteBoard, onMoveBoard, onEditBoard, onViewDetails }) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [hoveredColId, setHoveredColId] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -224,6 +100,13 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
             )}
           </div>
           <div style={bcStyles.headerActions}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onViewDetails(board); }}
+              style={bcStyles.iconBtn}
+              title="View Details"
+            >
+              <Eye size={16} />
+            </button>
             <div style={{ position: 'relative' }}>
               <button
                 onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
@@ -322,23 +205,6 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
           </div>
         </div>
 
-        <div style={bcStyles.taskList}>
-          {tasks.length === 0 ? (
-            <div style={bcStyles.emptyTasks}>Belum ada tugas</div>
-          ) : (
-            tasks.slice(0, 4).map(task => (
-              <BoardTask
-                key={task.id}
-                task={task}
-                onToggleTask={onToggleTask}
-                onToggleSubtask={onToggleSubtask}
-              />
-            ))
-          )}
-          {tasks.length > 4 && (
-            <div style={bcStyles.moreTasks}>+{tasks.length - 4} tugas lainnya</div>
-          )}
-        </div>
       </div>
     </motion.div>
   );
@@ -395,7 +261,7 @@ const bcStyles = {
   },
   desc: {
     fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0,
-    display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical',
+    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
   },
   progressWrap: { display: 'flex', alignItems: 'center', gap: '10px' },
@@ -412,21 +278,7 @@ const bcStyles = {
     display: 'flex', alignItems: 'center', gap: '5px',
     fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500,
   },
-  taskList: {
-    display: 'flex', flexDirection: 'column', gap: '2px',
-    backgroundColor: 'var(--bg-subtle)',
-    borderRadius: 'var(--r-lg)',
-    padding: '6px',
-    marginTop: '2px',
-  },
-  emptyTasks: {
-    fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic',
-    padding: '12px 8px', textAlign: 'center',
-  },
-  moreTasks: {
-    fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)',
-    textAlign: 'center', padding: '6px 0 2px', cursor: 'pointer',
-  },
+
   moveMenu: {
     position: 'absolute', right: 0, top: 'calc(100% + 4px)',
     minWidth: '130px',
@@ -462,7 +314,7 @@ const bcStyles = {
   },
 };
 
-function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggleSubtask, onDeleteBoard, getBoardTasks, isMobile, onMoveBoard, onEditBoard }) {
+function BoardColumn({ column, boards, onTaskDrop, onDeleteBoard, getBoardTasks, isMobile, onMoveBoard, onEditBoard, onViewDetails }) {
   const [dragOver, setDragOver] = useState(false);
   const Icon = column.icon;
 
@@ -508,11 +360,10 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
                 key={board.id}
                 board={board}
                 tasks={getBoardTasks(board.id)}
-                onToggleTask={onToggleTask}
-                onToggleSubtask={onToggleSubtask}
                 onDeleteBoard={onDeleteBoard}
                 onMoveBoard={onMoveBoard}
                 onEditBoard={onEditBoard}
+                onViewDetails={onViewDetails}
               />
             )))}
           </AnimatePresence>
@@ -627,7 +478,6 @@ export default function BoardPage({
   }, []);
 
   const isMobile = windowWidth < 960;
-  const isXS = windowWidth < 480;
 
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -635,9 +485,18 @@ export default function BoardPage({
   const [viewMode, setViewMode] = useState('projects');
   const [archiveConfirmId, setArchiveConfirmId] = useState(null);
   const [completeConfirmId, setCompleteConfirmId] = useState(null);
+  const [selectedBoard, setSelectedBoard] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef(null);
+
+  const handleViewDetails = (board) => {
+    setSelectedBoard(board);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedBoard(null);
+  };
 
   const selectedProject = currentProjectId;
   const hasProjectSelected = selectedProject && selectedProject !== 'all';
@@ -1302,6 +1161,7 @@ export default function BoardPage({
               isMobile={isMobile}
               onMoveBoard={handleBoardDrop}
               onEditBoard={onEditBoard}
+              onViewDetails={handleViewDetails}
             />
           ))}
         </motion.div>
@@ -1354,9 +1214,494 @@ export default function BoardPage({
         confirmText="Ya, Selesaikan"
         cancelText="Batal"
       />
+
+      <BoardDetailModal
+        isOpen={!!selectedBoard}
+        board={selectedBoard}
+        tasks={selectedBoard ? getBoardTasks(selectedBoard.id) : []}
+        onClose={handleCloseDetails}
+        onEditBoard={onEditBoard}
+        onToggleTask={handleTaskToggle}
+        onToggleSubtask={handleSubtaskToggle}
+      />
     </div>
   );
 }
+
+function BoardDetailModal({ isOpen, board, tasks, onClose, onEditBoard, onToggleTask, onToggleSubtask }) {
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !board) return null;
+
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === 'Done').length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const isComplete = pct === 100 && total > 0;
+
+  const subtasksTotal = tasks.reduce((sum, t) => sum + (t.subtasks?.length || 0), 0);
+  const subtasksDone = tasks.reduce((sum, t) => sum + (t.subtasks?.filter(s => s.done).length || 0), 0);
+
+  const PRIORITY_COLORS = { High: '#EF4444', Medium: '#F59E0B', Low: '#6B7280' };
+
+  const toggleAccordion = (taskId) => {
+    setExpandedTaskId(prev => prev === taskId ? null : taskId);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      style={dmStyles.overlay}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
+        style={dmStyles.modal}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={dmStyles.header}>
+          <div style={dmStyles.headerLeft}>
+            <div style={{ ...dmStyles.colorDot, backgroundColor: board.color || '#6366F1' }} />
+            <div>
+              <h2 style={dmStyles.title}>{board.name}</h2>
+              {board.description && (
+                <p style={dmStyles.desc}>{board.description}</p>
+              )}
+            </div>
+          </div>
+          <div style={dmStyles.headerRight}>
+            <button
+              onClick={() => { onEditBoard(board); onClose(); }}
+              style={dmStyles.editBtn}
+              title="Edit board"
+            >
+              <Edit3 size={16} />
+            </button>
+            <button onClick={onClose} style={dmStyles.closeBtn} title="Close">
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* Board Stats */}
+        <div style={dmStyles.statsRow}>
+          <div style={dmStyles.statCard}>
+            <span style={dmStyles.statValue}>{total}</span>
+            <span style={dmStyles.statLabel}>Total Tasks</span>
+          </div>
+          <div style={dmStyles.statCard}>
+            <span style={{ ...dmStyles.statValue, color: 'var(--emerald)' }}>{done}</span>
+            <span style={dmStyles.statLabel}>Completed</span>
+          </div>
+          <div style={dmStyles.statCard}>
+            <span style={dmStyles.statValue}>{subtasksTotal}</span>
+            <span style={dmStyles.statLabel}>Subtasks</span>
+          </div>
+          <div style={dmStyles.statCard}>
+            <span style={{ ...dmStyles.statValue, color: isComplete ? 'var(--emerald)' : 'var(--warning)' }}>
+              {pct}%
+            </span>
+            <span style={dmStyles.statLabel}>Progress</span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div style={dmStyles.progressSection}>
+          <div style={dmStyles.progressBar}>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${pct}%` }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              style={{
+                ...dmStyles.progressFill,
+                backgroundColor: isComplete ? '#10B981' : board.color || '#6366F1',
+              }}
+            />
+          </div>
+          <div style={dmStyles.progressMeta}>
+            <span style={dmStyles.progressLabel}>
+              {done}/{total} tasks completed
+            </span>
+            {subtasksTotal > 0 && (
+              <span style={dmStyles.progressLabel}>
+                {subtasksDone}/{subtasksTotal} subtasks
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div style={dmStyles.divider} />
+
+        {/* Task List */}
+        <div style={dmStyles.taskSection}>
+          <div style={dmStyles.taskSectionHeader}>
+            <h3 style={dmStyles.taskSectionTitle}>Tasks ({total})</h3>
+          </div>
+
+          <div style={dmStyles.taskList}>
+            {tasks.length === 0 ? (
+              <div style={dmStyles.emptyTasks}>No tasks in this board</div>
+            ) : (
+              tasks.map(task => {
+                const isTaskDone = task.status === 'Done';
+                const taskSubtotal = task.subtasks?.length || 0;
+                const taskSubdone = task.subtasks?.filter(s => s.done).length || 0;
+                const hasSubtasks = taskSubtotal > 0;
+                const isExpanded = expandedTaskId === task.id;
+
+                return (
+                  <div key={task.id} style={dmStyles.taskWrapper}>
+                    <div style={{
+                      ...dmStyles.taskCard,
+                      borderColor: isTaskDone ? 'var(--emerald-border)' : 'var(--border)',
+                    }}>
+                      <div style={dmStyles.taskCardLeft}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleTask(task.id); }}
+                          style={dmStyles.taskCheckBtn}
+                        >
+                          <div style={{
+                            ...dmStyles.taskCheckbox,
+                            backgroundColor: isTaskDone ? '#10B981' : 'transparent',
+                            borderColor: isTaskDone ? '#10B981' : 'var(--border-strong)',
+                          }}>
+                            {isTaskDone && <CheckCircle2 size={12} color="#fff" />}
+                          </div>
+                        </button>
+                      </div>
+                      <div style={dmStyles.taskCardBody}>
+                        <div style={dmStyles.taskCardTop}>
+                          <span style={{
+                            ...dmStyles.taskName,
+                            textDecoration: isTaskDone ? 'line-through' : 'none',
+                            color: isTaskDone ? 'var(--text-muted)' : 'var(--text-primary)',
+                          }}>{task.title}</span>
+                          {task.priority && task.priority !== 'Medium' && (
+                            <span style={{
+                              ...dmStyles.priorityBadge,
+                              backgroundColor: `${PRIORITY_COLORS[task.priority]}15`,
+                              color: PRIORITY_COLORS[task.priority],
+                            }}>
+                              <Flag size={10} />
+                              {task.priority}
+                            </span>
+                          )}
+                        </div>
+                        <div style={dmStyles.taskCardMeta}>
+                          {task.deadline && (
+                            <span style={dmStyles.taskMetaItem}>
+                              <Calendar size={11} />
+                              {formatDate(task.deadline)}
+                            </span>
+                          )}
+                          {hasSubtasks && (
+                            <span style={{
+                              ...dmStyles.taskMetaItem,
+                              color: taskSubdone === taskSubtotal ? 'var(--emerald)' : 'var(--text-muted)',
+                            }}>
+                              <ListChecks size={11} />
+                              {taskSubdone}/{taskSubtotal}
+                            </span>
+                          )}
+                          {isTaskDone && (
+                            <span style={{ ...dmStyles.taskMetaItem, color: 'var(--emerald)' }}>
+                              <CheckCircle2 size={11} />
+                              Completed
+                            </span>
+                          )}
+                        </div>
+                        {hasSubtasks && (
+                          <div style={dmStyles.taskSubtrackBar}>
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.round((taskSubdone / taskSubtotal) * 100)}%` }}
+                              transition={{ duration: 0.4 }}
+                              style={{
+                                ...dmStyles.taskSubtrackFill,
+                                backgroundColor: taskSubdone === taskSubtotal ? '#10B981' : '#6366F1',
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {hasSubtasks && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleAccordion(task.id); }}
+                          style={dmStyles.accordionBtn}
+                        >
+                          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Subtask Accordion */}
+                    <AnimatePresence>
+                      {isExpanded && hasSubtasks && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: 'easeInOut' }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={dmStyles.subtaskList}>
+                            {task.subtasks.map(st => (
+                              <div key={st.id} style={dmStyles.subtaskCard}>
+                                <div style={dmStyles.subtaskBorder} />
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); onToggleSubtask(task.id, st.id); }}
+                                  style={dmStyles.subtaskCheckBtn}
+                                >
+                                  <div style={{
+                                    ...dmStyles.subtaskCheckbox,
+                                    backgroundColor: st.done ? '#10B981' : 'transparent',
+                                    borderColor: st.done ? '#10B981' : 'var(--border-strong)',
+                                  }}>
+                                    {st.done && <CheckCircle2 size={8} color="#fff" />}
+                                  </div>
+                                </button>
+                                <span style={{
+                                  ...dmStyles.subtaskText,
+                                  textDecoration: st.done ? 'line-through' : 'none',
+                                  color: st.done ? 'var(--text-muted)' : 'var(--text-secondary)',
+                                }}>{st.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+const dmStyles = {
+  overlay: {
+    position: 'fixed', inset: 0, zIndex: 9999,
+    backgroundColor: 'var(--overlay)',
+    backdropFilter: 'blur(6px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: '20px',
+  },
+  modal: {
+    width: '100%', maxWidth: '1000px',
+    maxHeight: '90vh',
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: '20px',
+    border: '1px solid var(--border)',
+    boxShadow: '0 25px 60px rgba(0,0,0,0.2), 0 8px 20px rgba(0,0,0,0.08)',
+    display: 'flex', flexDirection: 'column',
+    overflow: 'hidden',
+  },
+  header: {
+    display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+    gap: '16px', padding: '24px 28px 0',
+    flexShrink: 0,
+  },
+  headerLeft: {
+    display: 'flex', alignItems: 'flex-start', gap: '14px', flex: 1, minWidth: 0,
+  },
+  colorDot: {
+    width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, marginTop: '6px',
+  },
+  title: {
+    fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)',
+    letterSpacing: '-0.5px', lineHeight: 1.2,
+  },
+  desc: {
+    fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, marginTop: '4px',
+  },
+  headerRight: {
+    display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0,
+  },
+  editBtn: {
+    width: '36px', height: '36px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--r-md)', border: '1px solid var(--border)',
+    background: 'transparent', color: 'var(--text-secondary)',
+    cursor: 'pointer', transition: 'var(--t-fast)',
+  },
+  closeBtn: {
+    width: '36px', height: '36px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--r-md)', border: 'none',
+    background: 'transparent', color: 'var(--text-muted)',
+    cursor: 'pointer', transition: 'var(--t-fast)',
+  },
+  statsRow: {
+    display: 'flex', gap: '12px', padding: '20px 28px 0',
+    flexWrap: 'wrap', flexShrink: 0,
+  },
+  statCard: {
+    flex: 1, minWidth: '100px',
+    display: 'flex', flexDirection: 'column', gap: '2px',
+    padding: '14px 16px',
+    backgroundColor: 'var(--bg-subtle)',
+    borderRadius: 'var(--r-lg)',
+    border: '1px solid var(--border)',
+  },
+  statValue: {
+    fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)',
+    letterSpacing: '-0.3px',
+  },
+  statLabel: {
+    fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)',
+  },
+  progressSection: {
+    padding: '16px 28px 0',
+    display: 'flex', flexDirection: 'column', gap: '8px',
+    flexShrink: 0,
+  },
+  progressBar: {
+    width: '100%', height: '8px',
+    borderRadius: 'var(--r-full)',
+    backgroundColor: 'var(--border)', overflow: 'hidden',
+  },
+  progressFill: { height: '100%', borderRadius: 'var(--r-full)', transition: 'width 0.4s ease' },
+  progressMeta: {
+    display: 'flex', alignItems: 'center', gap: '20px',
+  },
+  progressLabel: {
+    fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)',
+  },
+  divider: {
+    height: '1px', backgroundColor: 'var(--border)',
+    margin: '16px 28px 0', flexShrink: 0,
+  },
+  taskSection: {
+    flex: 1, display: 'flex', flexDirection: 'column',
+    padding: '16px 28px 24px',
+    minHeight: 0,
+  },
+  taskSectionHeader: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: '12px', flexShrink: 0,
+  },
+  taskSectionTitle: {
+    fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)',
+    letterSpacing: '-0.3px',
+  },
+  taskList: {
+    flex: 1, overflowY: 'auto',
+    display: 'flex', flexDirection: 'column', gap: '6px',
+    paddingRight: '4px',
+  },
+  emptyTasks: {
+    textAlign: 'center', padding: '40px 20px',
+    fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic',
+  },
+  taskWrapper: {
+    display: 'flex', flexDirection: 'column',
+  },
+  taskCard: {
+    display: 'flex', gap: '10px',
+    padding: '12px 14px',
+    backgroundColor: 'var(--bg-card)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--r-lg)',
+    transition: 'var(--t-fast)',
+  },
+  taskCardLeft: {
+    flexShrink: 0, paddingTop: '2px',
+  },
+  taskCheckBtn: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: 0, display: 'flex',
+  },
+  taskCheckbox: {
+    width: '20px', height: '20px', borderRadius: '5px',
+    border: '2px solid',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'var(--t-fast)',
+  },
+  taskCardBody: {
+    flex: 1, minWidth: 0,
+    display: 'flex', flexDirection: 'column', gap: '6px',
+  },
+  taskCardTop: {
+    display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap',
+  },
+  taskName: {
+    fontSize: '14px', fontWeight: 600, lineHeight: 1.4,
+    flex: 1, minWidth: 0,
+  },
+  priorityBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: '4px',
+    fontSize: '10px', fontWeight: 700,
+    padding: '2px 8px', borderRadius: 'var(--r-full)',
+    whiteSpace: 'nowrap',
+  },
+  taskCardMeta: {
+    display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap',
+  },
+  taskMetaItem: {
+    display: 'flex', alignItems: 'center', gap: '4px',
+    fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)',
+  },
+  taskSubtrackBar: {
+    maxWidth: '200px', height: '4px',
+    borderRadius: 'var(--r-full)',
+    backgroundColor: 'var(--border)', overflow: 'hidden',
+  },
+  taskSubtrackFill: { height: '100%', borderRadius: 'var(--r-full)', transition: 'width 0.3s ease' },
+  accordionBtn: {
+    flexShrink: 0, alignSelf: 'center',
+    width: '28px', height: '28px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 'var(--r-sm)', border: 'none',
+    background: 'transparent', color: 'var(--text-muted)',
+    cursor: 'pointer', transition: 'var(--t-fast)',
+  },
+  subtaskList: {
+    display: 'flex', flexDirection: 'column', gap: '4px',
+    padding: '4px 0 4px 24px',
+  },
+  subtaskCard: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    padding: '8px 10px',
+    backgroundColor: 'var(--bg-subtle)',
+    borderRadius: 'var(--r-md)',
+    position: 'relative',
+  },
+  subtaskBorder: {
+    position: 'absolute', left: 0, top: '4px', bottom: '4px',
+    width: '3px', borderRadius: '2px',
+    backgroundColor: 'var(--border-strong)',
+  },
+  subtaskCheckBtn: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0,
+  },
+  subtaskCheckbox: {
+    width: '16px', height: '16px', borderRadius: '4px',
+    border: '2px solid',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'var(--t-fast)',
+  },
+  subtaskText: {
+    fontSize: '12px', fontWeight: 500, lineHeight: 1.4,
+  },
+};
 
 const styles = {
   page: {
