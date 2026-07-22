@@ -42,16 +42,14 @@ function SubtasksPreview({ subtasks, onToggleSubtask, taskId }) {
   if (total === 0) return null;
 
   return (
-    <div style={{ marginTop: '2px' }}>
+    <div>
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         style={spStyles.toggle}
       >
-        <span style={spStyles.summary}>
-          <ListChecks size={9} />
-          {done}/{total}
-        </span>
-        {open ? <ChevronDown size={9} /> : <ChevronRight size={9} />}
+        <ListChecks size={13} />
+        <span style={spStyles.summary}>{done}/{total} subtasks</span>
+        {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
       </button>
       <AnimatePresence>
         {open && (
@@ -73,7 +71,7 @@ function SubtasksPreview({ subtasks, onToggleSubtask, taskId }) {
                       backgroundColor: st.done ? '#10B981' : 'transparent',
                       borderColor: st.done ? '#10B981' : 'var(--border-strong)',
                     }}>
-                      {st.done && <CheckCircle2 size={7} color="#fff" />}
+                      {st.done && <CheckCircle2 size={9} color="#fff" />}
                     </div>
                   </button>
                   <span style={{
@@ -93,17 +91,20 @@ function SubtasksPreview({ subtasks, onToggleSubtask, taskId }) {
 
 const spStyles = {
   toggle: {
-    display: 'flex', alignItems: 'center', gap: '3px',
+    display: 'flex', alignItems: 'center', gap: '6px',
     background: 'none', border: 'none', cursor: 'pointer',
-    padding: '1px 4px', borderRadius: 'var(--r-sm)',
-    fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600,
+    padding: '4px 8px', borderRadius: 'var(--r-sm)',
+    fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600,
+    transition: 'var(--t-fast)',
+    width: '100%',
+    justifyContent: 'flex-start',
   },
-  summary: { display: 'flex', alignItems: 'center', gap: '3px' },
-  list: { padding: '3px 0 1px 8px', display: 'flex', flexDirection: 'column', gap: '2px' },
-  item: { display: 'flex', alignItems: 'center', gap: '5px', padding: '1px 0' },
-  checkBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' },
-  checkbox: { width: '12px', height: '12px', borderRadius: '3px', border: '1.5px solid', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--t-fast)' },
-  text: { fontSize: '10px', fontWeight: 500, lineHeight: 1.3 },
+  summary: { display: 'flex', alignItems: 'center', gap: '4px', flex: 1 },
+  list: { padding: '6px 0 2px 4px', display: 'flex', flexDirection: 'column', gap: '4px' },
+  item: { display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 0' },
+  checkBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 },
+  checkbox: { width: '16px', height: '16px', borderRadius: '4px', border: '2px solid', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--t-fast)' },
+  text: { fontSize: '12px', fontWeight: 500, lineHeight: 1.4 },
 };
 
 function BoardTask({ task, onToggleTask, onToggleSubtask }) {
@@ -121,7 +122,7 @@ function BoardTask({ task, onToggleTask, onToggleSubtask }) {
           backgroundColor: isDone ? '#10B981' : 'transparent',
           borderColor: isDone ? '#10B981' : 'var(--border-strong)',
         }}>
-          {isDone && <CheckCircle2 size={8} color="#fff" />}
+          {isDone && <CheckCircle2 size={10} color="#fff" />}
         </div>
       </button>
       <div style={btStyles.content}>
@@ -132,10 +133,9 @@ function BoardTask({ task, onToggleTask, onToggleSubtask }) {
         }}>{task.title}</span>
         {task.deadline && (
           <div style={btStyles.dateRow}>
-            <Calendar size={8} /> {formatDate(task.deadline)}
-        </div>
-      )}
-
+            <Calendar size={10} /> {formatDate(task.deadline)}
+          </div>
+        )}
         <SubtasksPreview subtasks={task.subtasks} onToggleSubtask={onToggleSubtask} taskId={task.id} />
       </div>
     </div>
@@ -144,27 +144,29 @@ function BoardTask({ task, onToggleTask, onToggleSubtask }) {
 
 const btStyles = {
   row: {
-    display: 'flex', gap: '6px', alignItems: 'flex-start',
-    padding: '4px 0', transition: 'background-color 0.15s',
+    display: 'flex', gap: '10px', alignItems: 'flex-start',
+    padding: '8px 10px', transition: 'var(--t-fast)',
+    borderRadius: 'var(--r-md)',
   },
   checkBtn: {
     background: 'none', border: 'none', cursor: 'pointer',
-    padding: '2px 0 0 0', flexShrink: 0,
+    padding: '3px 0 0 0', flexShrink: 0,
   },
   checkbox: {
-    width: '16px', height: '16px', borderRadius: '4px',
+    width: '18px', height: '18px', borderRadius: '5px',
     border: '2px solid',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'var(--t-fast)',
   },
-  content: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' },
-  title: { fontSize: '12px', fontWeight: 600, lineHeight: 1.3 },
-  dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', fontWeight: 500 },
+  content: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' },
+  title: { fontSize: '13px', fontWeight: 600, lineHeight: 1.4 },
+  dateRow: { display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 },
 };
 
 function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard, onMoveBoard, onEditBoard }) {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [hoveredColId, setHoveredColId] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const total = tasks.length;
   const done = tasks.filter(t => t.status === 'Done').length;
@@ -192,101 +194,103 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
       onDragEnd={handleDragEnd}
       style={{
         ...bcStyles.card,
-        borderColor: isComplete ? 'var(--emerald-border)' : 'var(--border)',
+        borderColor: isComplete
+          ? 'var(--emerald-border)'
+          : isHovered
+            ? 'var(--border-strong)'
+            : 'var(--border)',
+        boxShadow: isHovered
+          ? '0 8px 25px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)'
+          : '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)',
+        transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
       }}
-      whileHover={{ y: -1, boxShadow: 'var(--shadow-md)' }}
-      onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'; }}
-      onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div style={{ ...bcStyles.colorBar, backgroundColor: board.color || '#6366F1' }} />
 
       <div style={bcStyles.body}>
         <div style={bcStyles.dragHandle}>
-          <GripVertical size={12} color="var(--text-muted)" />
+          <GripVertical size={14} color="var(--text-muted)" />
         </div>
 
         <div style={bcStyles.header}>
-          <h3 style={bcStyles.name}>{board.name}</h3>
-          {isComplete && (
-            <span style={bcStyles.completeBadge}>
-              <CheckCircle2 size={9} /> Selesai
-            </span>
-          )}
-          
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-    <button
-      onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
-      style={bcStyles.moveBtn}
-      title="Pindahkan board"
-      onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-      onMouseLeave={e => { e.currentTarget.style.opacity = '0.75'; }}
-    >
-      <MoreHorizontal size={14} />
-    </button>
-            <AnimatePresence>
-              {showMoveMenu && (
-                <>
-                  <div 
-                    style={{
-                      position: 'fixed',
-                      inset: 0,
-                      zIndex: 100,
-                    }}
-                    onClick={(e) => { e.stopPropagation(); setShowMoveMenu(false); }}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 4 }}
-                    transition={{ duration: 0.1 }}
-                    style={bcStyles.moveMenu}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div style={bcStyles.moveMenuHeader}>Pindahkan ke:</div>
-                    {COLUMNS.filter(col => col.id !== board.status).map(col => (
-                      <button
-                        key={col.id}
-                        onMouseEnter={() => setHoveredColId(col.id)}
-                        onMouseLeave={() => setHoveredColId(null)}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMoveBoard?.(board.id, col.id);
-                          setShowMoveMenu(false);
-                        }}
-                        style={{
-                          ...bcStyles.moveMenuItem,
-                          color: col.color,
-                          backgroundColor: hoveredColId === col.id ? 'var(--bg-card-hover)' : 'transparent',
-                        }}
-                      >
-                        {col.title}
-                      </button>
-                    ))}
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
+          <div style={bcStyles.headerLeft}>
+            <h3 style={bcStyles.name}>{board.name}</h3>
+            {isComplete && (
+              <span style={bcStyles.completeBadge}>
+                <CheckCircle2 size={10} /> Selesai
+              </span>
+            )}
           </div>
-
-          <button
-            onClick={(e) => { e.stopPropagation(); onEditBoard?.(board); }}
-            style={bcStyles.editBtn}
-            title="Ubah board"
-            onMouseEnter={e => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.opacity = '0.75'; }}
-          >
-            <Edit3 size={14} />
-          </button>
-
-          <button
-            onClick={() => onDeleteBoard(board.id)}
-            style={bcStyles.deleteBtn}
-            title="Hapus board"
-            onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = '0.75'; }}
-          >
-            <Trash2 size={14} />
-          </button>
+          <div style={bcStyles.headerActions}>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowMoveMenu(!showMoveMenu); }}
+                style={bcStyles.iconBtn}
+                title="Pindahkan board"
+              >
+                <MoreHorizontal size={16} />
+              </button>
+              <AnimatePresence>
+                {showMoveMenu && (
+                  <>
+                    <div
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 100,
+                      }}
+                      onClick={(e) => { e.stopPropagation(); setShowMoveMenu(false); }}
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                      transition={{ duration: 0.1 }}
+                      style={bcStyles.moveMenu}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div style={bcStyles.moveMenuHeader}>Pindahkan ke:</div>
+                      {COLUMNS.filter(col => col.id !== board.status).map(col => (
+                        <button
+                          key={col.id}
+                          onMouseEnter={() => setHoveredColId(col.id)}
+                          onMouseLeave={() => setHoveredColId(null)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveBoard?.(board.id, col.id);
+                            setShowMoveMenu(false);
+                          }}
+                          style={{
+                            ...bcStyles.moveMenuItem,
+                            color: col.color,
+                            backgroundColor: hoveredColId === col.id ? 'var(--bg-card-hover)' : 'transparent',
+                          }}
+                        >
+                          {col.title}
+                        </button>
+                      ))}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); onEditBoard?.(board); }}
+              style={bcStyles.iconBtn}
+              title="Ubah board"
+            >
+              <Edit3 size={16} />
+            </button>
+            <button
+              onClick={() => onDeleteBoard(board.id)}
+              style={{ ...bcStyles.iconBtn, color: 'var(--danger)' }}
+              title="Hapus board"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
         </div>
 
         {board.description && (
@@ -307,16 +311,22 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
           <span style={bcStyles.progressText}>{pct}%</span>
         </div>
 
-        <div style={bcStyles.dateRow}>
-          <Calendar size={9} />
-          <span>{board.createdAt ? formatDate(board.createdAt) : '-'}</span>
+        <div style={bcStyles.metaRow}>
+          <div style={bcStyles.metaItem}>
+            <Calendar size={12} />
+            <span>{board.createdAt ? formatDate(board.createdAt) : 'No date'}</span>
+          </div>
+          <div style={bcStyles.metaItem}>
+            <ListChecks size={12} />
+            <span>{done}/{total} tasks</span>
+          </div>
         </div>
 
         <div style={bcStyles.taskList}>
           {tasks.length === 0 ? (
             <div style={bcStyles.emptyTasks}>Belum ada tugas</div>
           ) : (
-            tasks.map(task => (
+            tasks.slice(0, 4).map(task => (
               <BoardTask
                 key={task.id}
                 task={task}
@@ -324,6 +334,9 @@ function BoardCard({ board, tasks, onToggleTask, onToggleSubtask, onDeleteBoard,
                 onToggleSubtask={onToggleSubtask}
               />
             ))
+          )}
+          {tasks.length > 4 && (
+            <div style={bcStyles.moreTasks}>+{tasks.length - 4} tugas lainnya</div>
           )}
         </div>
       </div>
@@ -336,64 +349,87 @@ const bcStyles = {
     display: 'flex',
     backgroundColor: 'var(--bg-card)',
     border: '1px solid var(--border)',
-    borderRadius: 'var(--r-xl)',
+    borderRadius: '18px',
     overflow: 'hidden',
-    boxShadow: 'var(--shadow-sm)',
-    transition: 'border-color 0.2s, box-shadow 0.2s, background-color 0.15s',
     cursor: 'grab',
+    transition: 'border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, background-color 0.15s ease',
+    minHeight: '180px',
   },
-  colorBar: { width: '4px', flexShrink: 0 },
+  colorBar: { width: '5px', flexShrink: 0 },
   body: {
-    flex: 1, padding: '12px 14px 12px 6px',
-    display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0,
+    flex: 1, padding: '18px 20px 20px 10px',
+    display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0,
   },
   dragHandle: {
-    display: 'flex', justifyContent: 'center', opacity: 0.3, marginBottom: '2px',
+    display: 'flex', justifyContent: 'center', opacity: 0.25, marginBottom: '2px',
+    padding: '2px 0',
   },
-  header: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' },
-  name: { fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.3px', flex: 1 },
+  header: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    gap: '8px',
+  },
+  headerLeft: {
+    display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0,
+  },
+  headerActions: {
+    display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0,
+  },
+  name: {
+    fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)',
+    letterSpacing: '-0.3px', lineHeight: 1.3,
+    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+  },
   completeBadge: {
-    display: 'inline-flex', alignItems: 'center', gap: '3px',
-    fontSize: '9px', fontWeight: 700, color: 'var(--emerald-dark)',
-    backgroundColor: 'var(--success-bg)', padding: '1px 6px',
-    borderRadius: 'var(--r-full)',
+    display: 'inline-flex', alignItems: 'center', gap: '4px',
+    fontSize: '10px', fontWeight: 700, color: 'var(--emerald-dark)',
+    backgroundColor: 'var(--success-bg)', padding: '2px 8px',
+    borderRadius: 'var(--r-full)', whiteSpace: 'nowrap',
   },
-  deleteBtn: {
-    width: '26px', height: '26px',
+  iconBtn: {
+    width: '30px', height: '30px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: 'var(--danger)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
-    transition: 'background-color 0.15s, opacity 0.15s',
+    color: 'var(--text-muted)', cursor: 'pointer',
+    transition: 'var(--t-fast)',
+    flexShrink: 0,
   },
-  desc: { fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 },
-  progressWrap: { display: 'flex', alignItems: 'center', gap: '6px' },
+  desc: {
+    fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0,
+    display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+  progressWrap: { display: 'flex', alignItems: 'center', gap: '10px' },
   progressBar: {
-    flex: 1, height: '5px', borderRadius: 'var(--r-full)',
+    flex: 1, height: '6px', borderRadius: 'var(--r-full)',
     backgroundColor: 'var(--border)', overflow: 'hidden',
   },
-  progressFill: { height: '100%', borderRadius: 'var(--r-full)', transition: 'width 0.3s ease' },
-  progressText: { fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', minWidth: '28px', textAlign: 'right' },
-  dateRow: { display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' },
-  taskList: { display: 'flex', flexDirection: 'column', gap: '1px', marginTop: '2px' },
-  emptyTasks: { fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 0' },
-
-  moveBtn: {
-    width: '26px', height: '26px',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
-    transition: 'background-color 0.15s, opacity 0.15s',
+  progressFill: { height: '100%', borderRadius: 'var(--r-full)', transition: 'width 0.4s ease' },
+  progressText: { fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', minWidth: '32px', textAlign: 'right' },
+  metaRow: {
+    display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap',
   },
-  editBtn: {
-    width: '26px', height: '26px',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 'var(--r-sm)', border: 'none', background: 'transparent',
-    color: 'var(--text-secondary)', cursor: 'pointer', opacity: 0.75, flexShrink: 0,
-    transition: 'background-color 0.15s, opacity 0.15s',
+  metaItem: {
+    display: 'flex', alignItems: 'center', gap: '5px',
+    fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500,
+  },
+  taskList: {
+    display: 'flex', flexDirection: 'column', gap: '2px',
+    backgroundColor: 'var(--bg-subtle)',
+    borderRadius: 'var(--r-lg)',
+    padding: '6px',
+    marginTop: '2px',
+  },
+  emptyTasks: {
+    fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic',
+    padding: '12px 8px', textAlign: 'center',
+  },
+  moreTasks: {
+    fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)',
+    textAlign: 'center', padding: '6px 0 2px', cursor: 'pointer',
   },
   moveMenu: {
     position: 'absolute', right: 0, top: 'calc(100% + 4px)',
-    minWidth: '120px',
+    minWidth: '130px',
     backgroundColor: 'var(--bg-card)',
     border: '1px solid var(--border)',
     borderRadius: 'var(--r-md)',
@@ -405,10 +441,10 @@ const bcStyles = {
     gap: '2px',
   },
   moveMenuHeader: {
-    fontSize: '9px',
+    fontSize: '10px',
     fontWeight: 700,
     color: 'var(--text-muted)',
-    padding: '4px 8px',
+    padding: '5px 8px',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
     borderBottom: '1px solid var(--border)',
@@ -417,9 +453,9 @@ const bcStyles = {
   },
   moveMenuItem: {
     display: 'flex', alignItems: 'center',
-    width: '100%', padding: '6px 8px',
+    width: '100%', padding: '7px 10px',
     border: 'none', background: 'none', cursor: 'pointer',
-    fontSize: '11px', fontWeight: 600,
+    fontSize: '12px', fontWeight: 600,
     textAlign: 'left', borderRadius: 'var(--r-sm)',
     transition: 'background-color 0.1s',
     fontFamily: 'inherit',
@@ -452,7 +488,7 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
     >
       <div style={colStyles.header}>
         <div style={{ ...colStyles.headerLeft, color: column.color }}>
-          <Icon size={15} strokeWidth={2.5} />
+          <Icon size={16} strokeWidth={2.5} />
           <span style={colStyles.headerTitle}>{column.title}</span>
           <span style={{ ...colStyles.count, backgroundColor: `${column.color}18`, color: column.color }}>
             {boards.length}
@@ -487,30 +523,31 @@ function BoardColumn({ column, boards, tasks, onTaskDrop, onToggleTask, onToggle
 
 const colStyles = {
   column: {
-    flex: 1, minWidth: '280px', maxWidth: '440px',
+    flex: 1, minWidth: '300px', maxWidth: '460px',
     display: 'flex', flexDirection: 'column',
-    borderRadius: 'var(--r-xl)',
+    borderRadius: '18px',
     border: '1.5px solid var(--border)',
     transition: 'border-color 0.15s, background-color 0.15s',
-    maxHeight: 'calc(100vh - 200px)',
+    maxHeight: 'calc(100vh - 180px)',
   },
   header: {
-    padding: '14px 16px',
+    padding: '16px 20px',
     borderBottom: '1px solid var(--border)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     flexShrink: 0,
   },
-  headerLeft: { display: 'flex', alignItems: 'center', gap: '7px' },
-  headerTitle: { fontSize: '13px', fontWeight: 700, letterSpacing: '-0.2px' },
+  headerLeft: { display: 'flex', alignItems: 'center', gap: '8px' },
+  headerTitle: { fontSize: '14px', fontWeight: 700, letterSpacing: '-0.2px' },
   count: {
-    fontSize: '11px', fontWeight: 700, padding: '1px 8px', borderRadius: 'var(--r-full)',
+    fontSize: '12px', fontWeight: 700, padding: '2px 10px', borderRadius: 'var(--r-full)',
   },
   boardList: {
     flex: 1, overflowY: 'auto',
-    padding: '8px', display: 'flex', flexDirection: 'column', gap: '10px',
+    padding: '16px 16px 32px',
+    display: 'flex', flexDirection: 'column', gap: '18px',
   },
-  empty: { padding: '20px', textAlign: 'center' },
-  emptyText: { fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' },
+  empty: { padding: '32px 20px', textAlign: 'center' },
+  emptyText: { fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic' },
 };
 
 function ProjectFilter({ projects, value, onChange }) {
