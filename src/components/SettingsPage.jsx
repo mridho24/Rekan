@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MENU_ITEMS = [
   { id: 'profile',       label: 'Profile',       icon: User },
   { id: 'account',       label: 'Account',       icon: Shield },
-  { id: 'password',      label: 'Password',      icon: Lock },
   { id: 'notifications', label: 'Notifications',  icon: Bell },
   { id: 'appearance',    label: 'Appearance',    icon: Palette },
 ];
@@ -711,8 +710,7 @@ export default function SettingsPage({ onUpdateUser, theme, onToggleTheme }) {
   const renderContent = () => {
     switch (activeMenu) {
       case 'profile':       return <ProfileForm onUpdateUser={onUpdateUser} />;
-      case 'account':
-      case 'password':      return <AccountSettings />;
+      case 'account':       return <AccountSettings />;
       case 'notifications': return <NotificationsForm />;
       case 'appearance':    return <PreferencesForm theme={theme} onToggleTheme={onToggleTheme} />;
       default:              return null;
