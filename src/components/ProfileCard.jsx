@@ -433,6 +433,7 @@ export default function ProfileCard({
   const [role, setRole] = useState('');
   const [location, setLocation] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [bio, setBio] = useState('');
   const [skills, setSkills] = useState([]);
   const isMobile = useIsMobile(600);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -449,6 +450,7 @@ export default function ProfileCard({
     setName(localStorage.getItem('rekan_user_name') || 'Pengguna');
     setEmail(localStorage.getItem('rekan_user_email') || 'user@rekan.app');
     setAvatar(localStorage.getItem('rekan_user_avatar') || '');
+    setBio(localStorage.getItem('rekan_user_bio') || '');
     const savedRole = localStorage.getItem('rekan_user_role');
     setRole(savedRole || 'Task Manager');
     const savedLocation = localStorage.getItem('rekan_user_location');
@@ -543,6 +545,14 @@ export default function ProfileCard({
                   </div>
                 )}
               </div>
+
+              {bio && (
+                <div style={styles.speechBubble}>
+                  <div style={styles.speechBubbleArrow} />
+                  <span style={styles.speechBubbleText}>{bio}</span>
+                </div>
+              )}
+
               <div style={styles.cardBody}>
                 <ProfileInfo name={name} email={email} role={role} location={location} />
                 <ProfileActions onEditProfile={openEditModal} onSettings={handleSettings} />
@@ -711,6 +721,39 @@ const styles = {
     justifyContent: 'center',
     fontSize: '32px',
     fontWeight: 700,
+  },
+
+  // ─── Speech Bubble ───
+  speechBubble: {
+    position: 'absolute',
+    top: '115px',
+    left: '148px',
+    zIndex: 10,
+    backgroundColor: 'var(--bg-subtle)',
+    borderRadius: '12px',
+    padding: '8px 14px',
+    maxWidth: '260px',
+    border: '1px solid var(--border)',
+    boxShadow: 'var(--shadow-sm)',
+  },
+  speechBubbleArrow: {
+    position: 'absolute',
+    left: '-8px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: 0,
+    height: 0,
+    borderTop: '8px solid transparent',
+    borderBottom: '8px solid transparent',
+    borderRight: '8px solid var(--bg-subtle)',
+    zIndex: 2,
+    filter: 'drop-shadow(-1px 0 1px var(--border))',
+  },
+  speechBubbleText: {
+    fontSize: 'var(--text-xs)',
+    color: 'var(--text-secondary)',
+    lineHeight: 1.5,
+    wordBreak: 'break-word',
   },
 
   // ─── Card Body ───
