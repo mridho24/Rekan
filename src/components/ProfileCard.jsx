@@ -485,6 +485,7 @@ export default function ProfileCard({
     setName(editName);
     setEmail(editEmail);
     setAvatar(editAvatar);
+    setBio(editBio);
     setLocation(editLocation);
     setSaved(true);
     setTimeout(() => {
