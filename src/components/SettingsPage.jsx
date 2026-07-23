@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  User, Shield, Lock, Bell, Palette, Camera, Save,
+  User, Shield, Lock, Bell, Palette, Camera, Save, Check,
   Eye, EyeOff, Trash2, TabletSmartphone, Mail, MessageSquare,
   Sun, Moon, ChevronRight, Phone, MapPin, Search, ChevronDown, X,
 } from 'lucide-react';
@@ -322,65 +322,48 @@ function ProfileForm({ onUpdateUser }) {
   );
 }
 
-function AccountForm() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-    >
-      <h2 style={styles.formTitle}>Account</h2>
-      <p style={styles.formSubtitle}>Informasi dan pengaturan akun Anda</p>
-
-      <div style={styles.infoCard}>
-        <div style={styles.infoRow}>
-          <span style={styles.infoLabel}>Plan</span>
-          <span style={styles.infoValue}>
-            <span style={{ ...styles.badgePill, backgroundColor: 'var(--emerald-bg)', color: 'var(--emerald-dark)' }}>Free</span>
-          </span>
-        </div>
-        <div style={styles.infoRow}>
-          <span style={styles.infoLabel}>Member since</span>
-          <span style={styles.infoValue}>Januari 2025</span>
-        </div>
-        <div style={styles.infoRow}>
-          <span style={styles.infoLabel}>Storage</span>
-          <span style={styles.infoValue}>Local storage (client-side)</span>
-        </div>
-      </div>
-
-      <div style={{ ...styles.dangerZone, marginTop: '32px' }}>
-        <h3 style={{ fontSize: 'var(--text-md)', fontWeight: 600, color: 'var(--danger)', marginBottom: '8px' }}>
-          Danger Zone
-        </h3>
-        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: '16px' }}>
-          Setelah menghapus akun, semua data akan hilang permanen.
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          style={styles.dangerBtn}
-        >
-          <Trash2 size={15} />
-          Hapus Akun
-        </motion.button>
-      </div>
-    </motion.div>
-  );
-}
-
-function PasswordForm() {
+function AccountSettings() {
+  const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    setEmail(localStorage.getItem('rekan_user_email') || 'user@rekan.app');
+  }, []);
 
   const strength = getPasswordStrength(newPassword);
   const strengthLabel = ['', 'Lemah', 'Sedang', 'Kuat'][strength];
   const strengthColor = ['', 'var(--danger)', 'var(--warning)', 'var(--success)'][strength];
   const strengthWidth = ['0%', '33%', '66%', '100%'][strength];
+
+  const passwordsMatch = newPassword === confirmPassword;
+  const formValid = currentPassword.length > 0 && newPassword.length >= 6 && passwordsMatch;
+
+  const handleSavePassword = async () => {
+    if (!formValid) return;
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setSaving(false);
+    setSaved(true);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(false);
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('rekan_'));
+    keys.forEach(k => localStorage.removeItem(k));
+    window.location.reload();
+  };
 
   return (
     <motion.div
@@ -388,95 +371,196 @@ function PasswordForm() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
     >
-      <h2 style={styles.formTitle}>Password</h2>
-      <p style={styles.formSubtitle}>Ubah password akun Anda</p>
+      <h2 style={styles.formTitle}>Account Settings</h2>
+      <p style={styles.formSubtitle}>Kelola pengaturan akun Anda</p>
 
-      <div style={styles.field}>
-        <label style={styles.label}>Password Saat Ini</label>
-        <div style={styles.inputWrapper}>
-          <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          <input
-            style={styles.inputInner}
-            type={showCurrent ? 'text' : 'password'}
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Masukkan password saat ini"
-          />
-          <button
-            onClick={() => setShowCurrent(!showCurrent)}
-            style={styles.eyeBtn}
-            type="button"
+      {/* Email */}
+      <div style={styles.emailSection}>
+        <div style={styles.emailRow}>
+          <div>
+            <div style={styles.label}>Email Address</div>
+            <div style={styles.emailValue}>{email}</div>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            style={styles.changeBtn}
+            onClick={() => {}}
           >
-            {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
+            Change
+          </motion.button>
         </div>
       </div>
 
-      <div style={styles.field}>
-        <label style={styles.label}>Password Baru</label>
-        <div style={styles.inputWrapper}>
-          <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          <input
-            style={styles.inputInner}
-            type={showNew ? 'text' : 'password'}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Minimal 6 karakter"
-          />
-          <button
-            onClick={() => setShowNew(!showNew)}
-            style={styles.eyeBtn}
-            type="button"
-          >
-            {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
+      {/* Password */}
+      <div style={styles.passwordSection}>
+        <h3 style={styles.sectionTitle}>Password</h3>
+
+        <div style={styles.passwordField}>
+          <label style={styles.label}>Current Password</label>
+          <div style={styles.inputWrapper}>
+            <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            <input
+              style={styles.inputInner}
+              type={showCurrent ? 'text' : 'password'}
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+            />
+            <button onClick={() => setShowCurrent(!showCurrent)} style={styles.eyeBtn} type="button">
+              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
         </div>
-        {newPassword.length > 0 && (
-          <div style={{ marginTop: '8px' }}>
-            <div style={styles.strengthTrack}>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: strengthWidth }}
-                transition={{ duration: 0.3 }}
-                style={{ ...styles.strengthFill, backgroundColor: strengthColor, width: strengthWidth }}
-              />
+
+        <div style={styles.passwordField}>
+          <label style={styles.label}>New Password</label>
+          <div style={styles.inputWrapper}>
+            <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            <input
+              style={styles.inputInner}
+              type={showNew ? 'text' : 'password'}
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="Min. 6 characters"
+            />
+            <button onClick={() => setShowNew(!showNew)} style={styles.eyeBtn} type="button">
+              {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+          {newPassword.length > 0 && (
+            <div style={{ marginTop: '8px' }}>
+              <div style={styles.strengthTrack}>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: strengthWidth }}
+                  transition={{ duration: 0.3 }}
+                  style={{ ...styles.strengthFill, backgroundColor: strengthColor, width: strengthWidth }}
+                />
+              </div>
+              <span style={{ fontSize: 'var(--text-xs)', color: strengthColor, fontWeight: 600, marginTop: '4px', display: 'block' }}>
+                Password strength: {strengthLabel}
+              </span>
             </div>
-            <span style={{ fontSize: 'var(--text-xs)', color: strengthColor, fontWeight: 600, marginTop: '4px', display: 'block' }}>
-              Kekuatan password: {strengthLabel}
+          )}
+          {confirmPassword.length > 0 && !passwordsMatch && (
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--danger)', fontWeight: 500, marginTop: '4px', display: 'block' }}>
+              Passwords do not match
             </span>
+          )}
+        </div>
+
+        <div style={styles.passwordField}>
+          <label style={styles.label}>Confirm New Password</label>
+          <div style={styles.inputWrapper}>
+            <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+            <input
+              style={styles.inputInner}
+              type={showConfirm ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Repeat new password"
+            />
+            <button onClick={() => setShowConfirm(!showConfirm)} style={styles.eyeBtn} type="button">
+              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </div>
+
+        <div style={styles.passwordSaveRow}>
+          <motion.button
+            whileHover={{ scale: formValid && !saving ? 1.02 : 1 }}
+            whileTap={{ scale: formValid && !saving ? 0.97 : 1 }}
+            style={{
+              ...styles.saveBtn,
+              opacity: formValid ? 1 : 0.5,
+              cursor: formValid && !saving ? 'pointer' : 'not-allowed',
+              backgroundColor: saved ? 'var(--success)' : 'var(--emerald)',
+            }}
+            onClick={handleSavePassword}
+            disabled={!formValid || saving}
+          >
+            {saving ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }}
+              />
+            ) : saved ? (
+              <Check size={16} />
+            ) : (
+              <Save size={16} />
+            )}
+            {saving ? 'Saving...' : saved ? 'Password Updated!' : 'Save Password'}
+          </motion.button>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={styles.divider} />
+
+      {/* Danger Zone */}
+      <div style={styles.dangerSection}>
+        <h3 style={styles.dangerTitle}>Danger Zone</h3>
+        <p style={styles.dangerDesc}>
+          Deleting your account is permanent and cannot be undone. All your personal data, projects, and account information will be removed permanently.
+        </p>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          style={styles.dangerBtn}
+          onClick={() => setShowDeleteModal(true)}
+        >
+          <Trash2 size={15} />
+          Delete Account
+        </motion.button>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <div style={styles.modalOverlay}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={styles.modalBackdrop}
+              onClick={() => setShowDeleteModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0.1 }}
+              style={styles.modalCard}
+            >
+              <h3 style={styles.modalTitle}>Delete Account</h3>
+              <p style={styles.modalDesc}>
+                Are you sure you want to permanently delete your account? This action cannot be undone.
+              </p>
+              <div style={styles.modalActions}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={styles.modalCancelBtn}
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={styles.modalDeleteBtn}
+                  onClick={handleDeleteAccount}
+                >
+                  <Trash2 size={14} />
+                  Delete Forever
+                </motion.button>
+              </div>
+            </motion.div>
           </div>
         )}
-      </div>
-
-      <div style={styles.field}>
-        <label style={styles.label}>Konfirmasi Password Baru</label>
-        <div style={styles.inputWrapper}>
-          <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          <input
-            style={styles.inputInner}
-            type={showConfirm ? 'text' : 'password'}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Ulangi password baru"
-          />
-          <button
-            onClick={() => setShowConfirm(!showConfirm)}
-            style={styles.eyeBtn}
-            type="button"
-          >
-            {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        </div>
-      </div>
-
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        style={styles.saveBtn}
-      >
-        <Save size={16} />
-        Perbarui Password
-      </motion.button>
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -627,8 +711,8 @@ export default function SettingsPage({ onUpdateUser, theme, onToggleTheme }) {
   const renderContent = () => {
     switch (activeMenu) {
       case 'profile':       return <ProfileForm onUpdateUser={onUpdateUser} />;
-      case 'account':       return <AccountForm />;
-      case 'password':      return <PasswordForm />;
+      case 'account':
+      case 'password':      return <AccountSettings />;
       case 'notifications': return <NotificationsForm />;
       case 'appearance':    return <PreferencesForm theme={theme} onToggleTheme={onToggleTheme} />;
       default:              return null;
@@ -998,47 +1082,151 @@ const styles = {
     transition: 'width 0.3s ease',
   },
 
-  // ─── Account Info ───
-  infoCard: {
-    backgroundColor: 'var(--bg-subtle)',
-    borderRadius: 'var(--r-lg)',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '14px',
+  // ─── Account Settings: Email ───
+  emailSection: {
+    marginBottom: '32px',
   },
-  infoRow: {
+  emailRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  infoLabel: {
-    fontSize: 'var(--text-sm)',
-    color: 'var(--text-muted)',
-    fontWeight: 500,
-  },
-  infoValue: {
-    fontSize: 'var(--text-sm)',
+  emailValue: {
+    fontSize: 'var(--text-base)',
     color: 'var(--text-primary)',
-    fontWeight: 600,
+    fontWeight: 500,
+    marginTop: '4px',
   },
-  badgePill: {
-    padding: '2px 10px',
-    borderRadius: 'var(--r-full)',
-    fontSize: 'var(--text-xs)',
+  changeBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--emerald)',
     fontWeight: 600,
+    fontSize: 'var(--text-sm)',
+    cursor: 'pointer',
+    padding: '4px 8px',
+    borderRadius: 'var(--r-md)',
+    transition: 'var(--t-fast)',
   },
-  dangerZone: {
+
+  // ─── Account Settings: Password ───
+  passwordSection: {
+    marginBottom: '32px',
+  },
+  sectionTitle: {
+    fontSize: 'var(--text-md)',
+    fontWeight: 600,
+    color: 'var(--text-primary)',
+    marginBottom: '16px',
+  },
+  passwordField: {
+    marginBottom: '16px',
+  },
+  passwordSaveRow: {
+    marginTop: '24px',
+  },
+
+  // ─── Account Settings: Divider ───
+  divider: {
+    height: '1px',
+    backgroundColor: 'var(--border)',
+    margin: '32px 0',
+  },
+
+  // ─── Account Settings: Danger Zone ───
+  dangerSection: {
     backgroundColor: 'var(--danger-bg)',
     borderRadius: 'var(--r-lg)',
-    padding: '20px',
+    padding: '24px',
     border: '1px solid rgba(239,68,68,0.15)',
+  },
+  dangerTitle: {
+    fontSize: 'var(--text-md)',
+    fontWeight: 600,
+    color: 'var(--danger)',
+    marginBottom: '8px',
+  },
+  dangerDesc: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    lineHeight: 1.6,
+    marginBottom: '16px',
   },
   dangerBtn: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
     padding: '9px 18px',
+    borderRadius: 'var(--r-md)',
+    backgroundColor: 'var(--danger)',
+    color: '#ffffff',
+    fontWeight: 600,
+    fontSize: 'var(--text-sm)',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+
+  // ─── Delete Confirmation Modal ───
+  modalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100000,
+    padding: '16px',
+  },
+  modalBackdrop: {
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: 'var(--overlay)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 1,
+  },
+  modalCard: {
+    position: 'relative',
+    zIndex: 2,
+    backgroundColor: 'var(--bg-card)',
+    borderRadius: '16px',
+    padding: '28px',
+    maxWidth: '420px',
+    width: '100%',
+    boxShadow: '0 25px 60px -12px rgba(0,0,0,0.4)',
+  },
+  modalTitle: {
+    fontSize: 'var(--text-lg)',
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+    marginBottom: '8px',
+  },
+  modalDesc: {
+    fontSize: 'var(--text-sm)',
+    color: 'var(--text-muted)',
+    lineHeight: 1.6,
+    marginBottom: '24px',
+  },
+  modalActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
+  },
+  modalCancelBtn: {
+    padding: '9px 20px',
+    borderRadius: 'var(--r-md)',
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    fontWeight: 600,
+    fontSize: 'var(--text-base)',
+    border: '1px solid var(--border)',
+    cursor: 'pointer',
+    transition: 'var(--t-fast)',
+  },
+  modalDeleteBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '9px 20px',
     borderRadius: 'var(--r-md)',
     backgroundColor: 'var(--danger)',
     color: '#ffffff',
